@@ -1,0 +1,22 @@
+Package: standardize
+Type: Package
+Title: Tools for Standardizing Model Frames
+Version: 0.1.0-9000
+Authors@R: person("Christopher D.", "Eager",
+    email = "eagerstats@gmail.com", role = c("aut", "cre"))
+Description: standardize provides tools which allow all of the regression
+    predictors in a model frame to be placed on the same (or similar) scales.
+Depends:
+    R (>= 3.3.2)
+Imports:
+    stats,
+    methods,
+    MASS (>= 7.3-45),
+    lme4 (>= 1.1-12)
+License: GPL (>= 3)
+Encoding: UTF-8
+LazyData: true
+URL: https://github.com/CDEager/standardize
+BugReports: https://github.com/CDEager/standardize/issues
+RoxygenNote: 5.0.1
+Suggests: testthat
