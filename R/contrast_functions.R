@@ -125,7 +125,7 @@ named_contr_sum <- function(x, scale = 1, return_contr = TRUE) {
 #' \code{scale}.
 #' 
 #' If \code{x} is a factor, then the non-\code{NA} levels of \code{x} are used
-#' as the levels for the contrast matrix.  If \code{x} is a character vector,
+#' as the levels for the contrast matrix.  If \code{x} is a vector,
 #' then the unique non-\code{NA} values in \code{x} in the order in which
 #' they appear in \code{x} are used as the levels for the contrast matrix.
 #' If \code{x} is a single integer greater than or equal to \code{3}, then
@@ -182,8 +182,12 @@ named_contr_sum <- function(x, scale = 1, return_contr = TRUE) {
 scaled_contr_poly <- function(x, scale = 1, return_contr = TRUE) {
   if (sc <- is.scalar(x, 1)) {
     lvs <- paste(1:x)
+  } else if (is.factor(x)) {
+    lvs <- levels(x)
+    lvs <- lvs[!is.na(lvs)]
   } else {
-    lvs <- levels(factor(x, ordered = TRUE))
+    lvs <- unique(x)
+    lvs <- lvs[!is.na(lvs)]
   }
   if (!is.scalar(scale, 1)) {
     stop("'scale' must be a single positive number")

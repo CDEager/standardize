@@ -137,7 +137,7 @@ standardize_terms <- function(formula, data, family = gaussian, scale = 1,
     j <- which(colnames(mf) == g)
     mf[[j]] <- factor(mf[[j]], ordered = FALSE)
     pj <- p[[j + 1]]
-    p[[j + 1]] <- call("factor", levels = levels(mf[[j]]), ordered = FALSE)
+    p[[j + 1]] <- call("factor", ordered = FALSE)
     p[[j + 1]]$x <- pj
   }
   

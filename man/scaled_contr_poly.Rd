@@ -33,7 +33,7 @@ the scale so that the standard deviations of the columns all equal
 }
 \details{
 If \code{x} is a factor, then the non-\code{NA} levels of \code{x} are used
-as the levels for the contrast matrix.  If \code{x} is a character vector,
+as the levels for the contrast matrix.  If \code{x} is a vector,
 then the unique non-\code{NA} values in \code{x} in the order in which
 they appear in \code{x} are used as the levels for the contrast matrix.
 If \code{x} is a single integer greater than or equal to \code{3}, then

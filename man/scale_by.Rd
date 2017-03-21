@@ -95,7 +95,7 @@ dat <- data.frame(
     rep(c(.5, 1.5, 3), c(5, 10, 20))))
 
 dat$x1_scaled <- scale(dat$x1)
-dat$x1_scaled_by_f1 <- scale_by("x1", "f1", dat)
+dat$x1_scaled_by_f1 <- scale_by(x1 ~ f1, dat)
 
 mean(dat$x1)
 sd(dat$x1)
@@ -119,7 +119,7 @@ newdata <- data.frame(
 newdata$x1_pred_scaledby <- scale_by(data = newdata,
   pred = dat$x1_scaled_by_f1)
 
-newdata$x1_pred_scaledby
+newdata
 
 }
 \seealso{

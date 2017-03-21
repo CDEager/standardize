@@ -86,7 +86,7 @@
 #'     rep(c(.5, 1.5, 3), c(5, 10, 20))))
 #' 
 #' dat$x1_scaled <- scale(dat$x1)
-#' dat$x1_scaled_by_f1 <- scale_by("x1", "f1", dat)
+#' dat$x1_scaled_by_f1 <- scale_by(x1 ~ f1, dat)
 #'
 #' mean(dat$x1)
 #' sd(dat$x1)
@@ -110,7 +110,7 @@
 #' newdata$x1_pred_scaledby <- scale_by(data = newdata,
 #'   pred = dat$x1_scaled_by_f1)
 #'
-#' newdata$x1_pred_scaledby
+#' newdata
 #'
 #' @export
 scale_by <- function(formula = NULL, data = NULL, scale = 1, pred = NULL) {
@@ -127,9 +127,10 @@ scale_by <- function(formula = NULL, data = NULL, scale = 1, pred = NULL) {
 
   if (is.null(data)) {
     environment(formula) <- parent.frame()
-    data <- stats::model.frame(formula = formula)
+    data <- stats::model.frame(formula = formula, na.action = "na.pass")
   } else {
-    data <- stats::model.frame(formula = formula, data = data)
+    data <- stats::model.frame(formula = formula, data = data,
+      na.action = "na.pass")
   }
   
   mt <- attr(data, "terms")
@@ -151,7 +152,6 @@ scale_by <- function(formula = NULL, data = NULL, scale = 1, pred = NULL) {
     if (anyNA(data[[f]])) data[[f]] <- addNA(data[[f]])
   }
   fi <- interaction(data[facs])
-
   
   if (!is.null(pred)) {
     centers <- pred$centers
@@ -186,14 +186,13 @@ scale_by <- function(formula = NULL, data = NULL, scale = 1, pred = NULL) {
         "as there are columns in the numeric variable")
     }
     
-    nona <- x[!rowna(x), , drop = FALSE]
-    xi <- lapply(levels(fi), function(i) nona[fi %in% i, , drop = FALSE])
-    r2 <- sapply(xi, nrow) >= 2
+    xi <- lapply(levels(fi), function(i) x[fi %in% i, , drop = FALSE])
+    r2 <- sapply(xi, nval) >= 2
     xi <- xi[r2]
     
     centers <- matrix(nrow = nlevels(fi), ncol = d)
     rownames(centers) <- levels(fi)
-    if (ncol(x) > 1) {
+    if (d > 1) {
       centers[r2, ] <- t(sapply(xi, colMeans))
     } else {
       centers[r2, ] <- matrix(sapply(xi, colMeans))
@@ -201,28 +200,38 @@ scale_by <- function(formula = NULL, data = NULL, scale = 1, pred = NULL) {
     if (all(is.na(centers))) {
       stop("at least one group must have more than one observation with no NAs")
     }
-    new_center <- colMeans(centers, na.rm = TRUE)
+    new_center <- unname(colMeans(centers, na.rm = TRUE))
     rna <- rowna(centers)
-    centers[rna, ] <- matrix(new_center, sum(rna), d, byrow = TRUE)
+    if (any(rna)) {
+      centers[rna, ] <- matrix(new_center, sum(rna), d, byrow = TRUE)
+    }
     
     if (scale[1]) {
       scales <- matrix(nrow = nlevels(fi), ncol = d)
       rownames(scales) <- levels(fi)
-      if (ncol(x) > 1) {
-        scales[r2, ] <- t(sapply(xi, function(i) apply(i, 2, sd) / scale))
+      if (d > 1) {
+        scales[r2, ] <- t(sapply(xi, function(i) apply(i, 2, function(u)
+          sd(u, na.rm = TRUE)) / scale))
       } else {
-        scales[r2, ] <- matrix(sapply(xi, function(i) apply(i, 2, sd) / scale))
+        scales[r2, ] <- matrix(sapply(xi, function(i) apply(i, 2, function(u)
+          sd(u, na.rm = TRUE)) / scale))
       }
-      new_scale <- apply(scales, 2, function(y) sd(y, na.rm = TRUE))
-      scales[rna, ] <- matrix(new_scale, sum(rna), d, byrow = TRUE)
+      new_scale <- unname(colMeans(scales, na.rm = TRUE))
+      if (any(rna)) {
+        scales[rna, ] <- matrix(new_scale, sum(rna), d, byrow = TRUE)
+      }
     } else {
       scales <- 0
       new_scale <- 0
     }
   }
   
-  x <- x - centers[as.numeric(fi), , drop = FALSE]
-  if (scale[1]) x <- x / scales[as.numeric(fi), , drop = FALSE]
+  if (scale[1]) {
+    x <- (x - centers[as.numeric(fi), , drop = FALSE]) / 
+      scales[as.numeric(fi), , drop = FALSE]
+  } else {
+    x <- x - centers[as.numeric(fi), , drop = FALSE]
+  }
 
   if (ncol(x) == 1) {
     x <- as.vector(x)
