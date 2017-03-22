@@ -75,8 +75,14 @@ in the case of \code{\link{scale_by}} calls).  The returned object
 can be used as the \code{formula} argument to regression fitting functions
 including those in the \code{lme4} and \code{rstanarm} packages, etc.
 }
-\section{Warning}{
- Offsets are not currently supported.
+\section{Note}{
+ Offsets are not currently supported.  When
+  a \code{merMod} object (i.e. the model object
+  returned by \code{\link[lme4]{lmer}}, \code{\link[lme4]{glmer}}, or
+  \code{\link[lme4]{glmer.nb}}) fit with a \code{standardized.terms} object
+  as the formula is used with the function \code{predict}, warnings will be
+  issued saying that contrasts were dropped from factors. 
+  These warnings don't affect the predictions made.
 }
 \examples{
 # NEED TO ADD EXAMPLES

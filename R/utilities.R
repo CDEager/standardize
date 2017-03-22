@@ -146,6 +146,7 @@ condense_terms <- function(formula) {
   }
   newa$variables <- a$variables[keep]
   newa$predvars <- a$predvars[keep]
+  newa$standardized.scale <- a$standardized.scale
   attributes(formula) <- newa
   return(formula)
 }

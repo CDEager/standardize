@@ -62,7 +62,13 @@
 #'   It also has a \code{standardized.scale} attribute which contains the
 #'   \code{scale} argument passed to \code{standardize_terms}.
 #' 
-#' @section Warning: Offsets are not currently supported.
+#' @section Note: Offsets are not currently supported.  When
+#'   a \code{merMod} object (i.e. the model object
+#'   returned by \code{\link[lme4]{lmer}}, \code{\link[lme4]{glmer}}, or
+#'   \code{\link[lme4]{glmer.nb}}) fit with a \code{standardized.terms} object
+#'   as the formula is used with the function \code{predict}, warnings will be
+#'   issued saying that contrasts were dropped from factors. 
+#'   These warnings don't affect the predictions made.
 #'
 #' @seealso \code{\link[base]{scale}}, \code{\link{scale_by}},
 #'   \code{\link{named_contr_sum}}, and \code{\link{scaled_contr_poly}}.
@@ -130,6 +136,7 @@ standardize_terms <- function(formula, data, family = gaussian, scale = 1,
     } else {
       # to ignore scales other than 1 which were specified
       p[[2]]$pred <- attr(scale_by(p[[2]]$pred$formula, data), "scaledby")
+      p[[2]][[1]] <- quote(standardize::scale_by)
     }
   }
   
@@ -159,18 +166,20 @@ standardize_terms <- function(formula, data, family = gaussian, scale = 1,
   for (j in uf) {
     mfj <- named_contr_sum(mf[[j]], scale, FALSE)
     pj <- p[[j + 1]]
-    p[[j + 1]] <- call("standardize::fac_and_contr", levels = levels(mfj),
+    p[[j + 1]] <- call("fac_and_contr", levels = levels(mfj),
       contrasts = contrasts(mfj), ordered = FALSE)
     p[[j + 1]]$x <- pj
+    p[[j + 1]][[1]] <- quote(standardize::fac_and_contr)
   }
   
   of <- of[of != 1]
   for (j in of) {
     mfj <- scaled_contr_poly(mf[[j]], scale, FALSE)
     pj <- p[[j + 1]]
-    p[[j + 1]] <- call("standardize::fac_and_contr", levels = levels(mfj),
+    p[[j + 1]] <- call("fac_and_contr", levels = levels(mfj),
       contrasts = contrasts(mfj), ordered = TRUE)
     p[[j + 1]]$x <- pj
+    p[[j + 1]][[1]] <- quote(standardize::fac_and_contr)
   }
   
   num <- num[num != 1]
@@ -186,6 +195,7 @@ standardize_terms <- function(formula, data, family = gaussian, scale = 1,
   for (j in sb) {
     p[[j + 1]]$pred <- attr(scale_by(p[[j + 1]]$pred$formula, data,
       scale), "scaledby")
+    p[[j + 1]][[1]] <- quote(standardize::scale_by)
   }
   
   a$predvars <- p
@@ -212,7 +222,13 @@ standardize_terms <- function(formula, data, family = gaussian, scale = 1,
 #'
 #' @export
 standardized_scale <- function(object) {
-  object <- terms(object)
+  if (!inherits(object, "standardized.terms")) {
+    if (inherits(object, "merMod")) {
+      object <- attr(object@frame, "formula")
+    } else {
+      object <- terms(object)
+    }
+  }
   return(attr(object, "standardized.scale"))
 }
 
@@ -223,7 +239,12 @@ standardized_scale <- function(object) {
 #'
 #' @export
 model.frame.standardized.terms <- function(formula, data = NULL, ...) {
-  mf <- stats::model.frame(formula = condense_terms(formula), data = data, ...)
+  mc <- match.call()
+  mc[[1]] <- quote(stats::model.frame)
+  mc$formula <- condense_terms(formula)
+  mc["xlev"] <- NULL
+  mc["contrasts"] <- NULL
+  mf <- eval(mc, parent.frame())
   class(attr(mf, "terms")) <- c("standardized.terms", "terms", "formula")
   return(mf)
 }
