@@ -79,9 +79,9 @@
 #' @importFrom lme4 subbars
 #'
 #' @export
-standardize_terms <- function(formula, data, family = gaussian, scale = 1,
-                              na.action = "na.pass") {
-
+standardize <- function(formula, data, family = gaussian, scale = 1,
+                        na.action = "na.pass") {
+  mc <- match.call()
   formula <- stats::formula(formula)
   if (!inherits(formula, "formula")) {
     stop("'formula' must be coercible to formula")
@@ -109,12 +109,11 @@ standardize_terms <- function(formula, data, family = gaussian, scale = 1,
     stop("offsets not currently supported")
   }
   
-  if (!is.vector(mf[[1]])) {
+  if (NCOL(mf[[1]]) > 1) {
     stop("response variable must be a vector")
   }
-  
-  terms <- terms(mf)
-  a <- attributes(terms)
+
+  a <- attributes(terms(mf))
   p <- a$predvars
   
   mf <- charlogbin_to_uf(mf)
@@ -135,145 +134,119 @@ standardize_terms <- function(formula, data, family = gaussian, scale = 1,
       p[[2]]$scale = attr(mfj, "scaled:scale")
     } else {
       # to ignore scales other than 1 which were specified
-      p[[2]]$pred <- attr(scale_by(p[[2]]$pred$formula, data), "scaledby")
-      p[[2]][[1]] <- quote(standardize::scale_by)
+      p[[2]]$object <- attr(scale_by(p[[2]]$object$formula, data), "pred")
     }
   }
   
-  for (g in gfacs) {
-    j <- which(colnames(mf) == g)
+  d <- sapply(colnames(mf), function(n) {
+    if (n %in% gfacs) return("group")
+    if (is.uf(mf[[n]])) return("factor")
+    if (is.ordered(mf[[n]])) return("ordered")
+    if (inherits(mf[[n]], "scaledby")) {
+      if (inherits(mf[[n]], "poly")) return("scaledby.poly")
+      return("scaledby")
+    }
+    if (inherits(mf[[n]], "poly")) return("poly")
+    return("numeric")
+  })
+  
+  vtype <- function(type) {
+    return(which(d[-1] %in% type) + 1)
+  }
+  
+  lvs <- vector("list", ncol(mf))
+  names(lvs) <- colnames(mf)
+  
+  for (j in vtype("group")) {
     mf[[j]] <- factor(mf[[j]], ordered = FALSE)
     pj <- p[[j + 1]]
-    p[[j + 1]] <- call("factor", ordered = FALSE)
+    p[[j + 1]] <- call("factor", ordered = FALSE, levels = levels(mf[[j]]))
     p[[j + 1]]$x <- pj
   }
   
-  d <- character(ncol(mf))
-  names(d) <- colnames(mf)
-  
-  uf <- which(sapply(mf, is.uf))
-  of <- which(sapply(mf, is.ordered))
-  num <- which(sapply(mf, function(x) is.numeric(x) && !inherits(x,
-    "scaledby")))
-  sb <- which(sapply(mf, function(x) inherits(x, "scaledby")))
-  
-  d[uf] <- "factor"
-  d[of] <- "ordered"
-  d[sb] <- "numeric"
-  d[num] <- "numeric"
-  
-  uf <- uf[!(uf %in% c(1, which(colnames(mf) %in% gfacs)))]
-  for (j in uf) {
+  for (j in vtype("factor")) {
     mfj <- named_contr_sum(mf[[j]], scale, FALSE)
     pj <- p[[j + 1]]
     p[[j + 1]] <- call("fac_and_contr", levels = levels(mfj),
       contrasts = contrasts(mfj), ordered = FALSE)
     p[[j + 1]]$x <- pj
     p[[j + 1]][[1]] <- quote(standardize::fac_and_contr)
+    lvs[[j]] <- levels(mfj)
   }
   
-  of <- of[of != 1]
-  for (j in of) {
+  for (j in vtype("ordered")) {
     mfj <- scaled_contr_poly(mf[[j]], scale, FALSE)
     pj <- p[[j + 1]]
     p[[j + 1]] <- call("fac_and_contr", levels = levels(mfj),
       contrasts = contrasts(mfj), ordered = TRUE)
     p[[j + 1]]$x <- pj
     p[[j + 1]][[1]] <- quote(standardize::fac_and_contr)
+    lvs[[j]] <- levels(mfj)
   }
   
-  num <- num[num != 1]
-  for (j in num) {
+  for (j in vtype(c("numeric", "poly"))) {
     mfj <- scale(mf[[j]])
     pj <- p[[j + 1]]
     p[[j + 1]] <- call("scale", center = attr(mfj, "scaled:center"),
       scale = attr(mfj, "scaled:scale") / scale)
     p[[j + 1]]$x <- pj
+    if (d[j] == "numeric") {
+      lvs[[j]] <- 0
+    } else {
+      coefs <- attr(mf[[j]], "coefs")
+      lvs[[j]] <- (poly(coefs$alpha[1], degree = length(coefs$alpha),
+        coefs = coefs, simple = TRUE) - p[[j + 1]]$center) / p[[j + 1]]$scale
+    }
   }
   
-  sb <- sb[sb != 1]
-  for (j in sb) {
-    p[[j + 1]]$pred <- attr(scale_by(p[[j + 1]]$pred$formula, data,
-      scale), "scaledby")
-    p[[j + 1]][[1]] <- quote(standardize::scale_by)
+  for (j in vtype(c("scaledby", "scaledby.poly"))) {
+    p[[j + 1]]$object <- attr(scale_by(p[[j + 1]]$object$formula, data,
+      scale), "pred")
+    if (d[j] == "scaledby") {
+      lvs[[j]] <- 0
+    } else {
+      coefs <- attr(mf[[j]], "coefs")
+      lvs[[j]] <- (poly(coefs$alpha[1], degree = length(coefs$alpha),
+        coefs = coefs, simple = TRUE) - p[[j + 1]]$object$new_center) /
+        p[[j + 1]]$object$new_scale
+    }
   }
   
   a$predvars <- p
   a$dataClasses <- d
   a$standardized.scale <- scale
-  attributes(formula) <- a
-  class(formula) <- c("standardized.terms", "terms", "formula")
+      
+  terms <- formula
+  attributes(terms) <- a
   
-  return(formula)
-}
+  frame <- stats::model.frame(lme4::subbars(terms), data, na.action = na.action)
+  attributes(frame) <- attributes(frame)[c("names", "row.names", "class")]
+  
+  nms <- make_new_names(colnames(frame))
+  names(nms) <- colnames(frame)
+  attr(terms, "rename") <- nms
+  names(lvs) <- colnames(frame) <- unname(nms)
+  formula <- make_new_formula(terms, nms)
+  lvs <- lvs[rownames(attr(terms(stats::delete.response(
+    lme4::nobars(formula))), "factors"))]
 
-
-#' Get the \code{scale} argument passed to \code{standardize}.
-#'
-#' Returns the \code{scale} argument from a \code{standardized.terms} object.
-#'
-#' @param object Any object for which a \code{\link[stats]{terms}} method
-#'   exists.
-#'
-#' @return A postive scalar corresponding to the \code{scale} argument passed
-#'   to \code{\link{standardize_terms}} which created the
-#'   \code{standardized.terms} object used in creating \code{object}.  If
-#'   \code{standardize_terms} was not used, then \code{NULL} is returned.
-#'
-#' @export
-standardized_scale <- function(object) {
-  if (!inherits(object, "standardized.terms")) {
-    if (inherits(object, "merMod")) {
-      object <- attr(object@frame, "formula")
+  facs <- mats <- list()
+  nums <- NULL
+  for (j in names(lvs)) {
+    if (is.factor(frame[[j]])) {
+      facs[[j]] <- list(levels = levels(frame[[j]]),
+        contrasts = contrasts(frame[[j]]), ordered = is.ordered(frame[[j]]))
+    } else if (NCOL(frame[[j]]) > 1) {
+      mats[[j]] <- as.vector(lvs[[j]])
     } else {
-      object <- terms(object)
+      nums <- c(nums, j)
     }
   }
-  return(attr(object, "standardized.scale"))
-}
 
+  sf <- standardized(call = mc, scale = scale, formula = formula,
+    frame = frame, pred.terms = terms, grid.levels = list(facs = facs,
+    nums = nums, mats = mats))
 
-#' S3 method for \code{\link[stats]{model.frame}} for class \code{standardized.terms}.
-#'
-#' @param formula,data,... See \code{\link[stats]{model.frame}}.
-#'
-#' @export
-model.frame.standardized.terms <- function(formula, data = NULL, ...) {
-  mc <- match.call()
-  mc[[1]] <- quote(stats::model.frame)
-  mc$formula <- condense_terms(formula)
-  mc["xlev"] <- NULL
-  mc["contrasts"] <- NULL
-  mf <- eval(mc, parent.frame())
-  class(attr(mf, "terms")) <- c("standardized.terms", "terms", "formula")
-  return(mf)
-}
-
-
-#' S3 method for \code{\link[stats]{model.matrix}} for class \code{standardized.terms}.
-#'
-#' @param object,data,... See \code{\link[stats]{model.matrix}}.
-#'
-#' @export
-model.matrix.standardized.terms <- function(object, data = environment(object),
-                                            ...) {
-  return(stats::model.matrix(object = condense_terms(object), data = data, ...))
-}
-
-
-#' S3 method for \code{\link[stats]{formula}} for class \code{standardized.terms}.
-#'
-#' Calls \code{\link[stats]{formula}} and then ensures that the result has
-#' the proper terms attributes.
-#'
-#' @param x,... See \code{\link[stats]{formula}}.
-#'
-#' @export
-formula.standardized.terms <- function(x, ...) {
-  a <- attributes(x)
-  formula <- stats::formula(strip_terms(x), ...)
-  a[[".Environment"]] <- environment(formula)
-  attributes(formula) <- a
-  return(condense_terms(formula))
+  return(sf)
 }
 

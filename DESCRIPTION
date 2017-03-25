@@ -12,7 +12,8 @@ Imports:
     stats,
     methods,
     MASS (>= 7.3-45),
-    lme4 (>= 1.1-12)
+    lme4 (>= 1.1-12),
+    stringr
 License: GPL (>= 3)
 Encoding: UTF-8
 LazyData: true

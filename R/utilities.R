@@ -1,5 +1,41 @@
 
 
+# part of ref.grid
+make_grid_linfct <- function(object) {
+  if (!is.standardized(object)) {
+    stop("'object' must have class 'standardized'")
+  }
+  facs <- object@grid.levels$facs
+  nums <- object@grid.levels$nums
+  mats <- object@grid.levels$mats
+  formula <- object@formula
+  
+  if (length(facs)) {
+    g <- expand.grid(lapply(facs, function(x) x$levels))
+    for (j in names(facs)) {
+      g[[j]] <- fac_and_contr(g[[j]], levels = facs[[j]]$levels,
+        contrasts = facs[[j]]$contrasts, ordered = facs[[j]]$ordered)
+    }
+    if (length(nums)) g[, nums] <- 0
+    for (j in names(mats)) {
+      g[[j]] <- matrix(mats[[j]], nrow(g), length(mats[[j]]))
+    }
+  } else {
+    g <- data.frame(matrix(0, 1, length(nums) + length(mats)))
+    colnames(g) <- c(nums, names(mats))
+    for (j in names(mats)) {
+      g[[j]] <- matrix(mats[[j]], 1, length(mats[[j]]))
+    }
+  }
+  
+  mm <- stats::model.matrix(stats::delete.response(lme4::nobars(formula)), g)
+  
+  for (j in names(mats)) g[[j]] <- 0
+  
+  return(list(grid = g, linfct = mm))
+}
+
+
 # what is the first element in lst which matches x exactly
 in_list <- function(x, lst) {
   m <- which(sapply(lst, function(n) isTRUE(all.equal(n, x))))
@@ -126,28 +162,165 @@ get_ranef_groups <- function(formula) {
 }
 
 
-strip_terms <- function(formula) {
-  env <- environment(formula)
+strip_terms <- function(terms) {
+  formula <- terms
   attributes(formula) <- NULL
   class(formula) <- "formula"
-  environment(formula) <- env
+  environment(formula) <- environment(terms)
   return(formula)
 }
 
 
-condense_terms <- function(formula) {
-  a <- attributes(formula)
-  formula <- terms(strip_terms(formula))
-  newa <- attributes(formula)
-  if (is.matrix(newa$factors)) {
-    keep <- c(1, which(rownames(a$factors) %in% rownames(newa$factors)) + 1)
-  } else {
-    keep <- 1:2
+condense_terms <- function(terms) {
+  a <- attributes(terms)
+  terms <- terms(strip_terms(terms))
+  newa <- attributes(terms)
+  keep <- which(names(a$rename) %in% rownames(newa$factors))
+  newa$variables <- a$variables[c(1, keep + 1)]
+  newa$predvars <- a$predvars[c(1, keep + 1)]
+  newa$dataClasses <- a$dataClasses[keep]
+  newa$rename <- a$rename[keep]
+  attributes(terms) <- newa
+  return(terms)
+}
+
+
+#' @importFrom stringr str_replace_all
+make_new_names <- function(nms) {
+  nms <- vapply(nms, function(x) simplify_fcall(x, "poly"), "")
+  nms <- vapply(nms, function(x) simplify_fcall(x, "scale_by"), "")
+  nms <- stringr::str_replace_all(nms, "scale_by\\(", "scale(")
+  
+  torep <- c(" ", "\\(", "\\)", "~", "%", ">=", "<=", "==", "=", ">", "<",
+    "\\^", "\\+", "-", "@", "&&", "&", "\\|\\|", "\\|", "/", ":", "\\*", ",")
+  repwth <- c("", "_", "", "_by_", ".m.", ".ge.", ".le.", ".ee.", ".e.", ".g.",
+    ".l.", ".pow.", ".p.", ".m.", ".at.", ".a.", ".a.", ".o.", ".o.", ".d.",
+    ".", ".t.", ".")
+  for (j in 1:length(torep)) {
+    nms <- stringr::str_replace_all(nms, torep[j], repwth[j])
   }
-  newa$variables <- a$variables[keep]
-  newa$predvars <- a$predvars[keep]
-  newa$standardized.scale <- a$standardized.scale
-  attributes(formula) <- newa
-  return(formula)
+  
+  return(make.names(nms, unique = TRUE))
+}
+
+
+make_new_formula <- function(mt, nms) {
+  f <- strip_terms(stats::delete.response(stats::terms(strip_terms(mt))))
+  names(nms) <- rownames(attr(mt, "factors"))
+  resp <- nms[1]
+  fe <- terms(lme4::nobars(f))
+  bars <- lme4::findbars(f)
+  
+  b0 <- attr(fe, "intercept")
+  fe <- factor_formula(fe, nms)
+  if (is.null(fe)) {
+    fe <- "1"
+  } else if (!b0) {
+    fe <- paste0("0+", fe)
+  }
+  form <- paste0(resp, "~", fe)
+  
+  if (length(bars)) {
+    for (b in 1:length(bars)) {
+      grp <- stats::terms(eval(substitute(~foo, list(foo = bars[[b]][[3]]))))
+      eff <- stats::terms(eval(substitute(~foo, list(foo = bars[[b]][[2]]))))
+      b0 <- attr(eff, "intercept")
+      grp <- factor_formula(grp, nms)
+      eff <- factor_formula(eff, nms)
+      if (is.null(eff)) {
+        eff <- "1"
+      } else if (b0) {
+        eff <- paste0("1+", eff)
+      } else {
+        eff <- paste0("0+", eff)
+      }
+      form <- paste0(form, "+(", eff, "|", grp, ")")
+    }
+  }
+  return(formula(form))
+}
+
+
+factor_formula <- function(trms, nms = NULL) {
+  fmat <- attr(trms, "factors")
+  if (!is.matrix(fmat)) return(NULL)
+  if (is.null(nms)) {
+    nms <- rownames(fmat)
+  } else {
+    nms <- nms[rownames(fmat)]
+  }
+  keep <- rep(TRUE, ncol(fmat))
+  if (ncol(fmat) > 2) {
+    for (j in ncol(fmat):2) {
+      if (keep[j] && all(fmat[, j] < 2)) {
+        involved <- fmat[, j] > 0
+        lower <- which(apply(fmat[, 1:(j - 1), drop = FALSE], 2, function(u) {
+          !any(u > 0 & !involved) & !any(u > 1)
+        }))
+        keep[lower] <- FALSE
+      }
+    }
+  }
+  fmat <- fmat[, keep, drop = FALSE]
+  for (j in 1:ncol(fmat)) {
+    if (all(fmat[, j] < 2)) {
+      colnames(fmat)[j] <- paste(nms[fmat[, j] > 0], collapse = "*")
+    } else {
+      colnames(fmat)[j] <- paste(nms[fmat[, j] > 0], collapse = ":")
+    }
+  }
+  return(paste(colnames(fmat), collapse = " + "))
+}
+
+
+#' @importFrom stringr str_locate_all
+simplify_fcall <- function(u, f) {
+  f <- paste0(f, "\\(")
+  loc <- stringr::str_locate_all(u, f)[[1]]
+  if (!(J <- nrow(loc))) return(u)
+  for (j in J:1) {
+    loc <- stringr::str_locate_all(u, f)[[1]]
+    first <- unname(loc[j, 1])
+    
+    op <- stringr::str_locate_all(u, "\\(")[[1]][, 2]
+    cp <- stringr::str_locate_all(u, "\\)")[[1]][, 2]
+    names(op) <- rep("o", length(op))
+    names(cp) <- rep("c", length(cp))
+    p <- sort(c(op, cp))
+    p <- p[p > first]
+    op <- names(p) == "o"
+    np <- length(op)
+
+    pos <- 1
+    opens <- 1 * op[1]
+    while (opens && pos < np) {
+      pos <- pos + 1
+      if (op[pos]) {
+        opens <- opens + 1
+      } else {
+        opens <- opens - 1
+      }
+    }
+    if (opens) stop("Invalid expression (parentheses don't match up)")
+    last <- unname(p[pos])
+
+    if (first > 1) {
+      pre <- substr(u, 1, first - 1)
+    } else {
+      pre <- character(0)
+    }
+
+    if (last < nchar(u)) {
+      pos <- substr(u, last + 1, nchar(u))
+    } else {
+      pos <- character(0)
+    }
+
+    txt <- deparse(parse(text = substr(u, first, last))[[1]][1:2])
+
+    u <- paste0(pre, txt, pos)
+  }
+  
+  return(u)
 }
 

@@ -113,14 +113,24 @@
 #' newdata
 #'
 #' @export
-scale_by <- function(formula = NULL, data = NULL, scale = 1, pred = NULL) {
+scale_by <- function(object = NULL, data = NULL, scale = 1) {
+  
+  if (inherits(object, "scaledby")) {
+    pred <- attr(object, "pred")
+  } else if (inherits(object, "scaledby_pred")) {
+    pred <- object
+  } else if (inherits(object, "formula")) {
+    pred <- NULL
+    formula <- object
+  } else {
+    stop()
+  }
+  
   if (!is.null(pred)) {
-    if (inherits(pred, "scaledby")) {
-      pred <- attr(pred, "scaledby")
-    }
     if (!inherits(pred, "scaledby_pred")) {
-      stop("'pred', if specified, must be the 'scaledby' attribute of a",
-        " previous scale_by call")
+      stop("'pred', if specified, must be the 'pred' attribute of a\n",
+        " previous scale_by call, or the numeric variable returned\n",
+        " by a previous scale_by call")
     }
     formula <- pred$formula
   }
@@ -240,7 +250,7 @@ scale_by <- function(formula = NULL, data = NULL, scale = 1, pred = NULL) {
   pred <- list(formula = formula, centers = centers, scales = scales,
     new_center = new_center, new_scale = new_scale)
   class(pred) <- c("scaledby_pred", "list")
-  a$scaledby <- pred
+  a$pred <- pred
   attributes(x) <- a
   class(x) <- c("scaledby", class(x))
   
@@ -258,10 +268,9 @@ scale_by <- function(formula = NULL, data = NULL, scale = 1, pred = NULL) {
 #'
 #' @export
 makepredictcall.scaledby <- function(var, call) {
-  call <- call("standardize::scale_by")
-  pred <- attr(var, "scaledby")
-  call$formula <- pred$formula
-  call$pred <- pred
+  call <- call("scale_by")
+  call[[1]] <- quote(standardize::scale_by)
+  call$object <- attr(var, "pred")
   return(call)
 }
 

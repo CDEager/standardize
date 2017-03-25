@@ -4,13 +4,9 @@
 \alias{scale_by}
 \title{Center and scale a continuous variable conditioning on factors.}
 \usage{
-scale_by(formula = NULL, data = NULL, scale = 1, pred = NULL)
+scale_by(object = NULL, data = NULL, scale = 1)
 }
 \arguments{
-\item{formula}{A \code{\link[stats]{formula}} whose left hand side indicates
-a numeric variable to be scaled and whose right hand side indicates
-factors to condition this scaling on. See 'Details'.}
-
 \item{data}{A data.frame containing the variables in \code{formula}.}
 
 \item{scale}{Numeric (default 1).  The desired standard deviation for the
@@ -19,6 +15,10 @@ then \code{scale} must have either one element (used for all columns),
 or as many elements as there are columns in the numeric variable. To center
 the numeric variable without scaling, set \code{scale} to \code{0}.
 See 'Details'.}
+
+\item{formula}{A \code{\link[stats]{formula}} whose left hand side indicates
+a numeric variable to be scaled and whose right hand side indicates
+factors to condition this scaling on. See 'Details'.}
 
 \item{pred}{The \code{scaledby} attribute of a previous \code{scale_by} call.
 See 'Details' and 'Value'.}

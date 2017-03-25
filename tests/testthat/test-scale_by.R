@@ -20,7 +20,7 @@ sb <- d$x1
 sb[d$f1 == "a"] <- scale(d$x1[d$f1 == "a"])[, 1]
 sb[d$f1 == "b"] <- scale(d$x1[d$f1 == "b"])[, 1]
 sb[d$f1 == "c"] <- scale(d$x1[d$f1 == "c"])[, 1]
-attr(sb, "scaledby") <- pred
+attr(sb, "pred") <- pred
 class(sb) <- c("scaledby", "numeric")
 
 newdata <- data.frame(
@@ -31,13 +31,13 @@ sbpred[4] <- (1 - new_center) / new_scale
 pred$centers <- rbind(pred$centers, new_center)
 pred$scales <- rbind(pred$scales, new_scale)
 rownames(pred$centers) <- rownames(pred$scales) <- letters[1:4]
-attr(sbpred, "scaledby") <- pred
+attr(sbpred, "pred") <- pred
 class(sbpred) <- class(sb)
 names(sbpred) <- NULL
 
 test_that("basic method works", {
   expect_equal(scale_by(x1 ~ f1, d), sb)
-  expect_equal(scale_by(data = newdata, pred = sb), sbpred)
+  expect_equal(scale_by(sb, newdata), sbpred)
 })
 
 
@@ -59,7 +59,7 @@ pred <- list(formula = formula, centers = centers, scales = scales,
   new_center = new_center, new_scale = new_scale)
 class(pred) <- c("scaledby_pred", "list")
 attributes(sb) <- attributes(d$x2)
-attr(sb, "scaledby") <- pred
+attr(sb, "pred") <- pred
 class(sb) <- c("scaledby", "poly", "matrix")
 
 newdata$x2 <- poly(newdata$x1, degree = 2, coefs = attr(d$x2, "coefs"))
@@ -68,13 +68,13 @@ pred$centers <- rbind(pred$centers, new_center)
 pred$scales <- rbind(pred$scales, new_scale)
 rownames(pred$centers) <- rownames(pred$scales) <- letters[1:4]
 attributes(sbpred) <- attributes(newdata$x2)
-attr(sbpred, "scaledby") <- pred
+attr(sbpred, "pred") <- pred
 class(sbpred) <- class(sb)
 rownames(sbpred) <- NULL
 
 test_that("matrix and scale work", {
   expect_equal(scale_by(x2 ~ f1, d, c(1, 0.5)), sb)
-  expect_equal(scale_by(data = newdata, pred = attr(sb, "scaledby")), sbpred)
+  expect_equal(scale_by(attr(sb, "pred"), newdata), sbpred)
 })
 
 
@@ -91,7 +91,7 @@ pred <- list(formula = formula, centers = centers, scales = scales,
   new_center = new_center, new_scale = new_scale)
 class(pred) <- c("scaledby_pred", "list")
 sb <- (d$x1 - new_center) / new_scale
-attr(sb, "scaledby") <- pred
+attr(sb, "pred") <- pred
 class(sb) <- c("scaledby", "numeric")
 
 test_that("min of two unique non-NA values and nval work", {
@@ -117,7 +117,7 @@ sb <- d$x1
 sb[d$f1 == "a"] <- scale(d$x1[d$f1 == "a"], scale = FALSE)[, 1]
 sb[d$f1 == "b"] <- scale(d$x1[d$f1 == "b"], scale = FALSE)[, 1]
 sb[d$f1 == "c"] <- scale(d$x1[d$f1 == "c"], scale = FALSE)[, 1]
-attr(sb, "scaledby") <- pred
+attr(sb, "pred") <- pred
 class(sb) <- c("scaledby", "numeric")
 
 newdata <- data.frame(
@@ -127,13 +127,13 @@ sbpred <- as.vector(1 - centers)
 sbpred[4] <- 1 - new_center
 pred$centers <- rbind(pred$centers, new_center)
 rownames(pred$centers) <- letters[1:4]
-attr(sbpred, "scaledby") <- pred
+attr(sbpred, "pred") <- pred
 class(sbpred) <- class(sb)
 names(sbpred) <- NULL
 
 test_that("centering only works", {
   expect_equal(scale_by(x1 ~ f1, d, 0), sb)
-  expect_equal(scale_by(data = newdata, pred = sb), sbpred)
+  expect_equal(scale_by(sb, newdata), sbpred)
 })
 
 
@@ -142,9 +142,9 @@ d$f1f2 <- interaction(d[, 1:2])
 d <- rbind(d, d, d)
 d$x1 <- stats::rnorm(nrow(d))
 sbi1 <- sbi2 <- sbi3 <- scale_by(x1 ~ f1f2, d)
-attr(sbi1, "scaledby")$formula <- x1 ~ f1 + f2
-attr(sbi2, "scaledby")$formula <- x1 ~ f1 * f2
-attr(sbi3, "scaledby")$formula <- x1 ~ f1 : f2
+attr(sbi1, "pred")$formula <- x1 ~ f1 + f2
+attr(sbi2, "pred")$formula <- x1 ~ f1 * f2
+attr(sbi3, "pred")$formula <- x1 ~ f1 : f2
 
 test_that("muliple factors work", {
   expect_equal(scale_by(x1 ~ f1 + f2, d), sbi1)
@@ -155,7 +155,7 @@ test_that("muliple factors work", {
 
 d$x2 <- log(abs(d$x1))
 sb <- scale_by(x2 ~ f1f2, d)
-attr(sb, "scaledby")$formula <- log(abs(x1)) ~ f1f2
+attr(sb, "pred")$formula <- log(abs(x1)) ~ f1f2
 
 test_that("transformed response works", {
   expect_equal(scale_by(log(abs(x1)) ~ f1f2, d), sb)
@@ -172,6 +172,7 @@ test_that("errors are thrown correctly", {
   expect_error(scale_by(f1f2 ~ x2, d))
   expect_error(scale_by(x1 ~ f1f2, d, -1))
   expect_error(scale_by(x1 ~ f1, d2))
+  expect_error(scale_by(list(), d))
 })
 
 rm(list = ls())
