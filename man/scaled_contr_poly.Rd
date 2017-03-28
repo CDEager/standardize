@@ -56,6 +56,7 @@ returned when \code{return_contr = FALSE}.
 }
 \examples{
 f <- factor(rep(c("a", "b", "c"), 5), ordered = TRUE)
+contrasts(f) <- contr.poly(3)
 
 # difference in contrasts
 contrasts(f)

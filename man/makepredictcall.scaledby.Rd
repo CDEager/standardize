@@ -2,7 +2,7 @@
 % Please edit documentation in R/scale_by.R
 \name{makepredictcall.scaledby}
 \alias{makepredictcall.scaledby}
-\title{S3 method for \code{\link[stats]{makepredictcall}} for class \code{scaledby}.}
+\title{S3 \code{\link[stats]{makepredictcall}} method for class \code{scaledby}.}
 \usage{
 \method{makepredictcall}{scaledby}(var, call)
 }

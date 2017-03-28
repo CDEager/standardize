@@ -36,7 +36,7 @@ fac_and_contr <- function(x, levels, contrasts, ordered = FALSE) {
 #' equal to (ignoring case) "F" and "T", "FALSE" and "TRUE", "N" and "Y",
 #' "NO" and "YES", or "0" and "1", then their order is reversed (this makes it
 #' so the positive level gets the dummy coefficient rather than the negative
-#' level, which has a more intuitive interpretation).  Then
+#' level, yielding a more intuitive interpretation for coefficients).  Then
 #' \code{\link[stats]{contr.sum}} is called, and the column names of the
 #' resulting contrast matrix are set using the character vector of unique values
 #' (excluding the final element that gets coded as \code{-1} for all dummy
@@ -62,7 +62,8 @@ fac_and_contr <- function(x, levels, contrasts, ordered = FALSE) {
 #'
 #' @return If \code{return_contr = TRUE}, a contrast matrix obtained from
 #'   \code{\link[stats]{contr.sum}} with named columns rather than numbered
-#'   columns.  If \code{return_contr = FALSE}, then \code{x} is returned
+#'   columns and deviations with magnitude \code{scale}.
+#'   If \code{return_contr = FALSE}, then \code{x} is returned
 #'   as an unordered factor with the named sum contrasts applied.
 #'
 #' @seealso \code{\link{scaled_contr_poly}} for ordered factors.
@@ -74,29 +75,30 @@ fac_and_contr <- function(x, levels, contrasts, ordered = FALSE) {
 #' contrasts(f)  # NA included in contrast matrix
 #' named_contr_sum(f)  # named sum contrasts (NA dropped; levels alphabetized)
 #' named_contr_sum(levels(f))  # same output
-#' named_contr_sum(f, FALSE)  # f (values unchanged) with named sum contrasts
+#' named_contr_sum(f, return_contr = FALSE)  # factor with named sum contrasts
+#' named_contr_sum(f, 0.5)  # deviations of magniude 0.5
 #'
 #' f <- c(TRUE, FALSE, FALSE, TRUE)
 #' class(f)  # logical
 #' named_contr_sum(f)  # TRUE gets the dummy variable
-#' f <- named_contr_sum(f, FALSE)
+#' f <- named_contr_sum(f, return_contr = FALSE)
 #' class(f)  # factor
 #'
 #' named_contr_sum(letters[1:5])  # character argument
-#' named_contr_sum(rep(letters[1:5], 2), FALSE)  # creates factor
+#' named_contr_sum(rep(letters[1:5], 2), return_contr = FALSE)  # creates factor
 #'
 #' # ordered factors are converted to unordered factors, so use with caution
 #' f <- factor(rep(1:3, 2), ordered = TRUE)
 #' is.ordered(f)  # TRUE
 #' f
-#' f <- named_contr_sum(f, FALSE)
+#' f <- named_contr_sum(f, return_contr = FALSE)
 #' is.ordered(f)  # FALSE
 #' f
 #'
 #' \dontrun{
 #' # error from stats::contr.sum because only one unique non-NA value
 #' named_contr_sum(5)
-#' named_contr_sum(rep(c("a", NA), 3), FALSE)
+#' named_contr_sum(rep(c("a", NA), 3))
 #' }
 #'
 #' @export
@@ -163,6 +165,7 @@ named_contr_sum <- function(x, scale = 1, return_contr = TRUE) {
 #'
 #' @examples
 #' f <- factor(rep(c("a", "b", "c"), 5), ordered = TRUE)
+#' contrasts(f) <- contr.poly(3)
 #'
 #' # difference in contrasts
 #' contrasts(f)

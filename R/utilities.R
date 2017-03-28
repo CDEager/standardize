@@ -1,39 +1,11 @@
 
 
-# part of ref.grid
-make_grid_linfct <- function(object) {
-  if (!is.standardized(object)) {
-    stop("'object' must have class 'standardized'")
-  }
-  facs <- object@grid.levels$facs
-  nums <- object@grid.levels$nums
-  mats <- object@grid.levels$mats
-  formula <- object@formula
-  
-  if (length(facs)) {
-    g <- expand.grid(lapply(facs, function(x) x$levels))
-    for (j in names(facs)) {
-      g[[j]] <- fac_and_contr(g[[j]], levels = facs[[j]]$levels,
-        contrasts = facs[[j]]$contrasts, ordered = facs[[j]]$ordered)
-    }
-    if (length(nums)) g[, nums] <- 0
-    for (j in names(mats)) {
-      g[[j]] <- matrix(mats[[j]], nrow(g), length(mats[[j]]))
-    }
-  } else {
-    g <- data.frame(matrix(0, 1, length(nums) + length(mats)))
-    colnames(g) <- c(nums, names(mats))
-    for (j in names(mats)) {
-      g[[j]] <- matrix(mats[[j]], 1, length(mats[[j]]))
-    }
-  }
-  
-  mm <- stats::model.matrix(stats::delete.response(lme4::nobars(formula)), g)
-  
-  for (j in names(mats)) g[[j]] <- 0
-  
-  return(list(grid = g, linfct = mm))
-}
+# The functions in this file are not exported.  When a function is an internal
+# function from another package (i.e. one that would need to be accessed using
+# the ':::' operator), the ':::' is replaced with '__', and the function
+# definitions are taken directly from the other package with minimal alteration.
+# Such functions are taken from the following package versions:
+#   lme4 1.1-12
 
 
 # what is the first element in lst which matches x exactly
@@ -76,6 +48,10 @@ get_family <- function(family) {
     return("negbin")
   }
   
+  if (is.character(family) && family %in% c("ordinal", "ordered")) {
+    return("ordinal")
+  }
+  
   if (is.character(family)) {
     tryfunc <- tryCatch(family <- get(family, mode = "function",
       envir = parent.frame()), error = function(e) e)
@@ -116,8 +92,8 @@ charlogbin_to_uf <- function(x) {
 
 # how many unique values are in x (x a factor, vector, matrix, or data.frame)
 nval <- function(x, rm.na = TRUE) {
-  x <- unique(x)
   if ((L <- length(dim(x))) > 2) stop("'x' must have at most two dims")
+  x <- unique(x)
   if (!L) x <- matrix(x)
   if (rm.na) x <- x[!rowna(x), , drop = FALSE]
   return(nrow(x))
@@ -322,5 +298,22 @@ simplify_fcall <- function(u, f) {
   }
   
   return(u)
+}
+
+
+lme4__safeDeparse <- function(x, collapse = " ") {
+  return(paste(deparse(x, 500L), collapse = collapse))
+}
+
+
+lme4__reOnly <- function(f, response = FALSE) {
+  if (response && length(f) == 3) {
+    response <- f[[2]]
+  } else {
+    response <- NULL
+  }
+  
+  return(reformulate(paste0("(", vapply(lme4::findbars(f), lme4__safeDeparse, 
+    ""), ")"), response = response))
 }
 

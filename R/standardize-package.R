@@ -1,11 +1,14 @@
 
 
-#' standardize: An R package providing tools for standardizing model frames.
+#' standardize: Tools for standardizing model frames in R.
 #'
+#' The \code{standardize} package provides tools for standardizing model frames
+#' (i.e. placing all of the variables to be used in a regression on
+#' similar scales).
 #' When all of the predictors in a regression are on a similar scale, it makes
 #' the interpretation of their effect sizes more comparable. In the case of
 #' gaussian regression, placing the response on unit scale also eases
-#' interpretation.  Standardizing regression frames also has computational
+#' interpretation.  Standardizing model frames also has computational
 #' benefits in the case of mixed effects regressions, and makes determining
 #' reasonable priors in Bayesian regressions simpler.
 #'
@@ -21,9 +24,10 @@
 #' interaction of several factors), with the standard deviation specified
 #' through its \code{scale} argument.
 #'
-#' The \code{\link{standardize_terms}} function creates a terms object of class
-#' \code{standardized.terms} which can be used in regression fitting functions
-#' to ensure that all of the predictors in the regression are placed on the
+#' The \code{\link{standardize}} function creates a
+#' \code{\link[=standardized-class]{standardized}} object whose elements
+#' can be used in regression fitting functions, ensuring
+#' that all of the predictors are on the
 #' same scale.  This is done by passing the function's \code{scale} argument
 #' to \code{\link{named_contr_sum}} for all unordered factors (and also
 #' any predictor with only two unique values regardless of its original class),
@@ -32,7 +36,7 @@
 #' function.  For numeric predictors not contained in a \code{\link{scale_by}}
 #' call, \code{\link[base]{scale}} is called, ensuring that the result has
 #' standard deviation equal to the \code{scale} argument to
-#' \code{\link{standardize_terms}}.  Gaussian responses are always placed on
+#' \code{\link{standardize}}.  Gaussian responses are always placed on
 #' unit scale, using \code{\link[base]{scale}} (or \code{\link{scale_by}} if
 #' the function was used on the left hand side of the regression formula).
 #'

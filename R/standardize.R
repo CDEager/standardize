@@ -1,12 +1,12 @@
 
 
-#' Standardize a formula for regression.
+#' Standardize a formula and data frame for regression.
 #' 
-#' Create a terms object (of class \code{standardized.terms}) which places all
-#' variables in \code{data} on the same scale, making regression output more
-#' easy to interpret. For mixed effects regressions, this also offers
-#' computational benefits, and for Bayesian regressions, it also makes
-#' determining reasonable priors easier.
+#' Create a \code{\link[=standardized-class]{standardized}} object which places
+#' all variables in \code{data} on the same scale based on \code{formula},
+#' making regression output easier to interpret.
+#' For mixed effects regressions, this also offers computational benefits, and
+#' for Bayesian regressions, it also makes determining reasonable priors easier.
 #'
 #' First \code{\link[stats]{model.frame}} is called. Then,
 #' if \code{family = gaussian}, the response is checked to ensure that it is
@@ -14,41 +14,45 @@
 #' used on the response in \code{formula}, then the \code{scale} argument to
 #' \code{scale_by} is ignored and forced to \code{1}.  If \code{\link{scale_by}}
 #' is not called, then \code{\link[base]{scale}} is used with default arguments.
+#' The result is that gaussian responses are on unit scale (i.e. have mean
+#' \code{0} and standard deviation \code{1}), or, if \code{\link{scale_by}} is
+#' is used on the left hand side of \code{formula}, unit scale within each
+#' level of the specified conditioning factor.
 #' For all other values for \code{family}, the response is not checked.
 #'
-#' For the predictors in the formula, first any random effects grouping factor
-#' in the formula is coerced to factor and unused levels are dropped.  The
-#' levels of the resulting factor are then recorded in the \code{predvars}
+#' For the predictors in the formula, first any random effects grouping factors
+#' in the formula are coerced to factor and unused levels are dropped.  The
+#' levels of the resulting factor are then recorded in the \code{predvars} terms
 #' attribute.  Then for the remaining predictors, regardless of their original
 #' class, if they have only two unique non-\code{NA} values, they are coerced
 #' to unordered factors.  Then, \code{\link{named_contr_sum}} and
 #' \code{\link{scaled_contr_poly}} are called for unordered and ordered factors,
 #' respectively, using the \code{scale} argument provided in the call
-#' to \code{standardize_terms} as the \code{scale} argument to the contrast
+#' to \code{standardize} as the \code{scale} argument to the contrast
 #' functions.  For numeric variables, if the variable contains a call to
 #' \code{\link{scale_by}}, then, regardless of whether the call to
 #' \code{\link{scale_by}} specifies \code{scale}, the value of \code{scale}
-#' in the call to \code{standardize_terms} is used.  If the numeric variable
+#' in the call to \code{standardize} is used.  If the numeric variable
 #' does not contain a call to \code{\link{scale_by}}, then
 #' \code{\link[base]{scale}} is called, ensuring that the result has
 #' standard deviation \code{scale}.
 #'
-#' With the default value of \code{scale = 1}, the result is a terms object
-#' with a \code{predvars} attribute which ensures that a model frame created
-#' using the terms object and the same data frame with which it was created
+#' With the default value of \code{scale = 1}, the result is a
+#' \code{\linkS4class{standardized}} object which contains a formula and data
+#' frame which can be used to fit regressions where the predictors are all
+#' on a similar scale.  Its data frame
 #' has numeric variables on unit scale, unordered factors with named sum
 #' sum contrasts, and ordered factors with orthogonal polynomial contrasts
 #' on unit scale.  For gaussian regressions, the response is also placed on
-#' unit scale.  If \code{scale = 0.5}, then gaussian responses would still
+#' unit scale.  If \code{scale = 0.5} (for example),
+#' then gaussian responses would still
 #' be placed on unit scale, but unordered factors' named sum contrasts would
 #' take on values {-0.5, 0, 0.5} rather than {-1, 0, 1}, the standard deviation
 #' of each column in the contrast matrices for ordered factors would be
 #' \code{0.5} rather than \code{1}, and the standard deviation of numeric
 #' variables would be \code{0.5} rather than \code{1} (within-factor-level
-#' in the case of \code{\link{scale_by}} calls).  The returned object
-#' can be used as the \code{formula} argument to regression fitting functions
-#' including those in the \code{lme4} and \code{rstanarm} packages, etc.
-#' 
+#' in the case of \code{\link{scale_by}} calls).
+#'
 #' @param formula A regression \code{\link[stats]{formula}}.
 #' @param data A data.frame containing the variables in \code{formula}.
 #' @param family A regression \code{\link[stats]{family}} (default gaussian).
@@ -56,19 +60,17 @@
 #'   positive number. See 'Details'.
 #' @param na.action See \code{\link[stats]{model.frame}}.
 #' 
-#' @return A terms object of class \code{standardized.terms}. The
-#'   \code{predvars} attribute is altered to ensure that proper predictions
-#'   are made when the object is used to create model frames and matrices.
-#'   It also has a \code{standardized.scale} attribute which contains the
-#'   \code{scale} argument passed to \code{standardize_terms}.
+#' @return A \code{\link[=standardized-class]{standardized}} object. The
+#'   \code{formula} and \code{data} elements of the object can be used in calls
+#'   to regression functions.
 #' 
-#' @section Note: Offsets are not currently supported.  When
-#'   a \code{merMod} object (i.e. the model object
-#'   returned by \code{\link[lme4]{lmer}}, \code{\link[lme4]{glmer}}, or
-#'   \code{\link[lme4]{glmer.nb}}) fit with a \code{standardized.terms} object
-#'   as the formula is used with the function \code{predict}, warnings will be
-#'   issued saying that contrasts were dropped from factors. 
-#'   These warnings don't affect the predictions made.
+#' @section Note: Offsets are not currently supported. The \code{\link{scale_by}}
+#'   function is supported so long as it is not nested within other function
+#'   calls.  The \code{\link[stats]{poly}} function is supported so long as
+#'   it is either not nested within other function calls, or is nested as the
+#'   transformation of the numeric variable in a \code{\link{scale_by}} call.
+#'   If \code{\link[stats]{poly}} is used, then the \code{lsmeans} function
+#'   will yield misleading results (as would normally be the case).
 #'
 #' @seealso \code{\link[base]{scale}}, \code{\link{scale_by}},
 #'   \code{\link{named_contr_sum}}, and \code{\link{scaled_contr_poly}}.
@@ -109,8 +111,8 @@ standardize <- function(formula, data, family = gaussian, scale = 1,
     stop("offsets not currently supported")
   }
   
-  if (NCOL(mf[[1]]) > 1) {
-    stop("response variable must be a vector")
+  if (!gau && NCOL(mf[[1]]) > 1) {
+    stop("response variable must be a vector if not gaussian")
   }
 
   a <- attributes(terms(mf))
@@ -154,9 +156,6 @@ standardize <- function(formula, data, family = gaussian, scale = 1,
     return(which(d[-1] %in% type) + 1)
   }
   
-  lvs <- vector("list", ncol(mf))
-  names(lvs) <- colnames(mf)
-  
   for (j in vtype("group")) {
     mf[[j]] <- factor(mf[[j]], ordered = FALSE)
     pj <- p[[j + 1]]
@@ -171,7 +170,6 @@ standardize <- function(formula, data, family = gaussian, scale = 1,
       contrasts = contrasts(mfj), ordered = FALSE)
     p[[j + 1]]$x <- pj
     p[[j + 1]][[1]] <- quote(standardize::fac_and_contr)
-    lvs[[j]] <- levels(mfj)
   }
   
   for (j in vtype("ordered")) {
@@ -181,7 +179,6 @@ standardize <- function(formula, data, family = gaussian, scale = 1,
       contrasts = contrasts(mfj), ordered = TRUE)
     p[[j + 1]]$x <- pj
     p[[j + 1]][[1]] <- quote(standardize::fac_and_contr)
-    lvs[[j]] <- levels(mfj)
   }
   
   for (j in vtype(c("numeric", "poly"))) {
@@ -190,26 +187,11 @@ standardize <- function(formula, data, family = gaussian, scale = 1,
     p[[j + 1]] <- call("scale", center = attr(mfj, "scaled:center"),
       scale = attr(mfj, "scaled:scale") / scale)
     p[[j + 1]]$x <- pj
-    if (d[j] == "numeric") {
-      lvs[[j]] <- 0
-    } else {
-      coefs <- attr(mf[[j]], "coefs")
-      lvs[[j]] <- (poly(coefs$alpha[1], degree = length(coefs$alpha),
-        coefs = coefs, simple = TRUE) - p[[j + 1]]$center) / p[[j + 1]]$scale
-    }
   }
   
   for (j in vtype(c("scaledby", "scaledby.poly"))) {
     p[[j + 1]]$object <- attr(scale_by(p[[j + 1]]$object$formula, data,
       scale), "pred")
-    if (d[j] == "scaledby") {
-      lvs[[j]] <- 0
-    } else {
-      coefs <- attr(mf[[j]], "coefs")
-      lvs[[j]] <- (poly(coefs$alpha[1], degree = length(coefs$alpha),
-        coefs = coefs, simple = TRUE) - p[[j + 1]]$object$new_center) /
-        p[[j + 1]]$object$new_scale
-    }
   }
   
   a$predvars <- p
@@ -225,28 +207,29 @@ standardize <- function(formula, data, family = gaussian, scale = 1,
   nms <- make_new_names(colnames(frame))
   names(nms) <- colnames(frame)
   attr(terms, "rename") <- nms
-  names(lvs) <- colnames(frame) <- unname(nms)
+  colnames(frame) <- unname(nms)
   formula <- make_new_formula(terms, nms)
-  lvs <- lvs[rownames(attr(terms(stats::delete.response(
-    lme4::nobars(formula))), "factors"))]
 
-  facs <- mats <- list()
-  nums <- NULL
-  for (j in names(lvs)) {
-    if (is.factor(frame[[j]])) {
-      facs[[j]] <- list(levels = levels(frame[[j]]),
-        contrasts = contrasts(frame[[j]]), ordered = is.ordered(frame[[j]]))
-    } else if (NCOL(frame[[j]]) > 1) {
-      mats[[j]] <- as.vector(lvs[[j]])
-    } else {
-      nums <- c(nums, j)
-    }
+  sf <- list(call = mc, scale = scale, formula = formula,
+    data = frame, pred = terms)
+  sf$variables <- data.frame(
+    Variable = names(nms),
+    Name = unname(nms),
+    Class = unname(d))
+  facs <- d %in% c("factor", "ordered")
+  if (length(facs)) {
+    sf$contrasts <- lapply(frame[, facs, drop = FALSE], contrasts)
+  } else {
+    sf$contrasts <- NULL
+  }
+  groups <- d == "group"
+  if (length(groups)) {
+    sf$groups <- lapply(frame[, groups, drop = FALSE], levels)
+  } else {
+    sf$groups <- NULL
   }
 
-  sf <- standardized(call = mc, scale = scale, formula = formula,
-    frame = frame, pred.terms = terms, grid.levels = list(facs = facs,
-    nums = nums, mats = mats))
-
+  class(sf) <- c("standardized", "list")
   return(sf)
 }
 

@@ -19,7 +19,7 @@ formula <- y ~ f1 + f2 * f3 + o1 + poly(x2, 2) + log(I(x3^2)) +
   (1 + f1 + scale_by(x1 ~ f2) | g1)
 
 sf <- standardize(formula = formula, data = d)
-lmod <- lme4::lFormula(formula = sf$formula, data = sf$frame)
+lmod <- lme4::lFormula(formula = sf$formula, data = sf$data)
 mf <- lmod$fr
 mt <- terms(mf)
 
@@ -43,10 +43,10 @@ sf2 <- standardize(y ~ x1 + f1, d, scale = 0.5)
 test_that("basic method works", {
   expect_equal(d2, mf2)
   expect_equal(is.standardized(sf), TRUE)
-  expect_equal(standardize(formula, d, family = binomial)$frame$y, d$y)
-  expect_equal(sd(sf2$frame$y), 1)
-  expect_equal(sd(sf2$frame$x1), 0.5)
-  expect_equal(sf2$frame$f1, named_contr_sum(d$f1, 0.5, FALSE))
+  expect_equal(standardize(formula, d, family = binomial)$data$y, d$y)
+  expect_equal(sd(sf2$data$y), 1)
+  expect_equal(sd(sf2$data$x1), 0.5)
+  expect_equal(sf2$data$f1, named_contr_sum(d$f1, 0.5, FALSE))
   expect_equal(lmod$reTrms$cnms, list(g1 = c("(Intercept)", "f1a", "f1b",
     "scale_x1_by_f2")))
   expect_equal(colnames(lmod$X), c("(Intercept)", "f1a", "f1b",
@@ -56,10 +56,10 @@ test_that("basic method works", {
 
 
 test_that("predict works", {
-  expect_equal(predict(sf, d, response = TRUE), sf$frame)
-  expect_equal(predict(sf, d), sf$frame[, -1])
-  expect_equal(predict(sf, d, fixed = FALSE), sf$frame[, c(2, 8:9)])
-  expect_equal(predict(sf, d, random = FALSE), sf$frame[, 2:7])
+  expect_equal(predict(sf, d, response = TRUE), sf$data)
+  expect_equal(predict(sf, d), sf$data[, -1])
+  expect_equal(predict(sf, d, fixed = FALSE), sf$data[, c(2, 8:9)])
+  expect_equal(predict(sf, d, random = FALSE), sf$data[, 2:7])
   expect_error(predict(sf, d, fixed = FALSE, random = FALSE))
 })
 

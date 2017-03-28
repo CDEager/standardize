@@ -7,7 +7,14 @@
 scale_by(object = NULL, data = NULL, scale = 1)
 }
 \arguments{
-\item{data}{A data.frame containing the variables in \code{formula}.}
+\item{object}{A \code{\link[stats]{formula}} whose left hand side indicates
+a numeric variable to be scaled and whose right hand side indicates
+factors to condition this scaling on; or the result of a previous call
+to \code{scale_by} or the \code{pred} attribute of a previous call.
+See 'Details'.}
+
+\item{data}{A data.frame containing the numeric variable to be scaled and
+the factors to condition on.}
 
 \item{scale}{Numeric (default 1).  The desired standard deviation for the
 numeric variable within-factor-level.  If the numeric variable is a matrix,
@@ -15,40 +22,32 @@ then \code{scale} must have either one element (used for all columns),
 or as many elements as there are columns in the numeric variable. To center
 the numeric variable without scaling, set \code{scale} to \code{0}.
 See 'Details'.}
-
-\item{formula}{A \code{\link[stats]{formula}} whose left hand side indicates
-a numeric variable to be scaled and whose right hand side indicates
-factors to condition this scaling on. See 'Details'.}
-
-\item{pred}{The \code{scaledby} attribute of a previous \code{scale_by} call.
-See 'Details' and 'Value'.}
 }
 \value{
 A numeric variable which is conditionally scaled within each level
   of the grouping factor, with standard deviation \code{scale}.  It has
   an additional class \code{scaledby}, as well as an attribute
-  \code{scaledby} with class \code{scaledby_pred}, which is a list containing
-  the \code{formula}, the centers and scales for known factor levels, and the
+  \code{pred} with class \code{scaledby_pred}, which is a list containing
+  the formula, the centers and scales for known factor levels, and the
   center and scale to be applied to new factor levels.  The variable returned
-  can be used as the \code{pred} argument in future calls to \code{scale_by},
-  as can its \code{scaledby} attribute.
+  can be used as the \code{object} argument in future calls to
+  \code{scale_by}, as can its \code{pred} attribute.
 }
 \description{
 \code{scale_by} centers and scales a numeric variable within each level
 of a factor (or the interaction of several factors).
 }
 \details{
-The left hand side of the \code{formula} must indicate a numeric variable
+First, the behavior when \code{object} is a formula and \code{scale = 1})
+is described.
+The left hand side of the formula must indicate a numeric variable
 to be scaled.  The full interaction of the variables on the right hand side
-of the \code{formula} is taken as the factor to condition scaling on (i.e.
+of the formula is taken as the factor to condition scaling on (i.e.
 it doesn't matter whether they are separated with \code{+}, \code{:}, or
-\code{*}.  For the remainder of this section, the numeric variable will
+\code{*}).  For the remainder of this section, the numeric variable will
 be referred to as \code{x} and the full factor interaction term will be
 referred to as \code{facs}.
 
-Under the default settings (\code{pred = NULL} and \code{scale = 1}),
-then \code{data} is used to center
-and scale \code{x} within each level of \code{facs}.
 First, if \code{facs} has more than one element, then a new factor is
 created as their full interaction term.  When a factor has \code{NA} values,
 \code{NA} is treated as a level.  For each level of the factor which has
@@ -66,7 +65,7 @@ values now has mean \code{0} and standard deviation \code{1}, and levels
 with fewer than two are placed on a similar scale (though their standard
 deviation is undefined).  Note that the overall standard deviation of the
 resulting variable (or standard deviations if \code{x} is a matrix) will not
-be exactly \code{1} (but it will be close).  The intepretation of the
+be exactly \code{1} (but will be close).  The intepretation of the
 variable is how far an observation is from its level's average value for
 \code{x} in terms of within-level standard deviations.
 
@@ -81,9 +80,10 @@ each column of \code{x} or a single number which will be used for all
 columns.  If any element of \code{scale} is \code{0}, then all elements are
 treated as \code{0}.  No element in \code{scale} can be negative.
 
-If \code{pred} is specified, it must be the \code{scaledby} attribute from
-a previous call to \code{scale_by}.  In this case, \code{scale}
-and \code{formula} are ignored, and \code{x} in \code{data} is scaled
+If \code{object} is not a formula, it must be the numeric variable which
+resulted from a previous \code{scale_by} call, or the \code{pred} attribute
+of such a numeric variable. In this case, \code{scale}
+is ignored, and \code{x} in \code{data} is scaled
 using the formula, centers and scales from
 a previous call will be used (with new levels treated using \code{new_center}
 and \code{new_scale}).
@@ -116,8 +116,7 @@ newdata <- data.frame(
   f1 = c("a", "b", "c", "d"),
   x1 = rep(1, 4))
 
-newdata$x1_pred_scaledby <- scale_by(data = newdata,
-  pred = dat$x1_scaled_by_f1)
+newdata$x1_pred_scaledby <- scale_by(dat$x1_scaled_by_f1, newdata)
 
 newdata
 
