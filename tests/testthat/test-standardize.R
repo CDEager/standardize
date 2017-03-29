@@ -33,7 +33,7 @@ d2[["poly_x2"]] <- scale(poly(d$x2, 2))
 d2[["log_I_x3.pow.2"]] <- scale(log(d$x3^2))
 d2[["scale_x1_by_f2"]] <- scale_by(x1 ~ f2, d)
 d2[["g1"]] <- factor(d$g1, ordered = FALSE)
-d2 <- d2[, colnames(mf)]
+d2 <- standardize:::strip_attr(d2[, colnames(mf)])
 mf2 <- mf
 attributes(mf2) <- attributes(mf2)[c("names", "class", "row.names")]
 
@@ -55,11 +55,20 @@ test_that("basic method works", {
 })
 
 
-test_that("predict works", {
+nd <- predict(sf, d)
+w <- getOption("warn")
+options(warn = -1)
+mod <- lme4::lmer(sf$formula, sf$data)
+options(warn = w)
+sf$data <- standardize:::strip_attr(sf$data)
+
+
+test_that("predict and lmer work", {
   expect_equal(predict(sf, d, response = TRUE), sf$data)
   expect_equal(predict(sf, d), sf$data[, -1])
   expect_equal(predict(sf, d, fixed = FALSE), sf$data[, c(2, 8:9)])
   expect_equal(predict(sf, d, random = FALSE), sf$data[, 2:7])
+  expect_warning(expect_equal(predict(mod, nd), fitted(mod)))
   expect_error(predict(sf, d, fixed = FALSE, random = FALSE))
 })
 

@@ -5,8 +5,8 @@
 #' The \code{\link{standardize}} function returns a list of class
 #' \code{standardized}, which has a \code{print} method,
 #' and which can additionally be used to place new data into the same
-#' standardized space as the data passed in the call to
-#' \code{\link{standardize}} using the \code{predict} function.
+#' standardized space as the data passed in the call to \code{\link{standardize}}
+#' using the \code{\link[=predict.standardized]{predict}} function.
 #' The \code{standardized} list contains the following elements.
 #' \describe{
 #'   \item{call}{The call to \code{\link{standardize}} which created the
@@ -84,6 +84,10 @@ NULL
 #' directly predict the response variable for new data.  The new data must
 #' first be placed into the standardized space.
 #'
+#' @section Note: You may see a warning "contrasts dropped from factor <x>" for
+#'   each factor when predicting new data with a fitted model object, but this
+#'   warning can be ignored (the actual predictions will still be correct).
+#'
 #' @param object An object of class \code{standardized}.
 #' @param newdata Data to be placed into the same standardized space as the
 #'   data in the call to \code{\link{standardize}} which produced the
@@ -107,7 +111,7 @@ NULL
 #' train.s <- standardize(y ~ x1 + f1 + (1 | g1), train)
 #' mod <- lmer(train.s$formula, train.s$data)
 #' test.s <- predict(train.s, test, response = TRUE)
-#' preds <- predict(mod, newdata = test.s)
+#' preds <- predict(mod, newdata = test.s)  # can ignore warning about dropped contrasts
 #' res <- test.s$y - preds
 #' }
 #'
@@ -133,10 +137,7 @@ predict.standardized <- function(object, newdata, response = FALSE,
   }
   mt <- condense_terms(mt)
   
-  mf <- model.frame(mt, newdata, na.action = na.action)
-  a <- attributes(mf)
-  a <- a[names(a) %in% c("names", "row.names", "class")]
-  attributes(mf) <- a
+  mf <- strip_attr(stats::model.frame(mt, newdata, na.action = na.action))
   colnames(mf) <- unname(attr(mt, "rename"))
   
   return(mf)

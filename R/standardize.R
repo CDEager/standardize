@@ -16,7 +16,7 @@
 #' is not called, then \code{\link[base]{scale}} is used with default arguments.
 #' The result is that gaussian responses are on unit scale (i.e. have mean
 #' \code{0} and standard deviation \code{1}), or, if \code{\link{scale_by}} is
-#' is used on the left hand side of \code{formula}, unit scale within each
+#' used on the left hand side of \code{formula}, unit scale within each
 #' level of the specified conditioning factor.
 #' For all other values for \code{family}, the response is not checked.
 #'
@@ -76,7 +76,52 @@
 #'   \code{\link{named_contr_sum}}, and \code{\link{scaled_contr_poly}}.
 #' 
 #' @examples
-#' # NEED TO ADD EXAMPLES
+#' dat <- expand.grid(ufac = letters[1:3], ofac = 1:3)
+#' dat <- as.data.frame(lapply(dat, function(n) rep(n, 60)))
+#' dat$ofac <- factor(dat$ofac, ordered = TRUE)
+#' dat$x <- rpois(nrow(dat), 5)
+#' dat$z <- rnorm(nrow(dat), rep(rnorm(30), each = 18), rep(runif(30), each = 18))
+#' dat$subj <- rep(1:30, each = 18)
+#' dat$y <- rnorm(nrow(dat), -2, 5)
+#' 
+#' sdat <- standardize(y ~ log(x + 1) + scale_by(z ~ subj) + ufac + ofac +
+#'   (1 | subj), dat)
+#' 
+#' sdat
+#' sdat$formula
+#' head(dat)
+#' head(sdat$data)
+#' sdat$contrasts
+#' sdat$groups
+#' mean(sdat$data$y)
+#' sd(sdat$data$y)
+#' mean(sdat$data$log_x.p.1)
+#' sd(sdat$data$log_x.p.1)
+#' with(sdat$data, tapply(scale_z_by_subj, subj, mean))
+#' with(sdat$data, tapply(scale_z_by_subj, subj, sd))
+#' 
+#' sdat <- standardize(y ~ log(x + 1) + scale_by(z ~ subj) + ufac + ofac +
+#'   (1 | subj), dat, scale = 0.5)
+#' 
+#' sdat
+#' sdat$formula
+#' head(dat)
+#' head(sdat$data)
+#' sdat$contrasts
+#' sdat$groups
+#' mean(sdat$data$y)
+#' sd(sdat$data$y)
+#' mean(sdat$data$log_x.p.1)
+#' sd(sdat$data$log_x.p.1)
+#' with(sdat$data, tapply(scale_z_by_subj, subj, mean))
+#' with(sdat$data, tapply(scale_z_by_subj, subj, sd))
+#'
+#' \dontrun{
+#' mod <- lmer(sdat$formula, sdat$data)
+#' # this next line causes warnings about contrasts being dropped, but
+#' # these warnings can be ignored (i.e. the statement still evaluates to TRUE)
+#' all.equal(predict(mod, newdata = predict(sdat, dat)), fitted(mod))
+#' }
 #' 
 #' @importFrom lme4 subbars
 #'
@@ -201,8 +246,8 @@ standardize <- function(formula, data, family = gaussian, scale = 1,
   terms <- formula
   attributes(terms) <- a
   
-  frame <- stats::model.frame(lme4::subbars(terms), data, na.action = na.action)
-  attributes(frame) <- attributes(frame)[c("names", "row.names", "class")]
+  frame <- strip_attr(stats::model.frame(lme4::subbars(terms), data,
+    na.action = na.action))
   
   nms <- make_new_names(colnames(frame))
   names(nms) <- colnames(frame)

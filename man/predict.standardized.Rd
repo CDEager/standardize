@@ -42,6 +42,11 @@ fit with the \code{formula} and \code{data} elements of a
 directly predict the response variable for new data.  The new data must
 first be placed into the standardized space.
 }
+\section{Note}{
+ You may see a warning "contrasts dropped from factor <x>" for
+  each factor when predicting new data with a fitted model object, but this
+  warning can be ignored (the actual predictions will still be correct).
+}
 \examples{
 \dontrun{
 train <- subset(mydata, train)
@@ -49,7 +54,7 @@ test <- subset(mydata, !train)
 train.s <- standardize(y ~ x1 + f1 + (1 | g1), train)
 mod <- lmer(train.s$formula, train.s$data)
 test.s <- predict(train.s, test, response = TRUE)
-preds <- predict(mod, newdata = test.s)
+preds <- predict(mod, newdata = test.s)  # can ignore warning about dropped contrasts
 res <- test.s$y - preds
 }
 

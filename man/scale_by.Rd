@@ -38,7 +38,7 @@ A numeric variable which is conditionally scaled within each level
 of a factor (or the interaction of several factors).
 }
 \details{
-First, the behavior when \code{object} is a formula and \code{scale = 1})
+First, the behavior when \code{object} is a formula and \code{scale = 1}
 is described.
 The left hand side of the formula must indicate a numeric variable
 to be scaled.  The full interaction of the variables on the right hand side

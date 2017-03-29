@@ -8,6 +8,24 @@
 #   lme4 1.1-12
 
 
+# remove attributes from columns of data frame x which cause predict issues
+strip_attr <- function(x) {
+  a <- attributes(x)
+  a <- a[names(a) %in% c("names", "row.names", "class")]
+  attributes(x) <- a
+  rm_attr <- c("scaled:center", "scaled:scale", "pred", "coefs")
+  for (j in 1:ncol(x)) {
+    cl <- class(x[[j]])
+    cl <- cl[!(cl %in% c("poly", "scaledby"))]
+    class(x[[j]]) <- cl
+    a <- attributes(x[[j]])
+    a <- a[!(names(a) %in% rm_attr)]
+    attributes(x[[j]]) <- a
+  }
+  return(x)
+}
+
+
 # what is the first element in lst which matches x exactly
 in_list <- function(x, lst) {
   m <- which(sapply(lst, function(n) isTRUE(all.equal(n, x))))

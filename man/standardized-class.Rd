@@ -7,8 +7,8 @@
 The \code{\link{standardize}} function returns a list of class
 \code{standardized}, which has a \code{print} method,
 and which can additionally be used to place new data into the same
-standardized space as the data passed in the call to
-\code{\link{standardize}} using the \code{predict} function.
+standardized space as the data passed in the call to \code{\link{standardize}}
+using the \code{\link[=predict.standardized]{predict}} function.
 The \code{standardized} list contains the following elements.
 \describe{
   \item{call}{The call to \code{\link{standardize}} which created the
