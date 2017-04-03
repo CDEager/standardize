@@ -1,0 +1,103 @@
+---
+output: github_document
+---
+
+<!-- README.md is generated from README.Rmd. Please edit that file -->
+
+```{r, echo = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.path = "README-"
+)
+```
+
+# The standardize package
+
+The *standardize* package provides tools for controlling continuous variable scaling and factor contrasts.  The goal of these standardizations is to keep the regression parameters on similar scales, and to ensure that the intercept (which is the predicted value of an observation when all other coefficients are multiplied by 0) represents the corrected mean (i.e. the predicted value for an observation which is average in every way, holding covariates at their mean values and averaging over group differences in factors).  When the predictors are all on a similar scale, there are computational benefits for both frequentist and Bayesian approaches in mixed effects regressions, reasonable Bayesian priors are easier to specify, and regression output is easier to interpret.  Take, for example, the **ptk** dataset included in the package (for which we will create a new ordered factor *preheight*):
+
+```{r}
+library(standardize)
+
+ptk$preheight <- "Mid"
+ptk$preheight[ptk$prevowel == "a"] <- "Low"
+ptk$preheight[ptk$prevowel %in% c("i", "u")] <- "High"
+ptk$preheight <- factor(ptk$preheight, ordered = TRUE, levels = c("Low",
+  "Mid", "High"))
+
+summary(ptk)
+```
+
+Suppose we want to fit a linear mixed effects regression with total consonant duration *cdur* as the response, *place*, *stress*, *preheight*, the natural log of *wordfreq*, and *speaker*-relative *speechrate* as fixed effects, and random intercepts for *speaker*.  The variables for this regression can be easily placed into a standardized space with the **standardize** function:
+
+```{r}
+sdat <- standardize(cdur ~ place + stress + preheight + log(wordfreq) +
+  scale_by(speechrate ~ speaker) + (1 | speaker), ptk)
+  
+sdat
+
+names(sdat)
+
+head(sdat$data)
+
+mean(sdat$data$cdur)
+sd(sdat$data$cdur)
+
+mean(sdat$data$log_wordfreq)
+sd(sdat$data$log_wordfreq)
+all.equal(scale(log(ptk$wordfreq))[, 1], sdat$data$log_wordfreq[, 1])
+
+with(sdat$data, tapply(scale_speechrate_by_speaker, speaker, mean))
+with(sdat$data, tapply(scale_speechrate_by_speaker, speaker, sd))
+
+sdat$contrasts
+
+sdat$groups
+```
+
+The default settings for **standardize** have placed all the continuous variables on unit scale, set (named) sum contrasts for all unordered factors, and orthogonal polynomial contrasts with column standard deviations of 1 for all ordered factors.  In the case of *speechrate*, the call to **scale_by** ensured that rather than simply placing *speechrate* on unit scale, it was placed on unit scale for each *speaker*, so that the resulting variable represents speaker-relative speech rate.  We can then simply use the *formula* and *data* elements of the object returned by **standardize** to fit the mixed effects regression in this standardized space:
+
+```{r}
+library(lme4)
+
+mod <- lmer(sdat$formula, sdat$data)
+
+summary(mod)
+```
+
+The scaling of the predictors can be controlled through the **scale** argument to **standardize**.  For example:
+
+```{r}
+sdat <- standardize(cdur ~ place + stress + preheight + log(wordfreq) +
+  scale_by(speechrate ~ speaker) + (1 | speaker), ptk, scale = 0.5)
+  
+sdat
+
+names(sdat)
+
+head(sdat$data)
+
+mean(sdat$data$cdur)
+sd(sdat$data$cdur)
+
+mean(sdat$data$log_wordfreq)
+sd(sdat$data$log_wordfreq)
+all.equal(0.5 * scale(log(ptk$wordfreq))[, 1], sdat$data$log_wordfreq[, 1])
+
+with(sdat$data, tapply(scale_speechrate_by_speaker, speaker, mean))
+with(sdat$data, tapply(scale_speechrate_by_speaker, speaker, sd))
+
+sdat$contrasts
+
+sdat$groups
+```
+
+The **stanardize** function works by making use of the function **scale** from base *R*, as well as the *standardize* functions **scale_by**, **named_contr_sum**, and **scaled_contr_poly**.  For more details, install the package and see the vignette "Using the standardize Package".
+
+# Installation
+
+To install the *standardize* package, call:
+
+```{r, eval = FALSE}
+devtools::install_github("CDEager/standardize", build_vignettes = TRUE)
+```

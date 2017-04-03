@@ -1,7 +1,7 @@
 Package: standardize
 Type: Package
 Title: Tools for Standardizing Model Frames
-Version: 0.1.0-9000
+Version: 0.1.0
 Authors@R: person("Christopher D.", "Eager",
     email = "eagerstats@gmail.com", role = c("aut", "cre"))
 Description: standardize provides tools which allow all of the regression
