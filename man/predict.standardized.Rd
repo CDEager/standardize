@@ -5,7 +5,7 @@
 \title{Place new data into an already existing standardized space.}
 \usage{
 \method{predict}{standardized}(object, newdata, response = FALSE,
-  fixed = TRUE, random = TRUE, na.action = "na.pass")
+  fixed = TRUE, random = TRUE, na.action = "na.pass", ...)
 }
 \arguments{
 \item{object}{An object of class \code{standardized}.}
@@ -24,6 +24,8 @@ data in the call to \code{\link{standardize}} which produced the
 \code{newdata} contains variables pertaining to the random effects.}
 
 \item{na.action}{See \code{\link[stats]{model.frame}}.}
+
+\item{...}{Ignored with a warning.}
 }
 \value{
 A data.frame with the \code{newdata} standardized using the

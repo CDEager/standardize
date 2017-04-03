@@ -254,13 +254,15 @@ standardize <- function(formula, data, family = gaussian, scale = 1,
   attr(terms, "rename") <- nms
   colnames(frame) <- unname(nms)
   formula <- make_new_formula(terms, nms)
+  attr(formula, "standardized.scale") <- scale
 
   sf <- list(call = mc, scale = scale, formula = formula,
-    data = frame, pred = terms)
+    family = family, data = frame, pred = terms)
   sf$variables <- data.frame(
     Variable = names(nms),
     Name = unname(nms),
     Class = unname(d))
+  colnames(sf$variables)[2] <- "Standardized Name"
   facs <- d %in% c("factor", "ordered")
   if (length(facs)) {
     sf$contrasts <- lapply(frame[, facs, drop = FALSE], contrasts)

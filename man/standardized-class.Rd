@@ -16,7 +16,11 @@ The \code{standardized} list contains the following elements.
   \item{scale}{The \code{scale} argument to \code{\link{standardize}}.}
   \item{formula}{The regression formula in standardized space (with new
     names) which can be used along with the \code{data} element to fit
-    regressions.}
+    regressions.  It has an attribute \code{standardized.scale} which is the
+    same as the \code{scale} element of the object (this allows users and
+    package devleopers to write regression-fitting functions which can tell
+    if the input is from a \code{standardized} object).}
+  \item{family}{The regression family.}
   \item{data}{A data frame containing the regression variables in a
     standardized space (renamed to have valid variable names corresponding
     to those in the \code{formula} element).}
@@ -33,7 +37,7 @@ The \code{standardized} list contains the following elements.
 \details{
 In the \code{variables} data frame, the \code{Variable} column contains the
 name of the variable in the original formula passed to \code{\link{standardize}}.
-The \code{Name} column contains the name of the variable in the standardized
+The \code{Standardized Name} column contains the name of the variable in the standardized
 formula and data frame. The original variable name is altered such that the
 original name is still recoverable but is also a valid variable name for
 regressions run using the \code{formula} and \code{data} elements of the

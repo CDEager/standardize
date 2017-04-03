@@ -14,7 +14,11 @@
 #'   \item{scale}{The \code{scale} argument to \code{\link{standardize}}.}
 #'   \item{formula}{The regression formula in standardized space (with new
 #'     names) which can be used along with the \code{data} element to fit
-#'     regressions.}
+#'     regressions.  It has an attribute \code{standardized.scale} which is the
+#'     same as the \code{scale} element of the object (this allows users and
+#'     package devleopers to write regression-fitting functions which can tell
+#'     if the input is from a \code{standardized} object).}
+#'   \item{family}{The regression family.}
 #'   \item{data}{A data frame containing the regression variables in a
 #'     standardized space (renamed to have valid variable names corresponding
 #'     to those in the \code{formula} element).}
@@ -30,7 +34,7 @@
 #'
 #' In the \code{variables} data frame, the \code{Variable} column contains the
 #' name of the variable in the original formula passed to \code{\link{standardize}}.
-#' The \code{Name} column contains the name of the variable in the standardized
+#' The \code{Standardized Name} column contains the name of the variable in the standardized
 #' formula and data frame. The original variable name is altered such that the
 #' original name is still recoverable but is also a valid variable name for
 #' regressions run using the \code{formula} and \code{data} elements of the
@@ -99,6 +103,7 @@ NULL
 #' @param random A logical (default \code{TRUE}) indicating whether
 #'   \code{newdata} contains variables pertaining to the random effects.
 #' @param na.action See \code{\link[stats]{model.frame}}.
+#' @param ... Ignored with a warning.
 #'
 #' @return A data.frame with the \code{newdata} standardized using the
 #'   \code{pred} element of the \code{\link[=standardized-class]{standardized}}
@@ -118,7 +123,10 @@ NULL
 #' @export
 predict.standardized <- function(object, newdata, response = FALSE,
                                  fixed = TRUE, random = TRUE,
-                                 na.action = "na.pass") {
+                                 na.action = "na.pass", ...) {
+  if (length(list(...))) {
+    warning("Ignoring arguments passed in '...'")
+  }
   mt <- object$pred
   a <- attributes(mt)
   if (fixed && !random) {
@@ -167,18 +175,34 @@ print.standardized <- function(x, ...) {
   cat("\nCall:\n")
   print(x$call)
   
-  cat("\nNew Formula:\n")
-  print(x$formula, showEnv = FALSE)
+  cat("\nStandardized Formula:\n")
+  f <- x$formula
+  attr(f, "standardized.scale") <- NULL
+  print(f, showEnv = FALSE)
   
   cat("\nVariables:\n")
   print(x$variables, row.names = FALSE, right = FALSE)
   
-  cat("\nStandardized Scale: ", x$scale, "\n",
-      "Continuous variables have mean zero and standard deviation 'scale'\n",
-      "Unordered factors are coded with sum contrasts with deviation 'scale'\n",
-      "Ordered factors are coded with orthogonal polynomial contrasts\n",
-      "  with column standard deviations of 'scale'\n",
-      "Grouping factors are coded as unordered factors with default contrasts\n\n",
-      sep = "")
+  if (isTRUE(all.equal((f <- x$family), gaussian()))) {
+    if (x$variables$Class[1] %in% c("scaledby", "scaledby.poly")) {
+      cat("\nResponse has mean 0 and standard deviation 1 ",
+        "within each factor level\n", sep = "")
+    } else {
+      cat("\nResponse has mean 0 and standard deviation 1\n")
+    }
+  } else {
+    if (!is.character(f)) f <- paste0(f$family, "(", f$link, ")")
+    cat("\nResponse not altered because family = ", f, "\n", sep = "")
+  }
+  
+  cat(
+    "\nStandardized Scale for the Predictors: ", x$scale, "\n",
+    "Continuous variables have mean 0 and standard deviation 'scale'\n",
+    "  (within-factor-level if scale_by was used)\n",
+    "Unordered factors have sum contrasts with deviation 'scale'\n",
+    "Ordered factors have orthogonal polynomial contrasts whose\n",
+    "  columns have standard deviation 'scale'\n",
+    "Grouping factors are coded as unordered factors with default contrasts\n",
+    "\n", sep = "")
 }
 

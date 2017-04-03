@@ -20,4 +20,10 @@ LazyData: true
 URL: https://github.com/CDEager/standardize
 BugReports: https://github.com/CDEager/standardize/issues
 RoxygenNote: 5.0.1
-Suggests: testthat
+Suggests: testthat,
+    knitr,
+    rmarkdown,
+    afex (>= 0.16-1),
+    lsmeans (>= 2.25-5),
+    lmerTest (>= 2.0-33)
+VignetteBuilder: knitr

@@ -1,0 +1,383 @@
+---
+title: "Using the standardize Package"
+author: "Christopher D. Eager"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Using the standardize Package}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, echo = FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
+```
+
+
+The *standardize* package provides tools for controlling continuous variable scaling and factor contrasts.  The goal of these standardizations is to keep the regression parameters on similar scales, and to ensure that the intercept (which is the predicted value of an observation when all other coefficients are multiplied by 0) represents the corrected mean (i.e. the predicted value for an observation which is average in every way, holding covariates at their mean values and averaging over group differences in factors).  When the predictors are all on a similar scale, there are computational benefits for both frequentist and Bayesian approaches in mixed effects regressions, reasonable Bayesian priors are easier to specify, and regression output is easier to interpret.
+
+Throughout this vignette, we will use the **ptk** dataset to demonstrate the use of the *standardize* package.  A summary of the data can be seen below.  We will first discuss scaling continuous variables with the **scale** function from base *R*, and with the **scale_by** function from *standardize*.  Then we'll discuss contrasts for unordered and ordered factors with **named_sum_contr** and **scaled_contr_poly** (respectively).  Finally, we will use the **standardize** function to quickly use all of these tools at once.
+
+```{r}
+library(standardize)
+
+summary(ptk)
+```
+
+
+## Continuous variables
+
+Continuous variables include covariates (i.e. fixed effects which take on continuous values) and the dependent variable in linear regression.  The **scale** function in base *R*, with its default arguments, places continuous variables on unit scale by subtracting the mean of the variable and dividing the result by the variable's standard deviation (also sometimes called z-scoring or simply scaling).  The result is that the values in the transformed variable have the same relationship to one another as in the untransformed variable, but the transformed variable has mean 0 and standard deviation 1.  As an example, consider the simple linear regression on total consonant duration *cdur* with *speechrate* as the predictor when we don't scale either variable:
+
+```{r}
+mean(ptk$cdur)
+sd(ptk$cdur)
+
+mean(ptk$speechrate)
+sd(ptk$speechrate)
+
+summary(lm(cdur ~ speechrate, ptk))
+```
+
+In the output for the regression on the raw variables, the intercept is 186.8 ms.  This is the predicted value when all of the other coefficients are multiplied by 0.  In this case, this does not describe anything interpretable, since from the data summary we can see that the minimum speech rate is 2 nuclei per second (and a value of 0 nuclei per second is not possible).  The coefficient for speech rate (-8.5) means that for each increase of 1 nucleus per second in speechrate, there is an expected decrease in total consonant duration of 8.5 ms.  But is an increase of 1 nucleus per second a large increase?  And is a decrease in 8.5 ms a large decrease?  This information is not in the output.  When we scale *cdur* and *speechrate* so that they both have mean 0 and standard deviation 1, the output becomes easier to interpret:
+
+```{r}
+ptk$cdur_scaled <- scale(ptk$cdur)[, 1]
+ptk$sr_scaled <- scale(ptk$speechrate)[, 1]
+
+mean(ptk$cdur_scaled)
+sd(ptk$cdur_scaled)
+
+mean(ptk$sr_scaled)
+sd(ptk$sr_scaled)
+
+summary(lm(cdur_scaled ~ sr_scaled, ptk))
+```
+
+Looking at the output of the regression on the scaled variables, we see that the R-squared value and F-statistic are unchanged, but now the intercept term is 0 and the estimate for the effect of scaled speech rate is -0.36.  In this case, a value of 0 for scaled speech rate indicates the average value, and so the intercept represents the predicted consonant duration on unit scale at average speech rates.  The effect of scaled speech rate now represents the expected change in standard deviations of consonant duration for a 1-standard-deviation increase in speech rate; that is, for a 1-SD increase in speech rate, we expect a 0.36-SD decrease in consonant duration, which we could call an effect of moderate magnitude.  When we add more covariates into the model, so long as they are all scaled prior to regression, we can directly compare the effect sizes of the different coefficients with no further math required, since they all represent the expected change in dependent variable standard deviations for a 1-SD increase in the covariate.
+
+In addition to the **scale** function in base *R*, the *standardize* package has the function **scale_by**, which allows a continuous variable to be placed on unit scale within each level of a factor (or the interaction of several factors).  For example, say that we are interested in whether or not a speaker's *relative* speech rate affects their total consonant durations rather than speech rate in general.  In other words, some speakers may simply speak more quickly or more slowly in general, and some may exhibit more speech rate variation than others, and we are interested in modeling speech rate relative to the speaker's tendencies.  In this case, we can use the **scale_by** function:
+
+```{r}
+ptk$sr_scaled_by_speaker <- scale_by(speechrate ~ speaker, ptk)
+
+mean(ptk$sr_scaled_by_speaker)
+sd(ptk$sr_scaled_by_speaker)
+
+with(ptk, tapply(speechrate, speaker, mean))
+with(ptk, tapply(speechrate, speaker, sd))
+
+with(ptk, tapply(sr_scaled, speaker, mean))
+with(ptk, tapply(sr_scaled, speaker, sd))
+
+with(ptk, tapply(sr_scaled_by_speaker, speaker, mean))
+with(ptk, tapply(sr_scaled_by_speaker, speaker, sd))
+```
+
+The overall mean of *sr_scaled_by_speaker* is still 0, and while the standard deviation is not exactly 1, it is very close at 0.99.  When we look at the raw *speechrate* variable by speaker, we can see that speakers differ somewhat in their mean speech rate and in the amount that the deviate from their own mean speech rate.  When we look at the *sr_scaled* variable that we created earlier with the base *R* **scale** function, these same differences persist, but now expressed on unit scale in terms of the overall dataset.  For *sr_scaled_by_speaker*, however, each speaker's mean value is 0 and each speaker's standard deviation is 1, and the variable is interpreted as *how slowly or quickly the speaker was talking given their own speech rate tendencies*.
+
+If we wanted the variables resulting from **scale** and **scale_by** to have a different standard deviation than 1, this can be easily accomplished in the following way:
+
+```{r}
+ptk$sr_scaled_0.5 <- scale(ptk$speechrate) * 0.5
+ptk$sr_scaled_by_speaker_0.5 <- scale_by(speechrate ~ speaker, ptk, scale = 0.5)
+
+mean(ptk$sr_scaled_0.5)
+sd(ptk$sr_scaled_0.5)
+
+with(ptk, tapply(sr_scaled_by_speaker_0.5, speaker, mean))
+with(ptk, tapply(sr_scaled_by_speaker_0.5, speaker, sd))
+```
+
+
+## Factors
+
+Factors are variables which take on a defined set of categorical values called levels rather than continuous values.  In regression, a factor with *K* levels is modeled through the use of *K - 1* dummy variables.  Each level of the factor is assigned a value for each dummy variable based on a contrast matrix.  So, for example, a factor with four levels has a contrast matrix with four rows (one for each level) and three columns (one for each dummy variable), with the values in the cells of the matrix determining the numerical expression for the factor levels in the dummy variables.  There are two general types of factors, ordered and unordered, whose contrasts are treated differently.
+
+### Unordered factors
+
+Unordered factors take on two or more categorical values which are not intrinsically ordered (or have a somewhat ordered interpretation but there are only two categories, as is sometimes the case with factors coded as false vs. true, 0 vs. 1, or no vs. yes).  For unordered factors, the default in *R* is to use treatment contrasts, where the first level (alphabetically) is coded as 0 for all of the dummy variables, and the remaining levels each have a dummy variable for which they are coded +1, and are then coded as 0 for the other dummy variables, as can be seen in the following example using *prevowel* (the preceding vowel's phoneme identity).
+
+```{r}
+options(contrasts = c("contr.treatment", "contr.poly"))
+
+contrasts(ptk$prevowel)
+
+summary(lm(cdur_scaled ~ prevowel, ptk))
+```
+
+With treatment contrasts, the intercept loses the interpretation of the corrected mean, since when all of the dummy variables in the contrast matrix above are multiplied by 0, the resulting value corresponds to a preceding /a/.  The coefficients *prevowele ... prevowelu* then represent the difference between each of the other preceding vowel categories and /a/.  To avoid this (and to ensure that the coefficients for the dummy variables stay, on average, closer to zero, but without altering the ultimate interpretation of the results), sum contrasts are used.  With sum contrasts in *R*, the first *K - 1* levels (alphabetically) each get a dummy variable for which they are coded +1, and then are valued 0 for the other dummy variables.  The last level (alphabetically), is assigned a value of -1 for all of the dummy variables.  Sum contrasts also have additional computational benefits in comparison to treatment contrasts for similar reasons as covariate scaling.  Recoding the contrasts for *prevowel* with sum contrasts, we get:
+
+```{r}
+options(contrasts = c("contr.sum", "contr.poly"))
+
+contrasts(ptk$prevowel)
+
+summary(lm(cdur_scaled ~ prevowel, ptk))
+```
+
+With sum contrasts, the intercept maintains the interpretation of the corrected mean, since when all of the dummy variable coefficients are multiplied by 0, it averages over their effects (note that no row in the contrast matrix above has all 0's, and thus multiplying all of the coefficients by 0 cannot describe any one level; rather, the mean of the values in each column is 0, and so multiplying all of the dummy variable coefficients by 0 averages over their effects).  However, one downside to the default implementation is that the coefficients are numbered rather than named.  The **named_contr_sum** function from the *standardize* package orders levels alphabetically, applies sum contrasts to them, and names the contrasts:
+
+```{r}
+contrasts(ptk$prevowel) <- named_contr_sum(ptk$prevowel)
+
+contrasts(ptk$prevowel)
+
+summary(lm(cdur_scaled ~ prevowel, ptk))
+```
+
+Note that the named output is identical in all other ways to the number output in this case.  The intercept is the corrected mean, *prevowela ... prevowelo* represent the difference between the named category and the corrected mean, and the /u/ category is obtained by subtracting all four the *prevowel* coefficients from the intercept.
+
+The **named_contr_sum** function also accepts a *scale* argument by which the entire contrast matrix is multiplied.  This allows the contrast matrix deviation magnitude to be defined.  For example:
+
+```{r}
+contrasts(ptk$prevowel) <- named_contr_sum(ptk$prevowel, scale = 0.5)
+
+contrasts(ptk$prevowel)
+```
+
+One last note on **named_contr_sum** is that if there are only two levels and they are equal to (ingoring case) "F" and "T", "FALSE" and "TRUE", "N", and "Y", "NO", and "YES", or "0" and "1", then their order is reversed.  This makes it so the positive level gets the dummy coefficient rather than the negative level, yielding a more intuitive interpretation for the resulting coefficients.  For example, if we were interested in differntiating only between high vowels (/i/ and /u/) and non-high vowels (/e/, /o/, and /a/), we could do the following (note also that *return_contr* can be set to FALSE to create a factor with the contrasts, which is useful when the original variable is not a factor):
+
+```{r}
+ptk$prehigh <- ptk$prevowel %in% c("i", "u")
+
+class(ptk$prehigh)
+
+unique(ptk$prehigh)
+
+ptk$prehigh <- named_contr_sum(ptk$prehigh, return_contr = FALSE)
+
+class(ptk$prehigh)
+
+levels(ptk$prehigh)
+
+contrasts(ptk$prehigh)
+```
+
+### Ordered factors
+
+Ordered factors are variables which take on more than two categorical values, with the categories representing a hierarchy for which we may not expect the trend to be strictly linear.  For example, if we are interested in the effect of preceding vowel height, considering three levels (/a/ = low, /e o/ = mid, /i u/ = high). We might hypothesize that the general trend is for relatively higher vowels to have shorter durations than relatively lower vowels, but at the same time not expect that the difference between *Low* and *Mid* is the same as the difference between *Mid* and *High*.  In this case we could create an ordered factor *preheight* with levels *Low < Mid < High*.  In *R*, the default contrasts for ordered factors are orthogonal polynomial contrasts of highest possible degree.  That is, if there are *K* factor levels, then the contrast matrix represents the orthogonal polynomial of degree *K - 1*, where the first contrast column is the linear component, the second the quadratic, the third the cubic, the fourth the fourth power, etc. until the *K - 1*'th power is reached.  Our hypothesis that the trend is in general negative then would be supported by a negative lienar trend.  This is exemplified in the following code:
+
+```{r}
+ptk$preheight <- "Mid"
+ptk$preheight[ptk$prevowel == "a"] <- "Low"
+ptk$preheight[ptk$prevowel %in% c("i", "u")] <- "High"
+ptk$preheight <- factor(ptk$preheight, ordered = TRUE, levels = c("Low",
+  "Mid", "High"))
+
+head(ptk$preheight)
+
+contrasts(ptk$preheight)
+```
+
+However, the scale of the contrast matrix columns depends on the number of levels.  The mean of each contrast column is always 0, and the columns of the contrast matrix are completely uncorrelated, but the standard deviations of the contrast matrix columns decreases as the number of levels increases:
+
+```{r}
+contr3 <- contr.poly(3)
+contr5 <- contr.poly(5)
+
+apply(contr3, 2, mean)
+apply(contr5, 2, mean)
+
+apply(contr3, 2, sd)
+apply(contr5, 2, sd)
+```
+
+For this reason, the *standardize* package has a function **scaled_contr_poly** where the standard deviation of the contrast matrix columns for ordered factors can be specified through its **scale** argument (with default 1):
+
+```{r}
+sc_1_contr3 <- scaled_contr_poly(3)
+sc_0.5_contr3 <- scaled_contr_poly(3, scale = 0.5)
+
+sc_1_contr3
+
+apply(sc_1_contr3, 2, sd)
+
+sc_0.5_contr3
+
+apply(sc_0.5_contr3, 2, sd)
+```
+
+The resulting contrasts are still orthogonal polynomial contrasts; they are simply placed on a uniform scale regardless of the number of factor levels.  This affects the magnitude of the resulting coefficients, but, as with unordered factors and continuous varibles, it does not alter the significance of the variable:
+
+```{r}
+contrasts(ptk$preheight)
+
+summary(lm(cdur_scaled ~ preheight, ptk))
+
+contrasts(ptk$preheight) <- scaled_contr_poly(ptk$preheight)
+
+contrasts(ptk$preheight)
+
+summary(lm(cdur_scaled ~ preheight, ptk))
+```
+
+
+## The **standardize** function
+
+The **standardize** function implements **scale**, **scale_by**, **named_contr_sum**, and **scaled_contr_poly** automatically, allowing regressions to be easily fit in a standardized space.  It takes the following arguments:
+
+* formula: A regression formula, possibly containing random effects.
+* data: A data.frame containing the variables in the formula.
+* family: A regression family (defaults to guassian)
+* scale: The desired scale for the predictors (defaults to 1).
+* na.action: How observations with NA values should be treated (passed to __model.frame__, default is "na.pass").
+
+The function first calls **model.frame**.  If **family** is guassian (i.e. a linear model), then the response (i.e. dependent variable) is placed on unit scale (mean 0 and standard deviation 1) regardless of what the **scale** argument to **standardize** is; if the response contains a call to **scale_by**, then it is placed on unit scale within each level of the conditioning factor.  Then, random effects groups (if any) are coerced to unordered factors, and any predictors which are characters or which contain only two unique non-NA values (regardless of their class) are converted to unordered factors and assigned contrasts with **named_contr_sum**, passing along the **scale** argument.  Ordered factors are assigned contrasts with **scaled_contr_poly**, passing along the **scale** argument.  Continuous predictors which contain a call to **scale_by** are re-calculated passing along the **scale** argument.  Finally, continuous predictors which do not contain a call to **scale_by** are scaled using the **scale** function, ensuring that the resulting variable has standard deviation equal to the **scale** argument to **standardize**.
+
+The column names of the model frame are then renamed so that they are valid variable names, and the formula passed to **standardize** is updated with these variable names.  A list with class **standardized** is then returned with the following elements:
+
+* call: The call to __standardize__ which created the object.
+* scale: The __scale__ argument to __standardize__.
+* formula: The regression formula in standardized space (with new names) which can be used along with the __data__ element to fit regressions.
+* family: The regression family.
+* data: A data frame containing the regression variables in the standardized space (renamed to have valid variable names corresponding to those in the __formula__ element).
+* pred: A __terms__ object whose __predvars__ attribute allows new data to be placed into the same standardized space as the data in the __data__ element.
+* variables: A data frame with the name of the original variable, the corresponding name in the standardized data frame and formula, and the class of the variable in the standardized data frame.
+* contrasts: A named list of contrasts for all factors in the standardized data frame (or NULL if the regression contains no factors).
+* groups: A named list of levels for random effects grouping factors (or NULL if the regression contains no random effects).
+
+To illustrate the use of the **standardize** function, we will fit a linear mixed effects regression with **lmer** in the *lme4* package with *cdur* as the response, *place*, *stress*, *preheight*, the natural log of *wordfreq*, and *speecrhate* scaled by *speaker* as fixed effects, and random intercepts for *speaker*.  We begin by creating *preheight* and then calling **standardize**:
+
+```{r}
+ptk$preheight <- "Mid"
+ptk$preheight[ptk$prevowel == "a"] <- "Low"
+ptk$preheight[ptk$prevowel %in% c("i", "u")] <- "High"
+ptk$preheight <- factor(ptk$preheight, ordered = TRUE, levels = c("Low",
+  "Mid", "High"))
+
+sdat <- standardize(cdur ~ place + stress + preheight + log(wordfreq) +
+  scale_by(speechrate ~ speaker) + (1 | speaker), ptk)
+```
+
+Now lets examine the *sdat* object created by **standardize**:
+
+```{r}
+is.standardized(sdat)
+
+sdat
+
+names(sdat)
+
+head(sdat$data)
+
+mean(sdat$data$cdur)
+sd(sdat$data$cdur)
+
+mean(sdat$data$log_wordfreq)
+sd(sdat$data$log_wordfreq)
+all.equal(scale(log(ptk$wordfreq))[, 1], sdat$data$log_wordfreq[, 1])
+
+with(sdat$data, tapply(scale_speechrate_by_speaker, speaker, mean))
+with(sdat$data, tapply(scale_speechrate_by_speaker, speaker, sd))
+
+sdat$contrasts
+
+sdat$groups
+```
+
+We can see that all of the regression variables have been place on a similar scale, using the default **scale** argument of 1.  The majority of the predictors did not change name, but those which included function calls (*log(wordfreq)* and *scale_by(speechrate ~ speaker)*) have been altered so that they are valid variable names.  If we were to call **standardize** with **scale = 0.5**, then *cdur* would still have mean 0 and standard deviation 1, but the predictors would all have scale 0.5:
+
+```{r}
+sdat <- standardize(cdur ~ place + stress + preheight + log(wordfreq) +
+  scale_by(speechrate ~ speaker) + (1 | speaker), ptk, scale = 0.5)
+
+sdat
+
+names(sdat)
+
+head(sdat$data)
+
+mean(sdat$data$cdur)
+sd(sdat$data$cdur)
+
+mean(sdat$data$log_wordfreq)
+sd(sdat$data$log_wordfreq)
+all.equal(0.5 * scale(log(ptk$wordfreq))[, 1], sdat$data$log_wordfreq[, 1])
+
+with(sdat$data, tapply(scale_speechrate_by_speaker, speaker, mean))
+with(sdat$data, tapply(scale_speechrate_by_speaker, speaker, sd))
+
+sdat$contrasts
+
+sdat$groups
+```
+
+
+## Using the **standardized** object
+
+The **standardized** object can be used to fit regression models, and the resulting regression model can then be used with functions from other packages such as *lme4*, *afex*, and *lsmeans* with a few caveats.
+
+### Fitting a regression
+
+We fit the mixed effects regression using the **standardized** object with **scale = 0.5** by simply passing its formula and data elements to the **lmer** function:
+
+```{r}
+library(lme4)
+
+mod <- lmer(sdat$formula, sdat$data)
+
+summary(mod)
+```
+
+### Predicting new data
+
+When predicting new data with the regression model, the new data first needs to be placed into the same standardized space as *sdat$data*.  This can be done by calling **predict** with the **standardied** object as the first argument.  The **predict** method for the **standardized** class also takes logical arguments **response** (whether or not the new data contains the response variable; default FALSE), **fixed** (whether or not the new data contains the fixed effects variables; default TRUE), and **random** (whether or not the new data contains the random effects variables; default TRUE).  We will illustrate the use of the **standardized predict** method using the original data **ptk** as if it were new data:
+
+```{r}
+newdata <- predict(sdat, ptk)
+newdata_fe <- predict(sdat, ptk, random = FALSE)
+newdata_re <- predict(sdat, ptk, fixed = FALSE)
+
+head(newdata)
+
+head(newdata_fe)
+
+head(newdata_re)
+```
+
+This standardized new data can then be used as the **newdata** argument to **predict** with the regression model as the first argument.  The **predict** method will generate warnings about contrasts being dropped, but these warnings can be ignored (i.e. the predictions are still correct):
+
+```{r}
+# predictions using both the fixed and random effects
+preds <- predict(mod, newdata = newdata)
+
+# despite warnings, predictions are correct
+all.equal(preds, fitted(mod))
+
+# predictions using only the fixed effects
+preds_fe <- predict(mod, newdata = newdata_fe, re.form = NA)
+
+head(preds)
+
+head(preds_fe)
+```
+
+### Obtaining p-values with **mixed**
+
+When obtaining p-values for the predictors with the **mixed** function in the *afex* package, the **check.contrasts** argument should be set to FALSE to ensure that the correct contrasts are used (this shouldn't matter when a regression model is passed to **mixed**, but if the formula and data elements of the **standardized** object are passed directly to **mixed**, it is necessary; it is best to just always specify **check.contrasts = FALSE**):
+
+```{r}
+library(afex)
+
+pvals <- mixed(mod, data = sdat$data, check.contrasts = FALSE)
+
+pvals
+```
+
+### Obtaining least-squares means with **lsmeans**
+
+The **lsmeans** function in the *lsmeans* package can be called as it would normally be called, but note that if the regression model contains polynomial covariates (i.e. if the formula passed to **standardize** includes calls to the **poly** function), then the results may be misleading (as is often the case).  We will illustrate the use of **lsmeans** with the **stress** factor (since the p-value for the overall factor was <.0001):
+
+```{r}
+library(lsmeans)
+
+stress_comparisons <- lsmeans(mod, pairwise ~ stress)
+
+stress_comparisons
+```
+
+
+## Conclusion
+
+The *standardize* package provides several functions which aid in placing regression variables on similar scales, namely **scale_by**, **named_contr_sum**, and **scaled_contr_poly**.  The **standardize** function offers a convenient way to make use of these functions (along with the **scale** function in base *R*) automatically, resulting in a **standardized** object which contains a standardized formula and data frame that can be passed to regression fitting functions.  The most common use of the *standardize* package is to call the **standardize** function, passing the same **formula**, **data**, and **family** arguments as would normally be passed to a regression fitting function, leaving the **scale** argument and **na.action** arguments at their defaults, and then passing the **formula** and **data** elements of the **standardized** object on to the regression fitting function with all other options for the regression fitting function specified as they would normally be specified.
