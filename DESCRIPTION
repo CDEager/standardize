@@ -1,11 +1,12 @@
 Package: standardize
 Type: Package
-Title: Tools for Standardizing Model Frames
+Title: Tools for Standardizing Varaibles for Regression in R
 Version: 0.1.0
 Authors@R: person("Christopher D.", "Eager",
     email = "eagerstats@gmail.com", role = c("aut", "cre"))
-Description: standardize provides tools which allow all of the regression
-    predictors in a model frame to be placed on the same (or similar) scales.
+Description: standardize provides tools which allow regression predictors to
+    be placed on similar scales, offering computational benefits as well as
+    easing interpretation of regression output.
 Depends:
     R (>= 3.3.2)
 Imports:
