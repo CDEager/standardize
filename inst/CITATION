@@ -5,11 +5,11 @@ citEntry(entry = "Manual",
   author = person("Christopher D", "Eager"),
   year = "2017",
   note = "R package version 0.1.0",
-  url = "https://CRAN.R-project.org/package=standardize",
+  url = "https://github.com/CDEager/standardize",
   
   textVersion =
   paste("Eager, Christopher D. (2017).",
         "standardize: Tools for Standardizing Varaibles for Regression in R.",
         "R package version 0.1.0.",
-        "https://CRAN.R-project.org/package=standardize")
+        "https://github.com/CDEager/standardize")
 )
