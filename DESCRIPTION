@@ -8,7 +8,7 @@ Description: Tools which allow regression variables to be placed on similar
     scales, offering computational benefits as well as easing interpretation of
     regression output.
 Depends:
-    R (>= 3.3.2)
+    R (>= 3.3.3)
 Imports:
     stats,
     methods,
