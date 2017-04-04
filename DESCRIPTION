@@ -1,10 +1,10 @@
 Package: standardize
 Type: Package
-Title: Tools for Standardizing Varaibles for Regression in R
+Title: Tools for Standardizing Variables for Regression in R
 Version: 0.1.0
 Authors@R: person("Christopher D.", "Eager",
     email = "eagerstats@gmail.com", role = c("aut", "cre"))
-Description: Tools which allow regression predictors to be placed on similar
+Description: Tools which allow regression variables to be placed on similar
     scales, offering computational benefits as well as easing interpretation of
     regression output.
 Depends:
