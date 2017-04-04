@@ -163,7 +163,9 @@ standardize <- function(formula, data, family = gaussian, scale = 1,
   a <- attributes(terms(mf))
   p <- a$predvars
   
+  mf1 <- mf[[1]]
   mf <- charlogbin_to_uf(mf)
+  mf[[1]] <- mf1
   
   if (gau) {
     if (!is.numeric(mf[[1]])) {

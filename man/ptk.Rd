@@ -27,8 +27,8 @@ ptk
 }
 \description{
 A dataset containing measures of total duration and voiceless period duration
-for instances of Spanish /p/, /t/, and /k/.  The data are taken from 18
-speakers in the task dialogues in the Spanish portion of the Glissando
+for instances of intervocalic Spanish /p/, /t/, and /k/.  The data are taken
+from 18 speakers in the task dialogues in the Spanish portion of the Glissando
 Corpus (the speakers are univsersity students in Valladolid, Spain).
 }
 \section{References}{

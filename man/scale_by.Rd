@@ -25,7 +25,7 @@ See 'Details'.}
 }
 \value{
 A numeric variable which is conditionally scaled within each level
-  of the grouping factor, with standard deviation \code{scale}.  It has
+  of the conditioning factor(s), with standard deviation \code{scale}.  It has
   an additional class \code{scaledby}, as well as an attribute
   \code{pred} with class \code{scaledby_pred}, which is a list containing
   the formula, the centers and scales for known factor levels, and the

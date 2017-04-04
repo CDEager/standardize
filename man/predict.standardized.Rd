@@ -36,7 +36,7 @@ A data.frame with the \code{newdata} standardized using the
 To put new data into the same standardized space as the data in the
 \code{\link[=standardized-class]{standardized}} object, 
 \code{predict} can be used with the \code{standardized} object as the first
-element.  The \code{predict} method also allows logicals \code{response},
+argument.  The \code{predict} method also allows logicals \code{response},
 \code{fixed}, and \code{random} to be used to specify which elements of the
 original data frame are present in \code{newdata}.  A regression model
 fit with the \code{formula} and \code{data} elements of a

@@ -7,7 +7,7 @@
 is.standardized(object)
 }
 \arguments{
-\item{object}{An object of class \code{standardized}.}
+\item{object}{Any R object.}
 }
 \value{
 \code{TRUE} if \code{object} is the result of a \code{\link{standardize}}

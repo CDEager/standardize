@@ -30,8 +30,10 @@ The \code{standardized} list contains the following elements.
   \item{variables}{A data frame with the name of the original variable,
     the corresponding name in the standardized data frame and formula,
     and the class of the variable in the standardized data frame.}
-  \item{contrasts}{Contrasts for all factors included as predictors.}
-  \item{groups}{A named list of levels for random effects grouping factors.}
+  \item{contrasts}{A named list of contrasts for all factors included as
+    predictors, or \code{NULL} if no predicors are factors.}
+  \item{groups}{A named list of levels for random effects grouping factors,
+    or \code{NULL} if there are no random effects.}
 }
 }
 \details{

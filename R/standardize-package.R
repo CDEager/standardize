@@ -1,14 +1,14 @@
 
 
-#' standardize: Tools for standardizing model frames in R.
+#' standardize: Tools for Standardizing Varaibles for Regression in R.
 #'
-#' The \code{standardize} package provides tools for standardizing model frames
-#' (i.e. placing all of the variables to be used in a regression on
-#' similar scales).
+#' The \code{standardize} package provides tools for standardizing variables
+#' prior to regression (i.e. placing all of the variables to be used in a
+#' regression on similar scales).
 #' When all of the predictors in a regression are on a similar scale, it makes
 #' the interpretation of their effect sizes more comparable. In the case of
 #' gaussian regression, placing the response on unit scale also eases
-#' interpretation.  Standardizing model frames also has computational
+#' interpretation.  Standardizing regression variables also has computational
 #' benefits in the case of mixed effects regressions, and makes determining
 #' reasonable priors in Bayesian regressions simpler.
 #'

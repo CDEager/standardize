@@ -25,7 +25,7 @@ fac_and_contr <- function(x, levels, contrasts, ordered = FALSE) {
 #' Create named sum contrasts for an unordered factor.
 #'
 #' \code{named_contr_sum} creates sum contrasts for a factor which are named
-#' with the levels of the factor rather than with number (e.g. if a factor
+#' with the levels of the factor rather than with numbers (e.g. if a factor
 #' \code{f1} has levels \code{A}, \code{B}, and \code{C}, then rather than
 #' creating contrast columns \code{f11} and \code{f12}, it creates columns
 #' \code{f1A} and \code{f1B}).  The absolute value of the non-zero elements

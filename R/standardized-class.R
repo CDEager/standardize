@@ -28,8 +28,10 @@
 #'   \item{variables}{A data frame with the name of the original variable,
 #'     the corresponding name in the standardized data frame and formula,
 #'     and the class of the variable in the standardized data frame.}
-#'   \item{contrasts}{Contrasts for all factors included as predictors.}
-#'   \item{groups}{A named list of levels for random effects grouping factors.}
+#'   \item{contrasts}{A named list of contrasts for all factors included as
+#'     predictors, or \code{NULL} if no predicors are factors.}
+#'   \item{groups}{A named list of levels for random effects grouping factors,
+#'     or \code{NULL} if there are no random effects.}
 #' }
 #'
 #' In the \code{variables} data frame, the \code{Variable} column contains the
@@ -80,7 +82,7 @@ NULL
 #' To put new data into the same standardized space as the data in the
 #' \code{\link[=standardized-class]{standardized}} object, 
 #' \code{predict} can be used with the \code{standardized} object as the first
-#' element.  The \code{predict} method also allows logicals \code{response},
+#' argument.  The \code{predict} method also allows logicals \code{response},
 #' \code{fixed}, and \code{random} to be used to specify which elements of the
 #' original data frame are present in \code{newdata}.  A regression model
 #' fit with the \code{formula} and \code{data} elements of a
@@ -154,7 +156,7 @@ predict.standardized <- function(object, newdata, response = FALSE,
 
 #' Determine if an object has class \code{\link[=standardized-class]{standardized}}.
 #'
-#' @param object An object of class \code{standardized}.
+#' @param object Any R object.
 #'
 #' @return \code{TRUE} if \code{object} is the result of a \code{\link{standardize}}
 #'   call and \code{FALSE} otherwise.
