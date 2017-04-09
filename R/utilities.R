@@ -2,7 +2,7 @@
 
 # The functions in this file are not exported.  When a function is an internal
 # function from another package (i.e. one that would need to be accessed using
-# the ':::' operator), the ':::' is replaced with '__', and the function
+# the ':::' operator), the ':::' is replaced with '_', and the function
 # definitions are taken directly from the other package with minimal alteration.
 # Such functions are taken from the following package versions:
 #   lme4 1.1-12
@@ -319,19 +319,19 @@ simplify_fcall <- function(u, f) {
 }
 
 
-lme4__safeDeparse <- function(x, collapse = " ") {
+lme4_safeDeparse <- function(x, collapse = " ") {
   return(paste(deparse(x, 500L), collapse = collapse))
 }
 
 
-lme4__reOnly <- function(f, response = FALSE) {
+lme4_reOnly <- function(f, response = FALSE) {
   if (response && length(f) == 3) {
     response <- f[[2]]
   } else {
     response <- NULL
   }
   
-  return(reformulate(paste0("(", vapply(lme4::findbars(f), lme4__safeDeparse, 
+  return(reformulate(paste0("(", vapply(lme4::findbars(f), lme4_safeDeparse, 
     ""), ")"), response = response))
 }
 

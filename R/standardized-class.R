@@ -134,7 +134,7 @@ predict.standardized <- function(object, newdata, response = FALSE,
   if (fixed && !random) {
     mt <- lme4::nobars(mt)
   } else if (!fixed && random) {
-    mt <- lme4::subbars(lme4__reOnly(mt, TRUE))
+    mt <- lme4::subbars(lme4_reOnly(mt, TRUE))
     attributes(mt) <- a
   } else if (fixed && random) {
     mt <- lme4::subbars(mt)

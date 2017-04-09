@@ -278,7 +278,7 @@ sdat$contrasts
 sdat$groups
 ```
 
-We can see that all of the regression variables have been place on a similar scale, using the default **scale** argument of 1.  The majority of the predictors did not change name, but those which included function calls (*log(wordfreq)* and *scale_by(speechrate ~ speaker)*) have been altered so that they are valid variable names.  If we were to call **standardize** with **scale = 0.5**, then *cdur* would still have mean 0 and standard deviation 1, but the predictors would all have scale 0.5:
+We can see that all of the regression variables have been placed on a similar scale, using the default **scale** argument of 1.  The majority of the predictors did not change name, but those which included function calls (*log(wordfreq)* and *scale_by(speechrate ~ speaker)*) have been altered so that they are valid variable names.  If we were to call **standardize** with **scale = 0.5**, then *cdur* would still have mean 0 and standard deviation 1, but the predictors would all have scale 0.5:
 
 ```{r}
 sdat <- standardize(cdur ~ place + stress + preheight + log(wordfreq) +
