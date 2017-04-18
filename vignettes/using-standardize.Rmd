@@ -338,13 +338,11 @@ head(newdata_fe)
 head(newdata_re)
 ```
 
-This standardized new data can then be used as the **newdata** argument to **predict** with the regression model as the first argument.  The **predict** method will generate warnings about contrasts being dropped, but these warnings can be ignored (i.e. the predictions are still correct):
+This standardized new data can then be used as the **newdata** argument to **predict** with the regression model as the first argument.  The **predict** method may generate warnings about contrasts being dropped, but these warnings can be ignored (i.e. the predictions are still correct; warnings shouldn't occur with the latest version of lme4, but may occur for older versions, and will occur for the **predict** method for fixed-effects-only models):
 
 ```{r}
 # predictions using both the fixed and random effects
 preds <- predict(mod, newdata = newdata)
-
-# despite warnings, predictions are correct
 all.equal(preds, fitted(mod))
 
 # predictions using only the fixed effects
@@ -357,12 +355,12 @@ head(preds_fe)
 
 ### Obtaining p-values with **mixed**
 
-When obtaining p-values for the predictors with the **mixed** function in the *afex* package, the **check.contrasts** argument should be set to FALSE to ensure that the correct contrasts are used (this shouldn't matter when a regression model is passed to **mixed**, but if the formula and data elements of the **standardized** object are passed directly to **mixed**, it is necessary; it is best to just always specify **check.contrasts = FALSE**):
+When obtaining p-values for the predictors with the **mixed** function in the *afex* package, the **check_contrasts** argument should be set to FALSE to ensure that the correct contrasts are used (this shouldn't matter when a regression model is passed to **mixed**, but if the formula and data elements of the **standardized** object are passed directly to **mixed**, it is necessary; it is best to just always specify **check_contrasts = FALSE**):
 
 ```{r}
 library(afex)
 
-pvals <- mixed(mod, data = sdat$data, check.contrasts = FALSE)
+pvals <- mixed(mod, data = sdat$data, check_contrasts = FALSE)
 
 pvals
 ```

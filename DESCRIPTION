@@ -24,7 +24,7 @@ RoxygenNote: 5.0.1
 Suggests: testthat,
     knitr,
     rmarkdown,
-    afex (>= 0.16-1),
+    afex (>= 0.17-8),
     lsmeans (>= 2.25-5),
     lmerTest (>= 2.0-33)
 VignetteBuilder: knitr

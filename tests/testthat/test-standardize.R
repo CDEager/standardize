@@ -61,14 +61,14 @@ options(warn = -1)
 mod <- lme4::lmer(sf$formula, sf$data)
 options(warn = w)
 sf$data <- standardize:::strip_attr(sf$data)
-
+preds <- suppressWarnings(predict(mod, nd))
 
 test_that("predict and lmer work", {
   expect_equal(predict(sf, d, response = TRUE), sf$data)
   expect_equal(predict(sf, d), sf$data[, -1])
   expect_equal(predict(sf, d, fixed = FALSE), sf$data[, c(2, 8:9)])
   expect_equal(predict(sf, d, random = FALSE), sf$data[, 2:7])
-  expect_warning(expect_equal(predict(mod, nd), fitted(mod)))
+  expect_equal(preds, fitted(mod))
   expect_error(predict(sf, d, fixed = FALSE, random = FALSE))
 })
 

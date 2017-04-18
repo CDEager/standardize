@@ -7,4 +7,4 @@
 There were no ERRORs, WARNINGs, or NOTEs.
 
 ## Downstream dependencies
-Not applicable as this is the initial release.
+There are currently no downstream dependencies.
