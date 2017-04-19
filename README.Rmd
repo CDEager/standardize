@@ -12,7 +12,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-# standardize 0.1.0
+# standardize 0.1.1
 
 The *standardize* package provides tools for controlling continuous variable scaling and factor contrasts.  The goal of these standardizations is to keep the regression parameters on similar scales, and to ensure that the intercept (which is the predicted value of an observation when all other coefficients are multiplied by 0) represents the corrected mean (i.e. the predicted value for an observation which is average in every way, holding covariates at their mean values and averaging over group differences in factors).  When the predictors are all on a similar scale, there are computational benefits for both frequentist and Bayesian approaches in mixed effects regressions, reasonable Bayesian priors are easier to specify, and regression output is easier to interpret.  Take, for example, the **ptk** dataset included in the package (for which we will create a new ordered factor *preheight*):
 
