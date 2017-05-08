@@ -3,6 +3,20 @@
 standardize 0.1.1
 =================
 
+[![Build Status](https://travis-ci.org/CDEager/standardize.svg?branch=master)](https://travis-ci.org/CDEager/standardize)
+
+Installation
+------------
+
+To install the *standardize* package, call:
+
+``` r
+install.packages("standardize")
+```
+
+Package use
+-----------
+
 The *standardize* package provides tools for controlling continuous variable scaling and factor contrasts. The goal of these standardizations is to keep the regression parameters on similar scales, and to ensure that the intercept (which is the predicted value of an observation when all other coefficients are multiplied by 0) represents the corrected mean (i.e. the predicted value for an observation which is average in every way, holding covariates at their mean values and averaging over group differences in factors). When the predictors are all on a similar scale, there are computational benefits for both frequentist and Bayesian approaches in mixed effects regressions, reasonable Bayesian priors are easier to specify, and regression output is easier to interpret. Take, for example, the **ptk** dataset included in the package (for which we will create a new ordered factor *preheight*):
 
 ``` r
@@ -305,13 +319,4 @@ sdat$groups
 #> [12] "s12" "s13" "s14" "s15" "s16" "s17" "s18"
 ```
 
-The **stanardize** function works by making use of the function **scale** from base *R*, as well as the *standardize* functions **scale\_by**, **named\_contr\_sum**, and **scaled\_contr\_poly**. For more details, install the package and see the vignette "Using the standardize Package".
-
-Installation
-============
-
-To install the *standardize* package, call:
-
-``` r
-install.packages("standardize")
-```
+The **standardize** function works by making use of the function **scale** from base *R*, as well as the *standardize* functions **scale\_by**, **named\_contr\_sum**, and **scaled\_contr\_poly**. For more details, install the package and see the vignette "Using the standardize Package".

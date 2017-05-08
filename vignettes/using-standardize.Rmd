@@ -14,7 +14,7 @@ knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
 ```
 
 
-# Using the *standardize* package
+# The *standardize* package
 
 The *standardize* package provides tools for controlling continuous variable scaling and factor contrasts.  The goal of these standardizations is to keep the regression parameters on similar scales, and to ensure that the intercept (which is the predicted value of an observation when all other coefficients are multiplied by 0) represents the corrected mean (i.e. the predicted value for an observation which is average in every way, holding covariates at their mean values and averaging over group differences in factors).  When the predictors are all on a similar scale, there are computational benefits for both frequentist and Bayesian approaches in mixed effects regressions, reasonable Bayesian priors are easier to specify, and regression output is easier to interpret.
 
@@ -381,3 +381,14 @@ stress_comparisons
 ## Conclusion
 
 The *standardize* package provides several functions which aid in placing regression variables on similar scales, namely **scale_by**, **named_contr_sum**, and **scaled_contr_poly**.  The **standardize** function offers a convenient way to make use of these functions (along with the **scale** function in base *R*) automatically, resulting in a **standardized** object which contains a standardized formula and data frame that can be passed to regression fitting functions.  The most common use of the *standardize* package is to call the **standardize** function, passing the same **formula**, **data**, and **family** arguments as would normally be passed to a regression fitting function, leaving the **scale** argument and **na.action** arguments at their defaults, and then passing the **formula** and **data** elements of the **standardized** object on to the regression fitting function with all other options for the regression fitting function specified as they would normally be specified.
+
+
+## References
+
+If you use the *standardize* package in a publication, please cite:
+
+    Eager, Christopher D. (2017). standardize: Tools for Standardizing Variables for Regression in R. R package version 0.1.1. https://CRAN.R-project.org/package=standardize
+
+If you analyze the **ptk** dataset in a publication, please cite:
+
+    Eager, Christopher D. (2017). Contrast preservation and constraints on individual phonetic variation. Doctoral thesis. University of Illinois at Urbana-Champaign.

@@ -4,6 +4,8 @@
 #' for instances of intervocalic Spanish /p/, /t/, and /k/.  The data are taken
 #' from 18 speakers in the task dialogues in the Spanish portion of the Glissando
 #' Corpus (the speakers are univsersity students in Valladolid, Spain).
+#' If you analyze the \code{ptk}
+#' dataset in a publication, please cite Eager (2017) from the references section below.
 #'
 #' @format A data frame with 751 rows and 11 variables:
 #' \describe{
@@ -25,6 +27,10 @@
 #' }
 #'
 #' @section References:
+#' Eager, Christopher D. (2017). Contrast preservation and constraints on
+#' individual phonetic variation. Doctoral thesis. University of Illinois at
+#' Urbana-Champaign.
+#'
 #' Garrido, J. M., Escudero, D., Aguilar, L., Cardeñoso, V., Rodero, E.,
 #' de-la-Mota, C., … Bonafonte, A. (2013). Glissando: a corpus for
 #' multidisciplinary prosodic studies in Spanish and Catalan. Language Resources
