@@ -1,36 +1,108 @@
 
 
-# The functions in this file are not exported.  When a function is an internal
-# function from another package (i.e. one that would need to be accessed using
-# the ':::' operator), the ':::' is replaced with '_', and the function
-# definitions are taken directly from the other package with minimal alteration.
-# Such functions are taken from the following package versions:
-#   lme4 1.1-12
+# split a matrix (based on split.data.frame but with col option)
+msplit <- function(x, f, byrow = TRUE, drop = FALSE, ...) {
+  if (byrow) {
+    return(lapply(split(x = seq_len(nrow(x)), f = f, drop = drop, ...),
+      function(ind) x[ind, , drop = FALSE]))
+  }
+  return(lapply(split(x = seq_len(ncol(x)), f = f, drop = drop, ...),
+    function(ind) x[, ind, drop = FALSE]))
+}
+
+
+get_data_classes <- function(mf, gfacs, o) {
+  d <- sapply(mf, function(x) {
+    if (is.uf(x)) return("factor")
+    if (is.ordered(x)) return("ordered")
+    if (inherits(x, "scaledby")) {
+      if (inherits(x, "poly")) return("scaledby.poly")
+      return("scaledby")
+    }
+    if (inherits(x, "poly")) return("poly")
+    if (is.numeric(x)) return("numeric")
+    return(class(x)[1])
+  })
+  
+  d[gfacs] <- "group"
+  d[o] <- "offset"
+  d[1] <- paste0("response.", d[1])
+  
+  return(d)
+}
+
+
+check_offset <- function(o, y) {
+  if (!is.list(o)) o <- list(`(offset)` = o)
+  
+  nr <- sapply(o, NROW)
+  nc <- sapply(o, NCOL)
+  num <- sapply(o, is.numeric)
+  
+  if (any(nc != NCOL(y)) || any(nr != NROW(y)) || !all(num)) {
+    stop("offset should be numeric and have same dimensions as response")
+  }
+  
+  invisible(o)
+}
+
+
+# names of variables
+varnms <- function(x) {
+  if (!inherits(x, "terms")) x <- stats::terms(x)
+  x <- attr(x, "factors")
+  if (!is.matrix(x)) return(NULL)
+  return(rownames(x))
+}
+
+
+# convert effects or group from ranef bar to formula
+barform <- function(x, n) {
+  return(eval(substitute(~ foo, list(foo = x[[n]]))))
+}
+
+
+scale_offset <- function(pred, offset, data) {
+  if (is.integer(offset)) offset[] <- as.numeric(offset[])
+  
+  if (!inherits(pred, "scaledby_pred")) return(offset / pred)
+  
+  data[[ncol(data) + 1]] <- offset
+  pred$formula[[2]] <- as.name(colnames(data)[ncol(data)])
+  offset <- scale_by(pred, data)
+  class(offset) <- class(offset)[-1]
+  attr(offset, "pred") <- NULL
+  
+  return(offset)
+}
 
 
 # remove attributes from columns of data frame x which cause predict issues
 strip_attr <- function(x) {
   a <- attributes(x)
-  a <- a[names(a) %in% c("names", "row.names", "class")]
+  a <- a[intersect(names(a), c("names", "row.names", "class"))]
   attributes(x) <- a
+  
+  rm_classes <- c("poly", "scaledby")
   rm_attr <- c("scaled:center", "scaled:scale", "pred", "coefs")
-  for (j in 1:ncol(x)) {
-    cl <- class(x[[j]])
-    cl <- cl[!(cl %in% c("poly", "scaledby"))]
-    class(x[[j]]) <- cl
-    a <- attributes(x[[j]])
-    a <- a[!(names(a) %in% rm_attr)]
-    attributes(x[[j]]) <- a
-  }
+  
+  # subscripting all of them keeps it a data.frame
+  x[1:ncol(x)] <- lapply(x, function(j) {
+    a <- attributes(j)
+    a <- a[setdiff(names(a), rm_attr)]
+    a$class <- setdiff(a$class, rm_classes)
+    attributes(j) <- a
+    return(j)
+  })
+  
   return(x)
 }
 
 
 # what is the first element in lst which matches x exactly
 in_list <- function(x, lst) {
-  m <- which(sapply(lst, function(n) isTRUE(all.equal(n, x))))
-  if (length(m)) return(m[1])
-  return(0)
+  if (!is.list(x)) x <- list(x)
+  return(setNames(match(x, lst, nomatch = 0L), names(x)))
 }
 
 
@@ -99,8 +171,9 @@ is.charlogbin <- function(x) {
 # to unordered factors.  x can be a data.frame or a vector
 charlogbin_to_uf <- function(x) {
   if (is.data.frame(x)) {
-    uf <- which(sapply(x, is.charlogbin))
-    for (j in uf) x[[j]] <- factor(x[[j]], ordered = FALSE)
+    if (length(uf <- which(sapply(x, is.charlogbin)))) {
+      x[uf] <- lapply(x[uf], factor, ordered = FALSE)
+    }
   } else if (is.charlogbin(x)) {
     x <- factor(x, ordered = FALSE)
   }
@@ -112,7 +185,10 @@ charlogbin_to_uf <- function(x) {
 nval <- function(x, rm.na = TRUE) {
   if ((L <- length(dim(x))) > 2) stop("'x' must have at most two dims")
   x <- unique(x)
-  if (!L) x <- matrix(x)
+  if (!L) {
+    if (rm.na) return(length(setdiff(x, NA)))
+    return(length(x))
+  }
   if (rm.na) x <- x[!rowna(x), , drop = FALSE]
   return(nrow(x))
 }
@@ -134,62 +210,32 @@ rowna <- function(x, f = any) {
 # are any/all of the observations in each column of 'x' NA?
 colna <- function(x, f = any) {
   if (length(dim(x)) != 2) stop("'x' must have two dims")
-  if (is.data.frame(x)) {
-    return(sapply(x, function(n) f(is.na(n))))
-  }
+  if (is.data.frame(x)) return(sapply(x, function(n) f(is.na(n))))
   return(apply(is.na(x), 2, f))
 }
 
 
 #' @importFrom lme4 findbars
-get_ranef_groups <- function(formula) {
-  bars <- lme4::findbars(formula)
-  if (length(bars)) {
-    g <- sapply(bars, function(x) {
-      x <- as.character(stats::as.formula(substitute(~foo, list(foo = x[[3]]))))
-      x[length(x)]
-    })
-    g <- stats::as.formula(paste("~", paste(g, collapse = "+")))
-    return(attr(terms(g), "factors"))
+ranef_groups <- function(formula) {
+  if (length(bars <- lme4::findbars(formula))) {
+    return(rownames(attr(terms((formula(paste("~", paste(sapply(bars,
+      function(x) deparse(x[[3]])), collapse = "+"))))), "factors")))
   }
-  return(NULL)
-}
-
-
-strip_terms <- function(terms) {
-  formula <- terms
-  attributes(formula) <- NULL
-  class(formula) <- "formula"
-  environment(formula) <- environment(terms)
-  return(formula)
-}
-
-
-condense_terms <- function(terms) {
-  a <- attributes(terms)
-  terms <- terms(strip_terms(terms))
-  newa <- attributes(terms)
-  keep <- which(names(a$rename) %in% rownames(newa$factors))
-  newa$variables <- a$variables[c(1, keep + 1)]
-  newa$predvars <- a$predvars[c(1, keep + 1)]
-  newa$dataClasses <- a$dataClasses[keep]
-  newa$rename <- a$rename[keep]
-  attributes(terms) <- newa
-  return(terms)
+  return(character())
 }
 
 
 #' @importFrom stringr str_replace_all
 make_new_names <- function(nms) {
-  nms <- vapply(nms, function(x) simplify_fcall(x, "poly"), "")
-  nms <- vapply(nms, function(x) simplify_fcall(x, "scale_by"), "")
-  nms <- stringr::str_replace_all(nms, "scale_by\\(", "scale(")
+  nms <- vapply(nms, simplify_fcall, "", f = "poly")
+  nms <- vapply(nms, simplify_fcall, "", f = "scale_by")
   
   torep <- c(" ", "\\(", "\\)", "~", "%", ">=", "<=", "==", "=", ">", "<",
     "\\^", "\\+", "-", "@", "&&", "&", "\\|\\|", "\\|", "/", ":", "\\*", ",")
   repwth <- c("", "_", "", "_by_", ".m.", ".ge.", ".le.", ".ee.", ".e.", ".g.",
     ".l.", ".pow.", ".p.", ".m.", ".at.", ".a.", ".a.", ".o.", ".o.", ".d.",
     ".", ".t.", ".")
+    
   for (j in 1:length(torep)) {
     nms <- stringr::str_replace_all(nms, torep[j], repwth[j])
   }
@@ -198,124 +244,59 @@ make_new_names <- function(nms) {
 }
 
 
-make_new_formula <- function(mt, nms) {
-  f <- strip_terms(stats::delete.response(stats::terms(strip_terms(mt))))
-  names(nms) <- rownames(attr(mt, "factors"))
-  resp <- nms[1]
-  fe <- terms(lme4::nobars(f))
-  bars <- lme4::findbars(f)
-  
-  b0 <- attr(fe, "intercept")
-  fe <- factor_formula(fe, nms)
-  if (is.null(fe)) {
-    fe <- "1"
-  } else if (!b0) {
-    fe <- paste0("0+", fe)
-  }
-  form <- paste0(resp, "~", fe)
-  
-  if (length(bars)) {
-    for (b in 1:length(bars)) {
-      grp <- stats::terms(eval(substitute(~foo, list(foo = bars[[b]][[3]]))))
-      eff <- stats::terms(eval(substitute(~foo, list(foo = bars[[b]][[2]]))))
-      b0 <- attr(eff, "intercept")
-      grp <- factor_formula(grp, nms)
-      eff <- factor_formula(eff, nms)
-      if (is.null(eff)) {
-        eff <- "1"
-      } else if (b0) {
-        eff <- paste0("1+", eff)
-      } else {
-        eff <- paste0("0+", eff)
-      }
-      form <- paste0(form, "+(", eff, "|", grp, ")")
-    }
-  }
-  return(formula(form))
-}
-
-
-factor_formula <- function(trms, nms = NULL) {
-  fmat <- attr(trms, "factors")
-  if (!is.matrix(fmat)) return(NULL)
-  if (is.null(nms)) {
-    nms <- rownames(fmat)
-  } else {
-    nms <- nms[rownames(fmat)]
-  }
-  keep <- rep(TRUE, ncol(fmat))
-  if (ncol(fmat) > 2) {
-    for (j in ncol(fmat):2) {
-      if (keep[j] && all(fmat[, j] < 2)) {
-        involved <- fmat[, j] > 0
-        lower <- which(apply(fmat[, 1:(j - 1), drop = FALSE], 2, function(u) {
-          !any(u > 0 & !involved) & !any(u > 1)
-        }))
-        keep[lower] <- FALSE
-      }
-    }
-  }
-  fmat <- fmat[, keep, drop = FALSE]
-  for (j in 1:ncol(fmat)) {
-    if (all(fmat[, j] < 2)) {
-      colnames(fmat)[j] <- paste(nms[fmat[, j] > 0], collapse = "*")
-    } else {
-      colnames(fmat)[j] <- paste(nms[fmat[, j] > 0], collapse = ":")
-    }
-  }
-  return(paste(colnames(fmat), collapse = " + "))
-}
-
-
-#' @importFrom stringr str_locate_all
 simplify_fcall <- function(u, f) {
-  f <- paste0(f, "\\(")
-  loc <- stringr::str_locate_all(u, f)[[1]]
-  if (!(J <- nrow(loc))) return(u)
-  for (j in J:1) {
-    loc <- stringr::str_locate_all(u, f)[[1]]
-    first <- unname(loc[j, 1])
-    
-    op <- stringr::str_locate_all(u, "\\(")[[1]][, 2]
-    cp <- stringr::str_locate_all(u, "\\)")[[1]][, 2]
-    names(op) <- rep("o", length(op))
-    names(cp) <- rep("c", length(cp))
-    p <- sort(c(op, cp))
-    p <- p[p > first]
-    op <- names(p) == "o"
-    np <- length(op)
+  fchar <- paste0(f, "\\(")
+  if (!grepl(fchar, u)) return(u)
+  u <- parse(text = u)[[1]]
+  return(deparse(.simplify_fcall(u, fchar, f)))
+}
 
-    pos <- 1
-    opens <- 1 * op[1]
-    while (opens && pos < np) {
-      pos <- pos + 1
-      if (op[pos]) {
-        opens <- opens + 1
-      } else {
-        opens <- opens - 1
-      }
-    }
-    if (opens) stop("Invalid expression (parentheses don't match up)")
-    last <- unname(p[pos])
 
-    if (first > 1) {
-      pre <- substr(u, 1, first - 1)
-    } else {
-      pre <- character(0)
-    }
-
-    if (last < nchar(u)) {
-      pos <- substr(u, last + 1, nchar(u))
-    } else {
-      pos <- character(0)
-    }
-
-    txt <- deparse(parse(text = substr(u, first, last))[[1]][1:2])
-
-    u <- paste0(pre, txt, pos)
+#' @importFrom stringr str_replace_all
+.simplify_fcall <- function(u, fchar, fstart) {
+  if (deparse(u[[1]]) == fstart) {
+    u <- u[1:2]
+    if (fstart == "scale_by") return(simp_sb_f(u))
+  }
+  
+  if (length(contains <- which(grepl(fchar, sapply(u, deparse)) &
+  sapply(u, is.call)))) {
+    u[contains] <- lapply(u[contains], .simplify_fcall, fchar = fchar,
+      fstart = fstart)
   }
   
   return(u)
+}
+
+
+simp_sb_f <- function(x) {
+  form <- x[[2]]
+  form[2] <- NULL
+  v <- vapply(rownames(attr(terms(formula(form)), "factors")), make_new_names,
+    "")
+  rhsf <- paste(v, collapse = ".")
+  lhsf <- make_new_names(deparse(x[[2]][[2]]))
+  return(as.name(paste(lhsf, "scaled_by", rhsf, sep = "_")))
+}
+
+
+replace_variables <- function(call, old_names, new_names) {
+  stopifnot(is.call(call), is.character(old_names), is.character(new_names))
+  new_names <- lapply(new_names, function(x) parse(text = x)[[1]])
+  return(.replace_variables(call, old_names, new_names))
+}
+
+
+.replace_variables <- function(f, o, n) {
+  m <- match(sapply(f, deparse), o)
+  
+  i <- which(!is.na(m))
+  r <- which(sapply(f, is.call) & is.na(m))
+  
+  if (length(i)) f[i] <- n[m[i]]
+  if (length(r)) f[r] <- lapply(f[r], .replace_variables, o = o, n = n)
+  
+  return(f)
 }
 
 
@@ -333,5 +314,51 @@ lme4_reOnly <- function(f, response = FALSE) {
   
   return(reformulate(paste0("(", vapply(lme4::findbars(f), lme4_safeDeparse, 
     ""), ")"), response = response))
+}
+
+
+mpc_offset <- function(pv, po) {
+  if (is.null(po)) return(pv[[2]])
+  
+  if (!inherits(po, "scaledby_pred")) {
+    return(substitute(a / b, list(a = pv[[2]], b = po)))
+  }
+  
+  po$formula[[2]] <- pv[[2]]
+  return(substitute(standardize::scale_by(object = a), list(a = po)))
+}
+
+
+mpc_group <- function(pv, v) {
+  v <- factor(v, ordered = FALSE)
+  return(substitute(factor(x = X, ordered = FALSE, levels = L), list(X = pv,
+    L = levels(v))))
+}
+
+
+mpc_factor <- function(pv, v, scale) {
+  v <- named_contr_sum(v, scale, FALSE)
+  return(substitute(standardize::fac_and_contr(x = X, levels = L, contrasts = C,
+    ordered = FALSE), list(X = pv, L = levels(v), C = contrasts(v))))
+}
+
+
+mpc_ordered <- function(pv, v, scale) {
+  v <- scaled_contr_poly(v, scale, FALSE)
+  return(substitute(standardize::fac_and_contr(x = X, levels = L, contrasts= C,
+    ordered = TRUE), list(X = pv, L = levels(v), C = contrasts(v))))
+}
+
+
+mpc_numeric <- function(pv, v, scale) {
+  a <- attributes(scale(v))
+  return(substitute(scale(x = X, center = C, scale = S), list(X = pv,
+    C = a[["scaled:center"]], S = a[["scaled:scale"]] / scale)))
+}
+
+
+mpc_scaledby <- function(pv, data, scale) {
+  pv$object <- attr(scale_by(pv$object$formula, data, scale), "pred")
+  return(pv)
 }
 

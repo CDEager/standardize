@@ -31,7 +31,7 @@ d2[["f3"]] <- named_contr_sum(d$f3, return_contr = FALSE)
 d2[["o1"]] <- scaled_contr_poly(d$o1, return_contr = FALSE)
 d2[["poly_x2"]] <- scale(poly(d$x2, 2))
 d2[["log_I_x3.pow.2"]] <- scale(log(d$x3^2))
-d2[["scale_x1_by_f2"]] <- scale_by(x1 ~ f2, d)
+d2[["x1_scaled_by_f2"]] <- scale_by(x1 ~ f2, d)
 d2[["g1"]] <- factor(d$g1, ordered = FALSE)
 d2 <- standardize:::strip_attr(d2[, colnames(mf)])
 mf2 <- mf
@@ -48,10 +48,9 @@ test_that("basic method works", {
   expect_equal(sd(sf2$data$x1), 0.5)
   expect_equal(sf2$data$f1, named_contr_sum(d$f1, 0.5, FALSE))
   expect_equal(lmod$reTrms$cnms, list(g1 = c("(Intercept)", "f1a", "f1b",
-    "scale_x1_by_f2")))
-  expect_equal(colnames(lmod$X), c("(Intercept)", "f1a", "f1b",
-    "o1.L", "o1.Q", "poly_x21", "poly_x22",
-    "log_I_x3.pow.2", "f2TRUE", "f35", "f2TRUE:f35"))
+    "x1_scaled_by_f2")))
+  expect_equal(colnames(lmod$X), c("(Intercept)", "f1a", "f1b", "f2TRUE", "f35",
+    "o1.L", "o1.Q", "poly_x21", "poly_x22", "log_I_x3.pow.2", "f2TRUE:f35"))
 })
 
 
@@ -71,5 +70,34 @@ test_that("predict and lmer work", {
   expect_equal(preds, fitted(mod))
   expect_error(predict(sf, d, fixed = FALSE, random = FALSE))
 })
+
+
+set.seed(1)
+
+d <- data.frame(y = rnorm(10), x = 1:10, o1 = rep(1, 10), o2 = rep(1:2, 5),
+  f1 = rep(1:2, each = 5))
+s1 <- standardize(y ~ offset(o1) + x + offset(o2^2), d, offset = d$o2)
+s2 <- standardize(scale_by(y ~ f1) ~ offset(o1) + x + offset(o2^2), d, offset = d$o2)
+
+sd1 <- sd(d$y)
+sd2 <- rep(c(sd(d$y[1:5]), sd(d$y[6:10])), each = 5)
+
+s1o1 <- d$o1 / sd1
+s1o2 <- d$o2^2 / sd1
+s1oo <- d$o2 / sd1
+
+s2o1 <- d$o1 / sd2
+s2o2 <- d$o2^2 / sd2
+s2oo <- d$o2 / sd2
+
+test_that("offset works", {
+  expect_equal(s1$data$o1, s1o1)
+  expect_equal(s1$data$o2.pow.2, s1o2)
+  expect_equal(s1$data$o1, s1o1)
+  expect_equal(s1$data$o2.pow.2, s1o2)
+  expect_equal(s1$offset, s1oo)
+  expect_equal(s2$offset, s2oo)
+})
+
 
 rm(list = ls())

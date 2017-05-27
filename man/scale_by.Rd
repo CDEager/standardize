@@ -80,13 +80,12 @@ each column of \code{x} or a single number which will be used for all
 columns.  If any element of \code{scale} is \code{0}, then all elements are
 treated as \code{0}.  No element in \code{scale} can be negative.
 
-If \code{object} is not a formula, it must be the numeric variable which
+If \code{object} is not a formula, it must be a numeric variable which
 resulted from a previous \code{scale_by} call, or the \code{pred} attribute
 of such a numeric variable. In this case, \code{scale}
 is ignored, and \code{x} in \code{data} is scaled
-using the formula, centers and scales from
-a previous call will be used (with new levels treated using \code{new_center}
-and \code{new_scale}).
+using the \code{formula}, \code{centers} and \code{scales} in \code{object}
+(with new levels treated using \code{new_center} and \code{new_scale}).
 }
 \examples{
 dat <- data.frame(

@@ -24,9 +24,11 @@ The \code{standardized} list contains the following elements.
   \item{data}{A data frame containing the regression variables in a
     standardized space (renamed to have valid variable names corresponding
     to those in the \code{formula} element).}
-  \item{pred}{A \code{terms} object whose \code{predvars} attribute allows
-    new data to be placed into the same standardized space as the data
-    in the \code{data} element.}
+  \item{offset}{The offset passed through the \code{offset} argument to 
+    \code{\link{standardize}} (scaled if \code{family = gaussian}), or 
+    \code{NULL} if the \code{offset} argument was not used.}
+  \item{pred}{A list containing unevaluated calls which allow the 
+    \code{\link[=predict.standardized]{predict}} method to work.}
   \item{variables}{A data frame with the name of the original variable,
     the corresponding name in the standardized data frame and formula,
     and the class of the variable in the standardized data frame.}
@@ -53,7 +55,8 @@ something like \code{mydata$x1Pos_x2Neg <- mydata$x1 > 0 & mydata$x2 < 0},
 and then use \code{x1Pos_x2Neg} in the call to \code{\link{standardize}}.
 The \code{Class} column in the \code{variables} data frame takes the
 following values (except for non-gaussian responses, which are left
-unaltered, and so may have a different class).
+unaltered, and so may have a different class; the class for the response is 
+always preceded by \code{response.}).
 \describe{
   \item{numeric}{A numeric vector.}
   \item{poly}{A numeric matrix resulting from a call to
@@ -66,6 +69,14 @@ unaltered, and so may have a different class).
   \item{factor}{An unordered factor.}
   \item{ordered}{An ordered factor.}
   \item{group}{A random effects grouping factor.}
+  \item{offset}{If the offset function was used within the formula passed to 
+    \code{\link{standardize}}, then the variable is numeric and labeled as 
+    \code{offset}.  The \code{formula} element of the \code{standardize} 
+    object contains offset calls to ensure regression fitting functions use 
+    them properly.  If the \code{offset} argument was used in the call to 
+    \code{\link{standardize}} (rather than putting offset calls in the 
+    formula), then the offset is not in the \code{variables} data frame (it 
+    is in the \code{offset} element of the \code{standardized} object).}
 }
 
 The \code{standardized} object has a printing method which displays the call,

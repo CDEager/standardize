@@ -1,7 +1,7 @@
 Package: standardize
 Type: Package
 Title: Tools for Standardizing Variables for Regression in R
-Version: 0.1.1-9000
+Version: 0.2.0
 Authors@R: person("Christopher D.", "Eager",
     email = "eagerstats@gmail.com", role = c("aut", "cre"))
 Description: Tools which allow regression variables to be placed on similar

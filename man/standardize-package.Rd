@@ -3,7 +3,7 @@
 \docType{package}
 \name{standardize-package}
 \alias{standardize-package}
-\title{standardize: Tools for Standardizing Varaibles for Regression in R.}
+\title{standardize: Tools for Standardizing Variables for Regression in R.}
 \description{
 The \code{standardize} package provides tools for standardizing variables
 prior to regression (i.e. placing all of the variables to be used in a
@@ -43,5 +43,8 @@ standard deviation equal to the \code{scale} argument to
 \code{\link{standardize}}.  Gaussian responses are always placed on
 unit scale, using \code{\link[base]{scale}} (or \code{\link{scale_by}} if
 the function was used on the left hand side of the regression formula).
+Offsets for gaussian models are divided by the standard deviation of the
+raw response (within-factor-level if \code{\link{scale_by}} is used on
+the response).
 }
 

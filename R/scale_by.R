@@ -47,13 +47,12 @@
 #' columns.  If any element of \code{scale} is \code{0}, then all elements are
 #' treated as \code{0}.  No element in \code{scale} can be negative.
 #'
-#' If \code{object} is not a formula, it must be the numeric variable which
+#' If \code{object} is not a formula, it must be a numeric variable which
 #' resulted from a previous \code{scale_by} call, or the \code{pred} attribute
 #' of such a numeric variable. In this case, \code{scale}
 #' is ignored, and \code{x} in \code{data} is scaled
-#' using the formula, centers and scales from
-#' a previous call will be used (with new levels treated using \code{new_center}
-#' and \code{new_scale}).
+#' using the \code{formula}, \code{centers} and \code{scales} in \code{object}
+#' (with new levels treated using \code{new_center} and \code{new_scale}).
 #'
 #' @param object A \code{\link[stats]{formula}} whose left hand side indicates
 #'   a numeric variable to be scaled and whose right hand side indicates
@@ -123,12 +122,13 @@ scale_by <- function(object = NULL, data = NULL, scale = 1) {
     pred <- NULL
     formula <- object
   } else {
-    stop()
+    stop("Invalid 'object'; should be a formula or result of previous",
+      " scale_by call")
   }
   
   if (!is.null(pred)) {
     if (!inherits(pred, "scaledby_pred")) {
-      stop("'pred', if specified, must be the 'pred' attribute of a\n",
+      stop("'object', if not a formula, must be the 'pred' attribute of a\n",
         " previous scale_by call, or the numeric variable returned\n",
         " by a previous scale_by call")
     }
@@ -150,18 +150,18 @@ scale_by <- function(object = NULL, data = NULL, scale = 1) {
     stop("'formula' must be a two-sided formula")
   }
   
-  x <- data[[rownames(fmat)[rowSums(fmat) == 0]]]
+  x <- data[[1]]
   if (!is.numeric(x)) stop("left hand side of 'formula' must be numeric")
+  if (is.integer(x)) x[] <- as.numeric(x[])
   a <- attributes(x)
+  a$class <- class(x)
   if (!is.matrix(x)) x <- matrix(x)
   d <- ncol(x)
   
   facs <- rownames(fmat)[rowSums(fmat) > 0]
-  for (f in facs) {
-    data[[f]] <- factor(data[[f]], ordered = FALSE)
-    if (anyNA(data[[f]])) data[[f]] <- addNA(data[[f]])
-  }
-  fi <- interaction(data[facs])
+  data[facs] <- lapply(data[facs], function(f) addNA(factor(f, ordered = FALSE)))
+  fi <- interaction(data[facs], drop = TRUE)
+  levels(fi)[is.na(levels(fi))] <- "NA"
   
   if (!is.null(pred)) {
     centers <- pred$centers
@@ -173,15 +173,17 @@ scale_by <- function(object = NULL, data = NULL, scale = 1) {
       stop("'pred' and 'data' imply different dimensions for numeric variable")
     }
     
-    newlvs <- levels(fi)[!(levels(fi) %in% rownames(centers))]
-    newc <- matrix(new_center, length(newlvs), d, byrow = TRUE)
-    rownames(newc) <- newlvs
-    centers <- rbind(centers, newc)
-    if (scale) {
-      news <- matrix(new_scale, length(newlvs), d, byrow = TRUE)
-      rownames(news) <- newlvs
-      scales <- rbind(scales, news)
+    if (length(newlvs <- setdiff(levels(fi), rownames(centers)))) {
+      newc <- matrix(new_center, length(newlvs), d, byrow = TRUE)
+      rownames(newc) <- newlvs
+      centers <- rbind(centers, newc)
+      if (scale) {
+        news <- matrix(new_scale, length(newlvs), d, byrow = TRUE)
+        rownames(news) <- newlvs
+        scales <- rbind(scales, news)
+      }
     }
+    
     fi <- factor(fi, levels = rownames(centers))
     
   } else {
@@ -196,7 +198,7 @@ scale_by <- function(object = NULL, data = NULL, scale = 1) {
         "as there are columns in the numeric variable")
     }
     
-    xi <- lapply(levels(fi), function(i) x[fi %in% i, , drop = FALSE])
+    xi <- msplit(x, fi)
     r2 <- sapply(xi, nval) >= 2
     xi <- xi[r2]
     
@@ -211,8 +213,7 @@ scale_by <- function(object = NULL, data = NULL, scale = 1) {
       stop("at least one group must have more than one observation with no NAs")
     }
     new_center <- unname(colMeans(centers, na.rm = TRUE))
-    rna <- rowna(centers)
-    if (any(rna)) {
+    if (any(rna <- rowna(centers))) {
       centers[rna, ] <- matrix(new_center, sum(rna), d, byrow = TRUE)
     }
     
@@ -220,11 +221,11 @@ scale_by <- function(object = NULL, data = NULL, scale = 1) {
       scales <- matrix(nrow = nlevels(fi), ncol = d)
       rownames(scales) <- levels(fi)
       if (d > 1) {
-        scales[r2, ] <- t(sapply(xi, function(i) apply(i, 2, function(u)
-          sd(u, na.rm = TRUE)) / scale))
+        scales[r2, ] <- t(sapply(xi,
+          function(i) apply(i, 2, sd, na.rm = TRUE) / scale))
       } else {
-        scales[r2, ] <- matrix(sapply(xi, function(i) apply(i, 2, function(u)
-          sd(u, na.rm = TRUE)) / scale))
+        scales[r2, ] <- matrix(sapply(xi,
+          function(i) apply(i, 2, sd, na.rm = TRUE) / scale))
       }
       new_scale <- unname(colMeans(scales, na.rm = TRUE))
       if (any(rna)) {
@@ -236,23 +237,22 @@ scale_by <- function(object = NULL, data = NULL, scale = 1) {
     }
   }
   
+  fi <- as.numeric(fi)
   if (scale[1]) {
-    x <- (x - centers[as.numeric(fi), , drop = FALSE]) / 
-      scales[as.numeric(fi), , drop = FALSE]
+    x <- (x - centers[fi, , drop = FALSE]) / scales[fi, , drop = FALSE]
   } else {
-    x <- x - centers[as.numeric(fi), , drop = FALSE]
+    x <- x - centers[fi, , drop = FALSE]
   }
 
   if (ncol(x) == 1) {
     x <- as.vector(x)
   }
 
-  pred <- list(formula = formula, centers = centers, scales = scales,
-    new_center = new_center, new_scale = new_scale)
-  class(pred) <- c("scaledby_pred", "list")
-  a$pred <- pred
+  a$pred <- structure(list(formula = formula, centers = centers, scales = scales,
+    new_center = new_center, new_scale = new_scale), class = c("scaledby_pred",
+    "list"))
+  a$class <- unique(c("scaledby", a$class))
   attributes(x) <- a
-  class(x) <- c("scaledby", class(x))
   
   return(x)
 }
@@ -268,9 +268,7 @@ scale_by <- function(object = NULL, data = NULL, scale = 1) {
 #'
 #' @export
 makepredictcall.scaledby <- function(var, call) {
-  call <- call("scale_by")
-  call[[1]] <- quote(standardize::scale_by)
-  call$object <- attr(var, "pred")
-  return(call)
+  return(substitute(standardize::scale_by(object = X),
+    list(X = attr(var, "pred"))))
 }
 

@@ -219,13 +219,14 @@ summary(lm(cdur_scaled ~ preheight, ptk))
 
 The **standardize** function implements **scale**, **scale_by**, **named_contr_sum**, and **scaled_contr_poly** automatically, allowing regressions to be easily fit in a standardized space.  It takes the following arguments:
 
-* formula: A regression formula, possibly containing random effects.
+* formula: A regression formula, possibly containing random effects and/or offsets.
 * data: A data.frame containing the variables in the formula.
 * family: A regression family (defaults to guassian)
 * scale: The desired scale for the predictors (defaults to 1).
 * na.action: How observations with NA values should be treated (passed to __model.frame__, default is "na.pass").
+* offset: An optional vector of offsets.
 
-The function first calls **model.frame**.  If **family** is guassian (i.e. a linear model), then the response (i.e. dependent variable) is placed on unit scale (mean 0 and standard deviation 1) regardless of what the **scale** argument to **standardize** is; if the response contains a call to **scale_by**, then it is placed on unit scale within each level of the conditioning factor.  Then, random effects groups (if any) are coerced to unordered factors, and any other predictors which are characters or which contain only two unique non-NA values (regardless of their class) are converted to unordered factors and assigned contrasts with **named_contr_sum**, passing along the **scale** argument.  Ordered factors are assigned contrasts with **scaled_contr_poly**, passing along the **scale** argument.  Continuous predictors which contain a call to **scale_by** are re-calculated passing along the **scale** argument.  Finally, continuous predictors which do not contain a call to **scale_by** are scaled using the **scale** function, ensuring that the resulting variable has standard deviation equal to the **scale** argument to **standardize**.
+The function first calls **model.frame**.  If **family** is guassian (i.e. a linear model), then the response (i.e. dependent variable) is placed on unit scale (mean 0 and standard deviation 1) regardless of what the **scale** argument to **standardize** is; if the response contains a call to **scale_by**, then it is placed on unit scale within each level of the conditioning factor.  For offsets (again, if **family* is gaussian), the values are divided by the standard deviation of the response variable prior to scaling (within-factor-level if **scale_by** is used on the response).  Then, for all values of **family**, random effects groups (if any) are coerced to unordered factors, and any other predictors which are characters or which contain only two unique non-NA values (regardless of their class) are converted to unordered factors and assigned contrasts with **named_contr_sum**, passing along the **scale** argument.  Ordered factors are assigned contrasts with **scaled_contr_poly**, passing along the **scale** argument.  Continuous predictors which contain a call to **scale_by** are re-calculated passing along the **scale** argument.  Finally, continuous predictors which do not contain a call to **scale_by** are scaled using the **scale** function, ensuring that the resulting variable has standard deviation equal to the **scale** argument to **standardize**.
 
 The column names of the model frame are then renamed so that they are valid variable names, and the formula passed to **standardize** is updated with these variable names.  A list with class **standardized** is then returned with the following elements:
 
@@ -234,7 +235,8 @@ The column names of the model frame are then renamed so that they are valid vari
 * formula: The regression formula in standardized space (with new names) which can be used along with the __data__ element to fit regressions.
 * family: The regression family.
 * data: A data frame containing the regression variables in the standardized space (renamed to have valid variable names corresponding to those in the __formula__ element).
-* pred: A __terms__ object whose __predvars__ attribute allows new data to be placed into the same standardized space as the data in the __data__ element.
+* pred: A list containing unevaluated function calls that allows the predict method to work.
+* offset: If the __offset__ argment to __standardize__ was used, then it is stored in the standardized object's offset element (and will be scaled as described above for linear regression).
 * variables: A data frame with the name of the original variable, the corresponding name in the standardized data frame and formula, and the class of the variable in the standardized data frame.
 * contrasts: A named list of contrasts for all factors in the standardized data frame (or NULL if the regression contains no factors).
 * groups: A named list of levels for random effects grouping factors (or NULL if the regression contains no random effects).
@@ -270,8 +272,8 @@ mean(sdat$data$log_wordfreq)
 sd(sdat$data$log_wordfreq)
 all.equal(scale(log(ptk$wordfreq))[, 1], sdat$data$log_wordfreq[, 1])
 
-with(sdat$data, tapply(scale_speechrate_by_speaker, speaker, mean))
-with(sdat$data, tapply(scale_speechrate_by_speaker, speaker, sd))
+with(sdat$data, tapply(speechrate_scaled_by_speaker, speaker, mean))
+with(sdat$data, tapply(speechrate_scaled_by_speaker, speaker, sd))
 
 sdat$contrasts
 
@@ -297,8 +299,8 @@ mean(sdat$data$log_wordfreq)
 sd(sdat$data$log_wordfreq)
 all.equal(0.5 * scale(log(ptk$wordfreq))[, 1], sdat$data$log_wordfreq[, 1])
 
-with(sdat$data, tapply(scale_speechrate_by_speaker, speaker, mean))
-with(sdat$data, tapply(scale_speechrate_by_speaker, speaker, sd))
+with(sdat$data, tapply(speechrate_scaled_by_speaker, speaker, mean))
+with(sdat$data, tapply(speechrate_scaled_by_speaker, speaker, sd))
 
 sdat$contrasts
 
@@ -387,7 +389,7 @@ The *standardize* package provides several functions which aid in placing regres
 
 If you use the *standardize* package in a publication, please cite:
 
-    Eager, Christopher D. (2017). standardize: Tools for Standardizing Variables for Regression in R. R package version 0.1.1. https://CRAN.R-project.org/package=standardize
+    Eager, Christopher D. (2017). standardize: Tools for Standardizing Variables for Regression in R. R package version 0.2.0. https://CRAN.R-project.org/package=standardize
 
 If you analyze the **ptk** dataset in a publication, please cite:
 

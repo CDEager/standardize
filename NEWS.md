@@ -1,4 +1,10 @@
-# standardize 0.1.1-9000
+# standardize 0.2.0
+
+* Offsets are now supported
+
+* The formula with renamed terms now always has the same structure/ordering as the input
+
+* Efficiency improvements
 
 
 # standardize 0.1.1

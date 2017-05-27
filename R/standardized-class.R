@@ -22,9 +22,11 @@
 #'   \item{data}{A data frame containing the regression variables in a
 #'     standardized space (renamed to have valid variable names corresponding
 #'     to those in the \code{formula} element).}
-#'   \item{pred}{A \code{terms} object whose \code{predvars} attribute allows
-#'     new data to be placed into the same standardized space as the data
-#'     in the \code{data} element.}
+#'   \item{offset}{The offset passed through the \code{offset} argument to 
+#'     \code{\link{standardize}} (scaled if \code{family = gaussian}), or 
+#'     \code{NULL} if the \code{offset} argument was not used.}
+#'   \item{pred}{A list containing unevaluated calls which allow the 
+#'     \code{\link[=predict.standardized]{predict}} method to work.}
 #'   \item{variables}{A data frame with the name of the original variable,
 #'     the corresponding name in the standardized data frame and formula,
 #'     and the class of the variable in the standardized data frame.}
@@ -50,7 +52,8 @@
 #' and then use \code{x1Pos_x2Neg} in the call to \code{\link{standardize}}.
 #' The \code{Class} column in the \code{variables} data frame takes the
 #' following values (except for non-gaussian responses, which are left
-#' unaltered, and so may have a different class).
+#' unaltered, and so may have a different class; the class for the response is 
+#' always preceded by \code{response.}).
 #' \describe{
 #'   \item{numeric}{A numeric vector.}
 #'   \item{poly}{A numeric matrix resulting from a call to
@@ -63,6 +66,14 @@
 #'   \item{factor}{An unordered factor.}
 #'   \item{ordered}{An ordered factor.}
 #'   \item{group}{A random effects grouping factor.}
+#'   \item{offset}{If the offset function was used within the formula passed to 
+#'     \code{\link{standardize}}, then the variable is numeric and labeled as 
+#'     \code{offset}.  The \code{formula} element of the \code{standardize} 
+#'     object contains offset calls to ensure regression fitting functions use 
+#'     them properly.  If the \code{offset} argument was used in the call to 
+#'     \code{\link{standardize}} (rather than putting offset calls in the 
+#'     formula), then the offset is not in the \code{variables} data frame (it 
+#'     is in the \code{offset} element of the \code{standardized} object).}
 #' }
 #'
 #' The \code{standardized} object has a printing method which displays the call,
@@ -88,7 +99,11 @@ NULL
 #' fit with the \code{formula} and \code{data} elements of a
 #' \code{\link[=standardized-class]{standardized}} object cannot be used to
 #' directly predict the response variable for new data.  The new data must
-#' first be placed into the standardized space.
+#' first be placed into the standardized space. If offsets were included
+#' in the \code{formula} argument used to create the \code{standardized} object,
+#' then when \code{fixed = TRUE} the offset variables must be in \code{newdata}.
+#' If an offset was passed to the \code{offset} argument in the call to
+#' \code{\link{standardize}}, then the offset cannot be passed to \code{predict}.
 #'
 #' @section Note: You may see a warning "contrasts dropped from factor <x>" for
 #'   each factor when predicting new data with a fitted model object, but this
@@ -123,34 +138,39 @@ NULL
 #' }
 #'
 #' @export
-predict.standardized <- function(object, newdata, response = FALSE,
+predict.standardized <- function(object, newdata = NULL, response = FALSE,
                                  fixed = TRUE, random = TRUE,
                                  na.action = "na.pass", ...) {
+  stopifnot(is.standardized(object), is.data.frame(newdata))
+  
   if (length(list(...))) {
     warning("Ignoring arguments passed in '...'")
   }
-  mt <- object$pred
-  a <- attributes(mt)
+  
+  p <- object$pred
   if (fixed && !random) {
-    mt <- lme4::nobars(mt)
+    p <- p$fixed
   } else if (!fixed && random) {
-    mt <- lme4::subbars(lme4_reOnly(mt, TRUE))
-    attributes(mt) <- a
+    p <- p$random
   } else if (fixed && random) {
-    mt <- lme4::subbars(mt)
+    p <- p$all
   } else {
     stop("'fixed' and 'random' cannot both be FALSE")
   }
   if (!response) {
-    mt <- stats::delete.response(mt)
-    attributes(mt) <- a
+    p <- p[-2]
   }
-  mt <- condense_terms(mt)
+  if (length(p) < 2) {
+    stop("No variables when response = ", response, ", fixed = ", fixed,
+      ", and random = ", random, ".")
+  }
   
-  mf <- strip_attr(stats::model.frame(mt, newdata, na.action = na.action))
-  colnames(mf) <- unname(attr(mt, "rename"))
+  fr <- setNames(data.frame(matrix(nrow = nrow(newdata), ncol = length(p) - 1)),
+    names(p)[-1])
+  fr[names(p)[-1]] <- eval(p, envir = newdata)
+  fr <- strip_attr(fr)
   
-  return(mf)
+  return(fr)
 }
 
 
@@ -174,6 +194,8 @@ is.standardized <- function(object) {
 #'
 #' @export
 print.standardized <- function(x, ...) {
+  sc <- round(x$scale, 3)
+  
   cat("\nCall:\n")
   print(x$call)
   
@@ -185,25 +207,36 @@ print.standardized <- function(x, ...) {
   cat("\nVariables:\n")
   print(x$variables, row.names = FALSE, right = FALSE)
   
+  o <- any(x$variables$Class == "offset") | !is.null(x$offset)
+  
   if (isTRUE(all.equal((f <- x$family), gaussian()))) {
-    if (x$variables$Class[1] %in% c("scaledby", "scaledby.poly")) {
+    if (x$variables$Class[1] %in% c("response.scaledby", "response.scaledby.poly")) {
       cat("\nResponse has mean 0 and standard deviation 1 ",
-        "within each factor level\n", sep = "")
+        "within each factor level.\n", sep = "")
+      if (o) {
+        cat("Offsets are divided by the standard deviation of the raw response",
+          "within each factor level.\n")
+      }
     } else {
-      cat("\nResponse has mean 0 and standard deviation 1\n")
+      cat("\nResponse has mean 0 and standard deviation 1.\n")
+      if (o) {
+        cat("Offsets are divided by the standard deviation of the raw response.\n")
+      }
     }
   } else {
     if (!is.character(f)) f <- paste0(f$family, "(", f$link, ")")
     cat("\nResponse not altered because family = ", f, "\n", sep = "")
+    if (o) {
+      cat("Offsets are unaltered for the same reason.\n")
+    }
   }
   
   cat(
-    "\nStandardized Scale for the Predictors: ", x$scale, "\n",
-    "Continuous variables have mean 0 and standard deviation 'scale'\n",
+    "\nContinuous variables have mean 0 and standard deviation ", sc, "\n",
     "  (within-factor-level if scale_by was used)\n",
-    "Unordered factors have sum contrasts with deviation 'scale'\n",
+    "Unordered factors have sum contrasts with deviation ", sc, "\n",
     "Ordered factors have orthogonal polynomial contrasts whose\n",
-    "  columns have standard deviation 'scale'\n",
+    "  columns have standard deviation ", sc, "\n",
     "Grouping factors are coded as unordered factors with default contrasts\n",
     "\n", sep = "")
 }

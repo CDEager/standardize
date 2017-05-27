@@ -1,6 +1,6 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
-standardize 0.1.1
+standardize 0.2.0
 =================
 
 [![Build Status](https://travis-ci.org/CDEager/standardize.svg?branch=master)](https://travis-ci.org/CDEager/standardize)
@@ -68,32 +68,39 @@ sdat
 #>     scale_by(speechrate ~ speaker) + (1 | speaker), data = ptk)
 #> 
 #> Standardized Formula:
-#> cdur ~ place + stress + preheight + log_wordfreq + scale_speechrate_by_speaker + 
+#> cdur ~ place + stress + preheight + log_wordfreq + speechrate_scaled_by_speaker + 
 #>     (1 | speaker)
 #> 
 #> Variables:
-#>  Variable                       Standardized Name           Class   
-#>  cdur                           cdur                        numeric 
-#>  place                          place                       factor  
-#>  stress                         stress                      factor  
-#>  preheight                      preheight                   ordered 
-#>  log(wordfreq)                  log_wordfreq                numeric 
-#>  scale_by(speechrate ~ speaker) scale_speechrate_by_speaker scaledby
-#>  speaker                        speaker                     group   
+#>  Variable                       Standardized Name           
+#>  cdur                           cdur                        
+#>  place                          place                       
+#>  stress                         stress                      
+#>  preheight                      preheight                   
+#>  log(wordfreq)                  log_wordfreq                
+#>  scale_by(speechrate ~ speaker) speechrate_scaled_by_speaker
+#>  speaker                        speaker                     
+#>  Class           
+#>  response.numeric
+#>  factor          
+#>  factor          
+#>  ordered         
+#>  numeric         
+#>  scaledby        
+#>  group           
 #> 
-#> Response has mean 0 and standard deviation 1
+#> Response has mean 0 and standard deviation 1.
 #> 
-#> Standardized Scale for the Predictors: 1
-#> Continuous variables have mean 0 and standard deviation 'scale'
+#> Continuous variables have mean 0 and standard deviation 1
 #>   (within-factor-level if scale_by was used)
-#> Unordered factors have sum contrasts with deviation 'scale'
+#> Unordered factors have sum contrasts with deviation 1
 #> Ordered factors have orthogonal polynomial contrasts whose
-#>   columns have standard deviation 'scale'
+#>   columns have standard deviation 1
 #> Grouping factors are coded as unordered factors with default contrasts
 
 names(sdat)
-#> [1] "call"      "scale"     "formula"   "family"    "data"      "pred"     
-#> [7] "variables" "contrasts" "groups"
+#>  [1] "call"      "scale"     "formula"   "family"    "data"     
+#>  [6] "offset"    "pred"      "variables" "contrasts" "groups"
 
 head(sdat$data)
 #>          cdur  place     stress preheight log_wordfreq
@@ -103,13 +110,13 @@ head(sdat$data)
 #> 4  0.01505386 Dental Post-Tonic      High  -1.90076049
 #> 5  0.91283934  Velar      Tonic       Mid  -0.19203879
 #> 6  1.51136300 Dental Post-Tonic      High  -0.22152148
-#>   scale_speechrate_by_speaker speaker
-#> 1                  -0.4984662     s01
-#> 2                   1.3452937     s01
-#> 3                  -0.4984662     s01
-#> 4                   0.6454974     s01
-#> 5                   2.2671736     s01
-#> 6                  -2.3422261     s01
+#>   speechrate_scaled_by_speaker speaker
+#> 1                   -0.4984662     s01
+#> 2                    1.3452937     s01
+#> 3                   -0.4984662     s01
+#> 4                    0.6454974     s01
+#> 5                    2.2671736     s01
+#> 6                   -2.3422261     s01
 
 mean(sdat$data$cdur)
 #> [1] -1.539605e-16
@@ -123,7 +130,7 @@ sd(sdat$data$log_wordfreq)
 all.equal(scale(log(ptk$wordfreq))[, 1], sdat$data$log_wordfreq[, 1])
 #> [1] TRUE
 
-with(sdat$data, tapply(scale_speechrate_by_speaker, speaker, mean))
+with(sdat$data, tapply(speechrate_scaled_by_speaker, speaker, mean))
 #>           s01           s02           s03           s04           s05 
 #> -2.960268e-16  3.165268e-18 -3.119346e-16  1.004790e-16  2.183358e-16 
 #>           s06           s07           s08           s09           s10 
@@ -132,7 +139,7 @@ with(sdat$data, tapply(scale_speechrate_by_speaker, speaker, mean))
 #> -2.923792e-16  3.850162e-16  1.980309e-16  6.325185e-17  1.427623e-16 
 #>           s16           s17           s18 
 #> -2.220446e-16  1.582818e-16 -2.505491e-16
-with(sdat$data, tapply(scale_speechrate_by_speaker, speaker, sd))
+with(sdat$data, tapply(speechrate_scaled_by_speaker, speaker, sd))
 #> s01 s02 s03 s04 s05 s06 s07 s08 s09 s10 s11 s12 s13 s14 s15 s16 s17 s18 
 #>   1   1   1   1   1   1   1   1   1   1   1   1   1   1   1   1   1   1
 
@@ -172,7 +179,7 @@ mod <- lmer(sdat$formula, sdat$data)
 summary(mod)
 #> Linear mixed model fit by REML ['lmerMod']
 #> Formula: 
-#> cdur ~ place + stress + preheight + log_wordfreq + scale_speechrate_by_speaker +  
+#> cdur ~ place + stress + preheight + log_wordfreq + speechrate_scaled_by_speaker +  
 #>     (1 | speaker)
 #>    Data: sdat$data
 #> 
@@ -189,16 +196,16 @@ summary(mod)
 #> Number of obs: 751, groups:  speaker, 18
 #> 
 #> Fixed effects:
-#>                              Estimate Std. Error t value
-#> (Intercept)                  0.015759   0.079462   0.198
-#> placeBilabial                0.008255   0.047766   0.173
-#> placeDental                 -0.011703   0.045913  -0.255
-#> stressPost-Tonic            -0.062456   0.048407  -1.290
-#> stressTonic                  0.212176   0.047974   4.423
-#> preheight.L                  0.017645   0.046657   0.378
-#> preheight.Q                  0.059551   0.039241   1.518
-#> log_wordfreq                -0.037784   0.033815  -1.117
-#> scale_speechrate_by_speaker -0.306867   0.033216  -9.239
+#>                               Estimate Std. Error t value
+#> (Intercept)                   0.015759   0.079462   0.198
+#> placeBilabial                 0.008255   0.047766   0.173
+#> placeDental                  -0.011703   0.045913  -0.255
+#> stressPost-Tonic             -0.062456   0.048407  -1.290
+#> stressTonic                   0.212176   0.047974   4.423
+#> preheight.L                   0.017645   0.046657   0.378
+#> preheight.Q                   0.059551   0.039241   1.518
+#> log_wordfreq                 -0.037784   0.033815  -1.117
+#> speechrate_scaled_by_speaker -0.306867   0.033216  -9.239
 #> 
 #> Correlation of Fixed Effects:
 #>             (Intr) plcBlb plcDnt strP-T strssT prhg.L prhg.Q lg_wrd
@@ -209,7 +216,7 @@ summary(mod)
 #> preheight.L  0.009  0.075 -0.106 -0.272  0.276                     
 #> preheight.Q  0.083 -0.041 -0.127  0.029 -0.059  0.023              
 #> log_wordfrq  0.005 -0.092  0.062 -0.131 -0.029  0.106  0.093       
-#> scl_spchr__  0.007  0.015 -0.043  0.058  0.046  0.061  0.073  0.013
+#> spchrt_sc__  0.007  0.015 -0.043  0.058  0.046  0.061  0.073  0.013
 ```
 
 The scaling of the predictors can be controlled through the **scale** argument to **standardize**. For example:
@@ -226,32 +233,39 @@ sdat
 #>     scale = 0.5)
 #> 
 #> Standardized Formula:
-#> cdur ~ place + stress + preheight + log_wordfreq + scale_speechrate_by_speaker + 
+#> cdur ~ place + stress + preheight + log_wordfreq + speechrate_scaled_by_speaker + 
 #>     (1 | speaker)
 #> 
 #> Variables:
-#>  Variable                       Standardized Name           Class   
-#>  cdur                           cdur                        numeric 
-#>  place                          place                       factor  
-#>  stress                         stress                      factor  
-#>  preheight                      preheight                   ordered 
-#>  log(wordfreq)                  log_wordfreq                numeric 
-#>  scale_by(speechrate ~ speaker) scale_speechrate_by_speaker scaledby
-#>  speaker                        speaker                     group   
+#>  Variable                       Standardized Name           
+#>  cdur                           cdur                        
+#>  place                          place                       
+#>  stress                         stress                      
+#>  preheight                      preheight                   
+#>  log(wordfreq)                  log_wordfreq                
+#>  scale_by(speechrate ~ speaker) speechrate_scaled_by_speaker
+#>  speaker                        speaker                     
+#>  Class           
+#>  response.numeric
+#>  factor          
+#>  factor          
+#>  ordered         
+#>  numeric         
+#>  scaledby        
+#>  group           
 #> 
-#> Response has mean 0 and standard deviation 1
+#> Response has mean 0 and standard deviation 1.
 #> 
-#> Standardized Scale for the Predictors: 0.5
-#> Continuous variables have mean 0 and standard deviation 'scale'
+#> Continuous variables have mean 0 and standard deviation 0.5
 #>   (within-factor-level if scale_by was used)
-#> Unordered factors have sum contrasts with deviation 'scale'
+#> Unordered factors have sum contrasts with deviation 0.5
 #> Ordered factors have orthogonal polynomial contrasts whose
-#>   columns have standard deviation 'scale'
+#>   columns have standard deviation 0.5
 #> Grouping factors are coded as unordered factors with default contrasts
 
 names(sdat)
-#> [1] "call"      "scale"     "formula"   "family"    "data"      "pred"     
-#> [7] "variables" "contrasts" "groups"
+#>  [1] "call"      "scale"     "formula"   "family"    "data"     
+#>  [6] "offset"    "pred"      "variables" "contrasts" "groups"
 
 head(sdat$data)
 #>          cdur  place     stress preheight log_wordfreq
@@ -261,13 +275,13 @@ head(sdat$data)
 #> 4  0.01505386 Dental Post-Tonic      High  -0.95038025
 #> 5  0.91283934  Velar      Tonic       Mid  -0.09601939
 #> 6  1.51136300 Dental Post-Tonic      High  -0.11076074
-#>   scale_speechrate_by_speaker speaker
-#> 1                  -0.2492331     s01
-#> 2                   0.6726468     s01
-#> 3                  -0.2492331     s01
-#> 4                   0.3227487     s01
-#> 5                   1.1335868     s01
-#> 6                  -1.1711131     s01
+#>   speechrate_scaled_by_speaker speaker
+#> 1                   -0.2492331     s01
+#> 2                    0.6726468     s01
+#> 3                   -0.2492331     s01
+#> 4                    0.3227487     s01
+#> 5                    1.1335868     s01
+#> 6                   -1.1711131     s01
 
 mean(sdat$data$cdur)
 #> [1] -1.539605e-16
@@ -281,7 +295,7 @@ sd(sdat$data$log_wordfreq)
 all.equal(0.5 * scale(log(ptk$wordfreq))[, 1], sdat$data$log_wordfreq[, 1])
 #> [1] TRUE
 
-with(sdat$data, tapply(scale_speechrate_by_speaker, speaker, mean))
+with(sdat$data, tapply(speechrate_scaled_by_speaker, speaker, mean))
 #>           s01           s02           s03           s04           s05 
 #> -1.480134e-16  1.582634e-18 -1.559673e-16  5.023952e-17  1.091679e-16 
 #>           s06           s07           s08           s09           s10 
@@ -290,7 +304,7 @@ with(sdat$data, tapply(scale_speechrate_by_speaker, speaker, mean))
 #> -1.461896e-16  1.925081e-16  9.901544e-17  3.162593e-17  7.138116e-17 
 #>           s16           s17           s18 
 #> -1.110223e-16  7.914090e-17 -1.252746e-16
-with(sdat$data, tapply(scale_speechrate_by_speaker, speaker, sd))
+with(sdat$data, tapply(speechrate_scaled_by_speaker, speaker, sd))
 #> s01 s02 s03 s04 s05 s06 s07 s08 s09 s10 s11 s12 s13 s14 s15 s16 s17 s18 
 #> 0.5 0.5 0.5 0.5 0.5 0.5 0.5 0.5 0.5 0.5 0.5 0.5 0.5 0.5 0.5 0.5 0.5 0.5
 

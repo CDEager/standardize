@@ -7,4 +7,4 @@
 There were no ERRORs, WARNINGs, or NOTEs.
 
 ## Downstream dependencies
-There are currently no downstream dependencies.
+There are no issues with the only current downstream dependency (nauf).

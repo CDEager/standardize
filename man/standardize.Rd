@@ -5,7 +5,7 @@
 \title{Standardize a formula and data frame for regression.}
 \usage{
 standardize(formula, data, family = gaussian, scale = 1,
-  na.action = "na.pass")
+  na.action = "na.pass", offset)
 }
 \arguments{
 \item{formula}{A regression \code{\link[stats]{formula}}.}
@@ -18,11 +18,17 @@ standardize(formula, data, family = gaussian, scale = 1,
 positive number. See 'Details'.}
 
 \item{na.action}{See \code{\link[stats]{model.frame}}.}
+
+\item{offset}{An optional \code{\link[stats]{offset}} vector. Offsets can
+also be included in the \code{formula} (e.g. \code{y ~ x + offset(o)}), but
+if this is done, then the column \code{o} (in this example) must be in any 
+data frame passed as the \code{newdata} argument to 
+\code{\link[=predict.standardized]{predict}}.}
 }
 \value{
 A \code{\link[=standardized-class]{standardized}} object. The
-  \code{formula} and \code{data} elements of the object can be used in calls
-  to regression functions.
+  \code{formula}, \code{data}, and \code{offset} elements of the object can 
+  be used in calls to regression functions.
 }
 \description{
 Create a \code{\link[=standardized-class]{standardized}} object which places
@@ -42,12 +48,24 @@ The result is that gaussian responses are on unit scale (i.e. have mean
 \code{0} and standard deviation \code{1}), or, if \code{\link{scale_by}} is
 used on the left hand side of \code{formula}, unit scale within each
 level of the specified conditioning factor.
-For all other values for \code{family}, the response is not checked.
+Offsets in gaussian models are divided by the standard deviation of the
+the response prior to scaling (within-factor-level if \code{\link{scale_by}}
+is used on the response).  In this way, if the transformed offset is added
+to the transformed response, and then placed back on the response's original
+scale, the result would be the same as if the un-transformed offset had
+been added to the un-transformed response.
+For all other values for \code{family}, the response and offsets are not checked.
+If offsets are used within the \code{formula}, then they will be in the
+\code{formula} and \code{data} elements of the \code{\linkS4class{standardized}}
+object.  If the \code{offset} argument to the \code{standardize} function is
+used, then the offset provided in the argument will be
+in the \code{offset} element of the \code{\linkS4class{standardized}} object
+(scaled if \code{family = gaussian}).
 
-For the predictors in the formula, first any random effects grouping factors
+For the other predictors in the formula, first any random effects grouping factors
 in the formula are coerced to factor and unused levels are dropped.  The
-levels of the resulting factor are then recorded in the \code{predvars} terms
-attribute.  Then for the remaining predictors, regardless of their original
+levels of the resulting factor are then recorded in the \code{groups} element.
+Then for the remaining predictors, regardless of their original
 class, if they have only two unique non-\code{NA} values, they are coerced
 to unordered factors.  Then, \code{\link{named_contr_sum}} and
 \code{\link{scaled_contr_poly}} are called for unordered and ordered factors,
@@ -63,8 +81,9 @@ standard deviation \code{scale}.
 
 With the default value of \code{scale = 1}, the result is a
 \code{\linkS4class{standardized}} object which contains a formula and data
-frame which can be used to fit regressions where the predictors are all
-on a similar scale.  Its data frame
+frame (and offset vector if the \code{offset} argument to the 
+\code{standardize} function was used) which can be used to fit regressions 
+where the predictors are all on a similar scale.  Its data frame
 has numeric variables on unit scale, unordered factors with named sum
 sum contrasts, and ordered factors with orthogonal polynomial contrasts
 on unit scale.  For gaussian regressions, the response is also placed on
@@ -78,7 +97,7 @@ variables would be \code{0.5} rather than \code{1} (within-factor-level
 in the case of \code{\link{scale_by}} calls).
 }
 \section{Note}{
- Offsets are not currently supported. The \code{\link{scale_by}}
+ The \code{\link{scale_by}}
   function is supported so long as it is not nested within other function
   calls.  The \code{\link[stats]{poly}} function is supported so long as
   it is either not nested within other function calls, or is nested as the
@@ -108,8 +127,8 @@ mean(sdat$data$y)
 sd(sdat$data$y)
 mean(sdat$data$log_x.p.1)
 sd(sdat$data$log_x.p.1)
-with(sdat$data, tapply(scale_z_by_subj, subj, mean))
-with(sdat$data, tapply(scale_z_by_subj, subj, sd))
+with(sdat$data, tapply(z_scaled_by_subj, subj, mean))
+with(sdat$data, tapply(z_scaled_by_subj, subj, sd))
 
 sdat <- standardize(y ~ log(x + 1) + scale_by(z ~ subj) + ufac + ofac +
   (1 | subj), dat, scale = 0.5)
@@ -124,8 +143,8 @@ mean(sdat$data$y)
 sd(sdat$data$y)
 mean(sdat$data$log_x.p.1)
 sd(sdat$data$log_x.p.1)
-with(sdat$data, tapply(scale_z_by_subj, subj, mean))
-with(sdat$data, tapply(scale_z_by_subj, subj, sd))
+with(sdat$data, tapply(z_scaled_by_subj, subj, mean))
+with(sdat$data, tapply(z_scaled_by_subj, subj, sd))
 
 \dontrun{
 mod <- lmer(sdat$formula, sdat$data)
@@ -136,7 +155,11 @@ all.equal(predict(mod, newdata = predict(sdat, dat)), fitted(mod))
 
 }
 \seealso{
-\code{\link[base]{scale}}, \code{\link{scale_by}},
-  \code{\link{named_contr_sum}}, and \code{\link{scaled_contr_poly}}.
+For scaling and contrasts, see \code{\link[base]{scale}},
+  \code{\link{scale_by}}, \code{\link{named_contr_sum}}, and
+  \code{\link{scaled_contr_poly}}. For putting new data into the same space
+  as the standardized data, see \code{\link[=predict.standardized]{predict}}.
+  For the elements in the returned object, see
+  \code{\linkS4class{standardized}}.
 }
 

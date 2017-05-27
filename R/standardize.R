@@ -18,12 +18,24 @@
 #' \code{0} and standard deviation \code{1}), or, if \code{\link{scale_by}} is
 #' used on the left hand side of \code{formula}, unit scale within each
 #' level of the specified conditioning factor.
-#' For all other values for \code{family}, the response is not checked.
+#' Offsets in gaussian models are divided by the standard deviation of the
+#' the response prior to scaling (within-factor-level if \code{\link{scale_by}}
+#' is used on the response).  In this way, if the transformed offset is added
+#' to the transformed response, and then placed back on the response's original
+#' scale, the result would be the same as if the un-transformed offset had
+#' been added to the un-transformed response.
+#' For all other values for \code{family}, the response and offsets are not checked.
+#' If offsets are used within the \code{formula}, then they will be in the
+#' \code{formula} and \code{data} elements of the \code{\linkS4class{standardized}}
+#' object.  If the \code{offset} argument to the \code{standardize} function is
+#' used, then the offset provided in the argument will be
+#' in the \code{offset} element of the \code{\linkS4class{standardized}} object
+#' (scaled if \code{family = gaussian}).
 #'
-#' For the predictors in the formula, first any random effects grouping factors
+#' For the other predictors in the formula, first any random effects grouping factors
 #' in the formula are coerced to factor and unused levels are dropped.  The
-#' levels of the resulting factor are then recorded in the \code{predvars} terms
-#' attribute.  Then for the remaining predictors, regardless of their original
+#' levels of the resulting factor are then recorded in the \code{groups} element.
+#' Then for the remaining predictors, regardless of their original
 #' class, if they have only two unique non-\code{NA} values, they are coerced
 #' to unordered factors.  Then, \code{\link{named_contr_sum}} and
 #' \code{\link{scaled_contr_poly}} are called for unordered and ordered factors,
@@ -39,8 +51,9 @@
 #'
 #' With the default value of \code{scale = 1}, the result is a
 #' \code{\linkS4class{standardized}} object which contains a formula and data
-#' frame which can be used to fit regressions where the predictors are all
-#' on a similar scale.  Its data frame
+#' frame (and offset vector if the \code{offset} argument to the 
+#' \code{standardize} function was used) which can be used to fit regressions 
+#' where the predictors are all on a similar scale.  Its data frame
 #' has numeric variables on unit scale, unordered factors with named sum
 #' sum contrasts, and ordered factors with orthogonal polynomial contrasts
 #' on unit scale.  For gaussian regressions, the response is also placed on
@@ -59,12 +72,17 @@
 #' @param scale The desired scale for the regression frame. Must be a single
 #'   positive number. See 'Details'.
 #' @param na.action See \code{\link[stats]{model.frame}}.
+#' @param offset An optional \code{\link[stats]{offset}} vector. Offsets can
+#'   also be included in the \code{formula} (e.g. \code{y ~ x + offset(o)}), but
+#'   if this is done, then the column \code{o} (in this example) must be in any 
+#'   data frame passed as the \code{newdata} argument to 
+#'   \code{\link[=predict.standardized]{predict}}. 
 #' 
 #' @return A \code{\link[=standardized-class]{standardized}} object. The
-#'   \code{formula} and \code{data} elements of the object can be used in calls
-#'   to regression functions.
+#'   \code{formula}, \code{data}, and \code{offset} elements of the object can 
+#'   be used in calls to regression functions.
 #' 
-#' @section Note: Offsets are not currently supported. The \code{\link{scale_by}}
+#' @section Note: The \code{\link{scale_by}}
 #'   function is supported so long as it is not nested within other function
 #'   calls.  The \code{\link[stats]{poly}} function is supported so long as
 #'   it is either not nested within other function calls, or is nested as the
@@ -72,8 +90,12 @@
 #'   If \code{\link[stats]{poly}} is used, then the \code{lsmeans} function
 #'   will yield misleading results (as would normally be the case).
 #'
-#' @seealso \code{\link[base]{scale}}, \code{\link{scale_by}},
-#'   \code{\link{named_contr_sum}}, and \code{\link{scaled_contr_poly}}.
+#' @seealso For scaling and contrasts, see \code{\link[base]{scale}},
+#'   \code{\link{scale_by}}, \code{\link{named_contr_sum}}, and
+#'   \code{\link{scaled_contr_poly}}. For putting new data into the same space
+#'   as the standardized data, see \code{\link[=predict.standardized]{predict}}.
+#'   For the elements in the returned object, see
+#'   \code{\linkS4class{standardized}}.
 #' 
 #' @examples
 #' dat <- expand.grid(ufac = letters[1:3], ofac = 1:3)
@@ -97,8 +119,8 @@
 #' sd(sdat$data$y)
 #' mean(sdat$data$log_x.p.1)
 #' sd(sdat$data$log_x.p.1)
-#' with(sdat$data, tapply(scale_z_by_subj, subj, mean))
-#' with(sdat$data, tapply(scale_z_by_subj, subj, sd))
+#' with(sdat$data, tapply(z_scaled_by_subj, subj, mean))
+#' with(sdat$data, tapply(z_scaled_by_subj, subj, sd))
 #' 
 #' sdat <- standardize(y ~ log(x + 1) + scale_by(z ~ subj) + ufac + ofac +
 #'   (1 | subj), dat, scale = 0.5)
@@ -113,8 +135,8 @@
 #' sd(sdat$data$y)
 #' mean(sdat$data$log_x.p.1)
 #' sd(sdat$data$log_x.p.1)
-#' with(sdat$data, tapply(scale_z_by_subj, subj, mean))
-#' with(sdat$data, tapply(scale_z_by_subj, subj, sd))
+#' with(sdat$data, tapply(z_scaled_by_subj, subj, mean))
+#' with(sdat$data, tapply(z_scaled_by_subj, subj, sd))
 #'
 #' \dontrun{
 #' mod <- lmer(sdat$formula, sdat$data)
@@ -127,45 +149,37 @@
 #'
 #' @export
 standardize <- function(formula, data, family = gaussian, scale = 1,
-                        na.action = "na.pass") {
+                        na.action = "na.pass", offset) {
   mc <- match.call()
+  
   formula <- stats::formula(formula)
   if (!inherits(formula, "formula")) {
     stop("'formula' must be coercible to formula")
   }
-  formula <- strip_terms(formula)
-  gfacs <- rownames(get_ranef_groups(formula))
+  tt <- terms(formula)
+  if (!attr(tt, "response")) stop("no response in formula")
+  if (!length(attr(tt, "term.labels"))) stop("no variables in formula")
+  gfacs <- ranef_groups(formula)
   
   if (!is.data.frame(data)) stop("'data' must be a data.frame")
   attr(data, "terms") <- NULL
   
   family <- get_family(family)
-  gau <- !is.character(family) && family$family == "gaussian" &&
-    family$link == "identity"
+  gau <- isTRUE(all.equal(family, gaussian()))
   
   if (!is.scalar(scale, 1)) {
     stop("'scale' must be a single positive number")
   }
   
-  mf <- stats::model.frame(lme4::subbars(formula), data,
-    drop.unused.levels = TRUE, na.action = na.action)
-  if (is.null(stats::model.response(mf))) {
-    stop("no response in formula")
-  }
-  if (!is.null(stats::model.offset(mf))) {
-    stop("offsets not currently supported")
-  }
+  mf <- mc
+  mf[[1]] <- quote(stats::model.frame)
+  mf$formula <- lme4::subbars(formula)
+  mf$drop.unused.levels = TRUE
+  mf$na.action <- na.action
+  mf[c("family", "scale", "offset")] <- NULL
+  mf <- eval(mf, parent.frame())
   
-  if (!gau && NCOL(mf[[1]]) > 1) {
-    stop("response variable must be a vector if not gaussian")
-  }
-
-  a <- attributes(terms(mf))
-  p <- a$predvars
-  
-  mf1 <- mf[[1]]
-  mf <- charlogbin_to_uf(mf)
-  mf[[1]] <- mf1
+  p <- attr(attr(mf, "terms"), "predvars")
   
   if (gau) {
     if (!is.numeric(mf[[1]])) {
@@ -174,111 +188,108 @@ standardize <- function(formula, data, family = gaussian, scale = 1,
     if (nval(mf[[1]]) < 3) {
       stop("'family' is gaussian but response has fewer than 3 unique values")
     }
-    if (!inherits(mf[[1]], "scaledby")) {
-      mfj <- scale(mf[[1]])
-      p2 <- p[[2]]
-      p[[2]] <- call("scale")
-      p[[2]]$x <- p2
-      p[[2]]$center = attr(mfj, "scaled:center")
-      p[[2]]$scale = attr(mfj, "scaled:scale")
+    if (inherits(mf[[1]], "scaledby")) {
+      p[[2]] <- mpc_scaledby(p[[2]], data, 1)
+      pred_offset <- p[[2]]$object
+      pred_offset$new_center[] <- 0
+      pred_offset$centers[] <- 0
     } else {
-      # to ignore scales other than 1 which were specified
-      p[[2]]$object <- attr(scale_by(p[[2]]$object$formula, data), "pred")
+      p[[2]] <- mpc_numeric(p[[2]], mf[[1]], 1)
+      pred_offset <- p[[2]]$scale
     }
-  }
-  
-  d <- sapply(colnames(mf), function(n) {
-    if (n %in% gfacs) return("group")
-    if (is.uf(mf[[n]])) return("factor")
-    if (is.ordered(mf[[n]])) return("ordered")
-    if (inherits(mf[[n]], "scaledby")) {
-      if (inherits(mf[[n]], "poly")) return("scaledby.poly")
-      return("scaledby")
-    }
-    if (inherits(mf[[n]], "poly")) return("poly")
-    return("numeric")
-  })
-  
-  vtype <- function(type) {
-    return(which(d[-1] %in% type) + 1)
-  }
-  
-  for (j in vtype("group")) {
-    mf[[j]] <- factor(mf[[j]], ordered = FALSE)
-    pj <- p[[j + 1]]
-    p[[j + 1]] <- call("factor", ordered = FALSE, levels = levels(mf[[j]]))
-    p[[j + 1]]$x <- pj
-  }
-  
-  for (j in vtype("factor")) {
-    mfj <- named_contr_sum(mf[[j]], scale, FALSE)
-    pj <- p[[j + 1]]
-    p[[j + 1]] <- call("fac_and_contr", levels = levels(mfj),
-      contrasts = contrasts(mfj), ordered = FALSE)
-    p[[j + 1]]$x <- pj
-    p[[j + 1]][[1]] <- quote(standardize::fac_and_contr)
-  }
-  
-  for (j in vtype("ordered")) {
-    mfj <- scaled_contr_poly(mf[[j]], scale, FALSE)
-    pj <- p[[j + 1]]
-    p[[j + 1]] <- call("fac_and_contr", levels = levels(mfj),
-      contrasts = contrasts(mfj), ordered = TRUE)
-    p[[j + 1]]$x <- pj
-    p[[j + 1]][[1]] <- quote(standardize::fac_and_contr)
-  }
-  
-  for (j in vtype(c("numeric", "poly"))) {
-    mfj <- scale(mf[[j]])
-    pj <- p[[j + 1]]
-    p[[j + 1]] <- call("scale", center = attr(mfj, "scaled:center"),
-      scale = attr(mfj, "scaled:scale") / scale)
-    p[[j + 1]]$x <- pj
-  }
-  
-  for (j in vtype(c("scaledby", "scaledby.poly"))) {
-    p[[j + 1]]$object <- attr(scale_by(p[[j + 1]]$object$formula, data,
-      scale), "pred")
-  }
-  
-  a$predvars <- p
-  a$dataClasses <- d
-  a$standardized.scale <- scale
-      
-  terms <- formula
-  attributes(terms) <- a
-  
-  frame <- strip_attr(stats::model.frame(lme4::subbars(terms), data,
-    na.action = na.action))
-  
-  nms <- make_new_names(colnames(frame))
-  names(nms) <- colnames(frame)
-  attr(terms, "rename") <- nms
-  colnames(frame) <- unname(nms)
-  formula <- make_new_formula(terms, nms)
-  attr(formula, "standardized.scale") <- scale
-
-  sf <- list(call = mc, scale = scale, formula = formula,
-    family = family, data = frame, pred = terms)
-  sf$variables <- data.frame(
-    Variable = names(nms),
-    Name = unname(nms),
-    Class = unname(d))
-  colnames(sf$variables)[2] <- "Standardized Name"
-  facs <- d %in% c("factor", "ordered")
-  if (length(facs)) {
-    sf$contrasts <- lapply(frame[, facs, drop = FALSE], contrasts)
   } else {
-    sf$contrasts <- NULL
+    pred_offset <- NULL
   }
-  groups <- d == "group"
+    
+  # there won't be an "(offset)" column since we set the argument to NULL
+  # the call to stats::model.frame and are handling it separately.
+  # The goal is to produce the equivalent of the 'data' arg to a reg func,
+  # not a model frame (which is why weights, etastart, etc aren't args to
+  # standardize)
+  if (length(o <- grep("^offset\\(", colnames(mf)))) {
+    check_offset(mf[o], mf[[1]])
+    colnames(mf)[o] <- substr(colnames(mf)[o], 8, nchar(colnames(mf)[o]) - 1)
+    p[o + 1] <- mapply(mpc_offset, pv = p[o + 1],
+      MoreArgs = list(po = pred_offset), SIMPLIFY = FALSE)
+  }
+  
+  if (missing(offset)) {
+    offset <- NULL
+  } else {
+    check_offset(offset, mf[[1]])
+    if (gau) offset <- scale_offset(pred_offset, offset, data)
+  }
+  
+  check_uf <- setdiff(2:ncol(mf), o)
+  mf[check_uf] <- charlogbin_to_uf(mf[check_uf])
+  
+  d <- get_data_classes(mf, gfacs, o)
+  vt <- split(2:ncol(mf), d[-1])
+  
+  p[vt$group + 1] <- mapply(mpc_group, pv = p[vt$group + 1], v = mf[vt$group],
+    SIMPLIFY = FALSE)
+  
+  p[vt$factor + 1] <- mapply(mpc_factor, pv = p[vt$factor + 1],
+    v = mf[vt$factor], MoreArgs = list(scale = scale), SIMPLIFY = FALSE)
+  
+  p[vt$ordered + 1] <- mapply(mpc_ordered, pv = p[vt$ordered + 1],
+    v = mf[vt$ordered], MoreArgs = list(scale = scale), SIMPLIFY = FALSE)
+  
+  if (length(w <- c(vt$numeric, vt$poly))) {
+    w <- sort(w)
+    p[w + 1] <- mapply(mpc_numeric, pv = p[w + 1], v = mf[w],
+      MoreArgs = list(scale = scale), SIMPLIFY = FALSE)
+  }
+  
+  if (length(w <- c(vt$scaledby, vt$scaledby.poly))) {
+    w <- sort(w)
+    p[w + 1] <- mapply(mpc_scaledby, pv = p[w + 1], MoreArgs = list(data = data,
+      scale = scale), SIMPLIFY = FALSE)
+  }
+  
+  old_names <- colnames(mf)
+  new_names <- make_new_names(old_names)
+  
+  vars <- data.frame(Variable = old_names, `Standardized Name` = new_names,
+    Class = d, check.names = FALSE)
+  names(p)[2:length(p)] <- new_names
+  fr <- setNames(data.frame(matrix(nrow = nrow(data), ncol = ncol(mf))),
+    new_names)
+  fr[new_names] <- eval(p, envir = data)
+  fr <- strip_attr(fr)
+  
+  old_names[o] <- paste0("offset(", old_names[o], ")")
+  new_names[o] <- paste0("offset(", new_names[o], ")")
+  
+  form <- replace_variables(formula, old_names, new_names)
+  attr(form, "standardized.scale") <- scale
+  
+  if (length(facs <- d %in% c("factor", "ordered"))) {
+    contr <- lapply(fr[facs], contrasts)
+  } else {
+    contr <- NULL
+  }
+  if (length(groups <- d == "group")) {
+    groups <- lapply(fr[groups], levels)
+  } else {
+    groups <- NULL
+  }
+  
+  if (length(pfe <- varnms(delete.response(terms(lme4::nobars(form)))))) {
+    pfe <- p[sort(c(1, 2, match(pfe, names(p))))]
+  } else {
+    pfe <- NULL
+  }
   if (length(groups)) {
-    sf$groups <- lapply(frame[, groups, drop = FALSE], levels)
+    pre <- varnms(lme4::subbars(lme4_reOnly(form)))
+    pre <- p[sort(c(1, 2, match(pre, names(p))))]
   } else {
-    sf$groups <- NULL
+    pre <- NULL
   }
-
-  class(sf) <- c("standardized", "list")
-  return(sf)
+  pred <- list(all = p, fixed = pfe, random = pre, offset = pred_offset)
+  
+  return(structure(list(call = mc, scale = scale, formula = form,
+    family = family, data = fr, offset = offset, pred = pred, variables = vars,
+    contrasts = contr, groups = groups), class = "standardized"))
 }
 

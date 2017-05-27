@@ -4,7 +4,7 @@
 \alias{predict.standardized}
 \title{Place new data into an already existing standardized space.}
 \usage{
-\method{predict}{standardized}(object, newdata, response = FALSE,
+\method{predict}{standardized}(object, newdata = NULL, response = FALSE,
   fixed = TRUE, random = TRUE, na.action = "na.pass", ...)
 }
 \arguments{
@@ -42,7 +42,11 @@ original data frame are present in \code{newdata}.  A regression model
 fit with the \code{formula} and \code{data} elements of a
 \code{\link[=standardized-class]{standardized}} object cannot be used to
 directly predict the response variable for new data.  The new data must
-first be placed into the standardized space.
+first be placed into the standardized space. If offsets were included
+in the \code{formula} argument used to create the \code{standardized} object,
+then when \code{fixed = TRUE} the offset variables must be in \code{newdata}.
+If an offset was passed to the \code{offset} argument in the call to
+\code{\link{standardize}}, then the offset cannot be passed to \code{predict}.
 }
 \section{Note}{
  You may see a warning "contrasts dropped from factor <x>" for

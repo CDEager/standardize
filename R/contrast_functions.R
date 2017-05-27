@@ -186,20 +186,19 @@ scaled_contr_poly <- function(x, scale = 1, return_contr = TRUE) {
   if (sc <- is.scalar(x, 1)) {
     lvs <- paste(1:x)
   } else if (is.factor(x)) {
-    lvs <- levels(x)
-    lvs <- lvs[!is.na(lvs)]
+    lvs <- setdiff(levels(x), NA)
   } else {
-    lvs <- unique(x)
-    lvs <- lvs[!is.na(lvs)]
+    lvs <- setdiff(x, NA)
   }
+  
   if (!is.scalar(scale, 1)) {
     stop("'scale' must be a single positive number")
   }
-  
   if ((n <- length(lvs)) < 3) {
     stop("Factors with fewer than 3 levels should be coded as unordered ",
       "with sum contrasts")
   }
+  
   contr <- stats::contr.poly(n)
   contr <- scale(contr)[, 1:(n - 1)] * scale
   if (!sc) rownames(contr) <- lvs
