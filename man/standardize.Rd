@@ -4,8 +4,7 @@
 \alias{standardize}
 \title{Standardize a formula and data frame for regression.}
 \usage{
-standardize(formula, data, family = gaussian, scale = 1,
-  na.action = "na.pass", offset)
+standardize(formula, data, family = gaussian, scale = 1, offset, ...)
 }
 \arguments{
 \item{formula}{A regression \code{\link[stats]{formula}}.}
@@ -17,13 +16,15 @@ standardize(formula, data, family = gaussian, scale = 1,
 \item{scale}{The desired scale for the regression frame. Must be a single
 positive number. See 'Details'.}
 
-\item{na.action}{See \code{\link[stats]{model.frame}}.}
-
 \item{offset}{An optional \code{\link[stats]{offset}} vector. Offsets can
 also be included in the \code{formula} (e.g. \code{y ~ x + offset(o)}), but
 if this is done, then the column \code{o} (in this example) must be in any 
 data frame passed as the \code{newdata} argument to 
 \code{\link[=predict.standardized]{predict}}.}
+
+\item{...}{Currently unused.  If \code{na.action} is specified in \code{...}
+and is anything other than \code{na.pass}, a warning is issued and the argument
+argument is ignored.}
 }
 \value{
 A \code{\link[=standardized-class]{standardized}} object. The
@@ -104,6 +105,13 @@ in the case of \code{\link{scale_by}} calls).
   transformation of the numeric variable in a \code{\link{scale_by}} call.
   If \code{\link[stats]{poly}} is used, then the \code{lsmeans} function
   will yield misleading results (as would normally be the case).
+
+  In previous versions of \code{standardize} (v0.2.0 and earlier),
+  \code{na.action} could be specified.  Starting with v0.2.1, specifying
+  something other than \code{na.pass} is ignored with a warning.  Use of
+  \code{na.omit} and \code{na.exclude} should be done when calling regression
+  fitting functions using the elements returned in the 
+  \code{\link[=standardized-class]{standardized}} object.
 }
 \examples{
 dat <- expand.grid(ufac = letters[1:3], ofac = 1:3)

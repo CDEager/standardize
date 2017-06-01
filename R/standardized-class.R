@@ -119,7 +119,6 @@ NULL
 #'   \code{newdata} contains variables pertaining to the fixed effects.
 #' @param random A logical (default \code{TRUE}) indicating whether
 #'   \code{newdata} contains variables pertaining to the random effects.
-#' @param na.action See \code{\link[stats]{model.frame}}.
 #' @param ... Ignored with a warning.
 #'
 #' @return A data.frame with the \code{newdata} standardized using the
@@ -139,13 +138,10 @@ NULL
 #'
 #' @export
 predict.standardized <- function(object, newdata = NULL, response = FALSE,
-                                 fixed = TRUE, random = TRUE,
-                                 na.action = "na.pass", ...) {
+                                 fixed = TRUE, random = TRUE, ...) {
   stopifnot(is.standardized(object), is.data.frame(newdata))
   
-  if (length(list(...))) {
-    warning("Ignoring arguments passed in '...'")
-  }
+  check_dots_predict.standardized(...)
   
   p <- object$pred
   if (fixed && !random) {
@@ -209,7 +205,7 @@ print.standardized <- function(x, ...) {
   
   o <- any(x$variables$Class == "offset") | !is.null(x$offset)
   
-  if (isTRUE(all.equal((f <- x$family), gaussian()))) {
+  if (is.linear(f <- x$family)) {
     if (x$variables$Class[1] %in% c("response.scaledby", "response.scaledby.poly")) {
       cat("\nResponse has mean 0 and standard deviation 1 ",
         "within each factor level.\n", sep = "")

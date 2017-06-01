@@ -1,3 +1,8 @@
+# standardize 0.2.0-9000
+
+* Changes to default na.action are now deprecated and ignored with a warning
+
+
 # standardize 0.2.0
 
 * Offsets are now supported

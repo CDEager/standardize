@@ -1,5 +1,43 @@
 
 
+check_dots_standardize <- function(...) {
+  dots <- list(...)
+  
+  if (!is.null(dots$na.action) && !is.na.pass(dots$na.action)) {
+    warning("'na.action' must be 'na.pass'; other na.action's can be passed in",
+      " model-fitting functions. Ignoring specified 'na.action'.",
+      call. = FALSE)
+  }
+  
+  dots["na.action"] <- NULL
+  
+  if (length(dots)) {
+    warning("Ignoring arguments ", add_quotes(names(dots)), " passed in '...'")
+  }
+  
+  invisible(NULL)
+}
+
+
+check_dots_predict.standardized <- function(...) {
+  dots <- list(...)
+  
+  if (!is.null(dots$na.action) && !is.na.pass(dots$na.action)) {
+    warning("'na.action' must be 'na.pass'; other na.action's can be passed in",
+      " model-fitting functions. Ignoring specified 'na.action'.",
+      call. = FALSE)
+  }
+  
+  dots["na.action"] <- NULL
+  
+  if (length(dots)) {
+    warning("Ignoring arguments ", add_quotes(names(dots)), " passed in '...'")
+  }
+  
+  invisible(NULL)
+}
+
+
 # split a matrix (based on split.data.frame but with col option)
 msplit <- function(x, f, byrow = TRUE, drop = FALSE, ...) {
   if (byrow) {
@@ -8,6 +46,18 @@ msplit <- function(x, f, byrow = TRUE, drop = FALSE, ...) {
   }
   return(lapply(split(x = seq_len(ncol(x)), f = f, drop = drop, ...),
     function(ind) x[, ind, drop = FALSE]))
+}
+
+
+is.linear <- function(family) {
+  if (!inherits(family, "family")) family <- get_family(family)
+  return(family$family == "gaussian" && family$link == "identity")
+}
+
+
+is.na.pass <- function(x) {
+  if (is.character(x)) return(x == "na.pass")
+  return(isTRUE(all.equal(x, na.pass)))
 }
 
 
