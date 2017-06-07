@@ -58,10 +58,10 @@ summary(ptk)
 Suppose we want to fit a linear mixed effects regression with total consonant duration *cdur* as the response, *place*, *stress*, *preheight*, the natural log of *wordfreq*, and *speaker*-relative *speechrate* as fixed effects, and random intercepts for *speaker*. The variables for this regression can be easily placed into a standardized space with the **standardize** function:
 
 ``` r
-sdat <- standardize(cdur ~ place + stress + preheight + log(wordfreq) +
+sobj <- standardize(cdur ~ place + stress + preheight + log(wordfreq) +
   scale_by(speechrate ~ speaker) + (1 | speaker), ptk)
   
-sdat
+sobj
 #> 
 #> Call:
 #> standardize(formula = cdur ~ place + stress + preheight + log(wordfreq) + 
@@ -98,11 +98,11 @@ sdat
 #>   columns have standard deviation 1
 #> Grouping factors are coded as unordered factors with default contrasts
 
-names(sdat)
+names(sobj)
 #>  [1] "call"      "scale"     "formula"   "family"    "data"     
 #>  [6] "offset"    "pred"      "variables" "contrasts" "groups"
 
-head(sdat$data)
+head(sobj$data)
 #>          cdur  place     stress preheight log_wordfreq
 #> 1  0.58032620  Velar Unstressed       Low  -1.64753617
 #> 2  0.21456174  Velar Post-Tonic      High  -1.64753617
@@ -118,19 +118,19 @@ head(sdat$data)
 #> 5                    2.2671736     s01
 #> 6                   -2.3422261     s01
 
-mean(sdat$data$cdur)
+mean(sobj$data$cdur)
 #> [1] -1.539605e-16
-sd(sdat$data$cdur)
+sd(sobj$data$cdur)
 #> [1] 1
 
-mean(sdat$data$log_wordfreq)
+mean(sobj$data$log_wordfreq)
 #> [1] 1.550764e-16
-sd(sdat$data$log_wordfreq)
+sd(sobj$data$log_wordfreq)
 #> [1] 1
-all.equal(scale(log(ptk$wordfreq))[, 1], sdat$data$log_wordfreq[, 1])
+all.equal(scale(log(ptk$wordfreq))[, 1], sobj$data$log_wordfreq[, 1])
 #> [1] TRUE
 
-with(sdat$data, tapply(speechrate_scaled_by_speaker, speaker, mean))
+with(sobj$data, tapply(speechrate_scaled_by_speaker, speaker, mean))
 #>           s01           s02           s03           s04           s05 
 #> -2.960268e-16  3.165268e-18 -3.119346e-16  1.004790e-16  2.183358e-16 
 #>           s06           s07           s08           s09           s10 
@@ -139,11 +139,11 @@ with(sdat$data, tapply(speechrate_scaled_by_speaker, speaker, mean))
 #> -2.923792e-16  3.850162e-16  1.980309e-16  6.325185e-17  1.427623e-16 
 #>           s16           s17           s18 
 #> -2.220446e-16  1.582818e-16 -2.505491e-16
-with(sdat$data, tapply(speechrate_scaled_by_speaker, speaker, sd))
+with(sobj$data, tapply(speechrate_scaled_by_speaker, speaker, sd))
 #> s01 s02 s03 s04 s05 s06 s07 s08 s09 s10 s11 s12 s13 s14 s15 s16 s17 s18 
 #>   1   1   1   1   1   1   1   1   1   1   1   1   1   1   1   1   1   1
 
-sdat$contrasts
+sobj$contrasts
 #> $place
 #>          Bilabial Dental
 #> Bilabial        1      0
@@ -162,7 +162,7 @@ sdat$contrasts
 #> Mid  -2.168241e-17 -1.1547005
 #> High  1.000000e+00  0.5773503
 
-sdat$groups
+sobj$groups
 #> $speaker
 #>  [1] "s01" "s02" "s03" "s04" "s05" "s06" "s07" "s08" "s09" "s10" "s11"
 #> [12] "s12" "s13" "s14" "s15" "s16" "s17" "s18"
@@ -174,14 +174,14 @@ The default settings for **standardize** have placed all the continuous variable
 library(lme4)
 #> Loading required package: Matrix
 
-mod <- lmer(sdat$formula, sdat$data)
+mod <- lmer(sobj$formula, sobj$data)
 
 summary(mod)
 #> Linear mixed model fit by REML ['lmerMod']
 #> Formula: 
 #> cdur ~ place + stress + preheight + log_wordfreq + speechrate_scaled_by_speaker +  
 #>     (1 | speaker)
-#>    Data: sdat$data
+#>    Data: sobj$data
 #> 
 #> REML criterion at convergence: 2018
 #> 
@@ -222,10 +222,10 @@ summary(mod)
 The scaling of the predictors can be controlled through the **scale** argument to **standardize**. For example:
 
 ``` r
-sdat <- standardize(cdur ~ place + stress + preheight + log(wordfreq) +
+sobj <- standardize(cdur ~ place + stress + preheight + log(wordfreq) +
   scale_by(speechrate ~ speaker) + (1 | speaker), ptk, scale = 0.5)
   
-sdat
+sobj
 #> 
 #> Call:
 #> standardize(formula = cdur ~ place + stress + preheight + log(wordfreq) + 
@@ -263,11 +263,11 @@ sdat
 #>   columns have standard deviation 0.5
 #> Grouping factors are coded as unordered factors with default contrasts
 
-names(sdat)
+names(sobj)
 #>  [1] "call"      "scale"     "formula"   "family"    "data"     
 #>  [6] "offset"    "pred"      "variables" "contrasts" "groups"
 
-head(sdat$data)
+head(sobj$data)
 #>          cdur  place     stress preheight log_wordfreq
 #> 1  0.58032620  Velar Unstressed       Low  -0.82376808
 #> 2  0.21456174  Velar Post-Tonic      High  -0.82376808
@@ -283,19 +283,19 @@ head(sdat$data)
 #> 5                    1.1335868     s01
 #> 6                   -1.1711131     s01
 
-mean(sdat$data$cdur)
+mean(sobj$data$cdur)
 #> [1] -1.539605e-16
-sd(sdat$data$cdur)
+sd(sobj$data$cdur)
 #> [1] 1
 
-mean(sdat$data$log_wordfreq)
+mean(sobj$data$log_wordfreq)
 #> [1] 7.753821e-17
-sd(sdat$data$log_wordfreq)
+sd(sobj$data$log_wordfreq)
 #> [1] 0.5
-all.equal(0.5 * scale(log(ptk$wordfreq))[, 1], sdat$data$log_wordfreq[, 1])
+all.equal(0.5 * scale(log(ptk$wordfreq))[, 1], sobj$data$log_wordfreq[, 1])
 #> [1] TRUE
 
-with(sdat$data, tapply(speechrate_scaled_by_speaker, speaker, mean))
+with(sobj$data, tapply(speechrate_scaled_by_speaker, speaker, mean))
 #>           s01           s02           s03           s04           s05 
 #> -1.480134e-16  1.582634e-18 -1.559673e-16  5.023952e-17  1.091679e-16 
 #>           s06           s07           s08           s09           s10 
@@ -304,11 +304,11 @@ with(sdat$data, tapply(speechrate_scaled_by_speaker, speaker, mean))
 #> -1.461896e-16  1.925081e-16  9.901544e-17  3.162593e-17  7.138116e-17 
 #>           s16           s17           s18 
 #> -1.110223e-16  7.914090e-17 -1.252746e-16
-with(sdat$data, tapply(speechrate_scaled_by_speaker, speaker, sd))
+with(sobj$data, tapply(speechrate_scaled_by_speaker, speaker, sd))
 #> s01 s02 s03 s04 s05 s06 s07 s08 s09 s10 s11 s12 s13 s14 s15 s16 s17 s18 
 #> 0.5 0.5 0.5 0.5 0.5 0.5 0.5 0.5 0.5 0.5 0.5 0.5 0.5 0.5 0.5 0.5 0.5 0.5
 
-sdat$contrasts
+sobj$contrasts
 #> $place
 #>          Bilabial Dental
 #> Bilabial      0.5    0.0
@@ -327,7 +327,7 @@ sdat$contrasts
 #> Mid  -1.08412e-17 -0.5773503
 #> High  5.00000e-01  0.2886751
 
-sdat$groups
+sobj$groups
 #> $speaker
 #>  [1] "s01" "s02" "s03" "s04" "s05" "s06" "s07" "s08" "s09" "s10" "s11"
 #> [12] "s12" "s13" "s14" "s15" "s16" "s17" "s18"

@@ -249,61 +249,61 @@ ptk$preheight[ptk$prevowel %in% c("i", "u")] <- "High"
 ptk$preheight <- factor(ptk$preheight, ordered = TRUE, levels = c("Low",
   "Mid", "High"))
 
-sdat <- standardize(cdur ~ place + stress + preheight + log(wordfreq) +
+sobj <- standardize(cdur ~ place + stress + preheight + log(wordfreq) +
   scale_by(speechrate ~ speaker) + (1 | speaker), ptk)
 ```
 
-Now lets examine the *sdat* object created by **standardize**:
+Now lets examine the *sobj* object created by **standardize**:
 
 ```{r}
-is.standardized(sdat)
+is.standardized(sobj)
 
-sdat
+sobj
 
-names(sdat)
+names(sobj)
 
-head(sdat$data)
+head(sobj$data)
 
-mean(sdat$data$cdur)
-sd(sdat$data$cdur)
+mean(sobj$data$cdur)
+sd(sobj$data$cdur)
 
-mean(sdat$data$log_wordfreq)
-sd(sdat$data$log_wordfreq)
-all.equal(scale(log(ptk$wordfreq))[, 1], sdat$data$log_wordfreq[, 1])
+mean(sobj$data$log_wordfreq)
+sd(sobj$data$log_wordfreq)
+all.equal(scale(log(ptk$wordfreq))[, 1], sobj$data$log_wordfreq[, 1])
 
-with(sdat$data, tapply(speechrate_scaled_by_speaker, speaker, mean))
-with(sdat$data, tapply(speechrate_scaled_by_speaker, speaker, sd))
+with(sobj$data, tapply(speechrate_scaled_by_speaker, speaker, mean))
+with(sobj$data, tapply(speechrate_scaled_by_speaker, speaker, sd))
 
-sdat$contrasts
+sobj$contrasts
 
-sdat$groups
+sobj$groups
 ```
 
 We can see that all of the regression variables have been placed on a similar scale, using the default **scale** argument of 1.  The majority of the predictors did not change name, but those which included function calls (*log(wordfreq)* and *scale_by(speechrate ~ speaker)*) have been altered so that they are valid variable names.  If we were to call **standardize** with **scale = 0.5**, then *cdur* would still have mean 0 and standard deviation 1, but the predictors would all have scale 0.5:
 
 ```{r}
-sdat <- standardize(cdur ~ place + stress + preheight + log(wordfreq) +
+sobj <- standardize(cdur ~ place + stress + preheight + log(wordfreq) +
   scale_by(speechrate ~ speaker) + (1 | speaker), ptk, scale = 0.5)
 
-sdat
+sobj
 
-names(sdat)
+names(sobj)
 
-head(sdat$data)
+head(sobj$data)
 
-mean(sdat$data$cdur)
-sd(sdat$data$cdur)
+mean(sobj$data$cdur)
+sd(sobj$data$cdur)
 
-mean(sdat$data$log_wordfreq)
-sd(sdat$data$log_wordfreq)
-all.equal(0.5 * scale(log(ptk$wordfreq))[, 1], sdat$data$log_wordfreq[, 1])
+mean(sobj$data$log_wordfreq)
+sd(sobj$data$log_wordfreq)
+all.equal(0.5 * scale(log(ptk$wordfreq))[, 1], sobj$data$log_wordfreq[, 1])
 
-with(sdat$data, tapply(speechrate_scaled_by_speaker, speaker, mean))
-with(sdat$data, tapply(speechrate_scaled_by_speaker, speaker, sd))
+with(sobj$data, tapply(speechrate_scaled_by_speaker, speaker, mean))
+with(sobj$data, tapply(speechrate_scaled_by_speaker, speaker, sd))
 
-sdat$contrasts
+sobj$contrasts
 
-sdat$groups
+sobj$groups
 ```
 
 
@@ -318,19 +318,19 @@ We fit the mixed effects regression using the **standardized** object with **sca
 ```{r}
 library(lme4)
 
-mod <- lmer(sdat$formula, sdat$data)
+mod <- lmer(sobj$formula, sobj$data)
 
 summary(mod)
 ```
 
 ### Predicting new data
 
-When predicting new data with the regression model, the new data first needs to be placed into the same standardized space as *sdat$data*.  This can be done by calling **predict** with the **standardied** object as the first argument.  The **predict** method for the **standardized** class also takes logical arguments **response** (whether or not the new data contains the response variable; default FALSE), **fixed** (whether or not the new data contains the fixed effects variables; default TRUE), and **random** (whether or not the new data contains the random effects variables; default TRUE).  We will illustrate the use of the **standardized predict** method using the original data **ptk** as if it were new data:
+When predicting new data with the regression model, the new data first needs to be placed into the same standardized space as *sobj$data*.  This can be done by calling **predict** with the **standardied** object as the first argument.  The **predict** method for the **standardized** class also takes logical arguments **response** (whether or not the new data contains the response variable; default FALSE), **fixed** (whether or not the new data contains the fixed effects variables; default TRUE), and **random** (whether or not the new data contains the random effects variables; default TRUE).  We will illustrate the use of the **standardized predict** method using the original data **ptk** as if it were new data:
 
 ```{r}
-newdata <- predict(sdat, ptk)
-newdata_fe <- predict(sdat, ptk, random = FALSE)
-newdata_re <- predict(sdat, ptk, fixed = FALSE)
+newdata <- predict(sobj, ptk)
+newdata_fe <- predict(sobj, ptk, random = FALSE)
+newdata_re <- predict(sobj, ptk, fixed = FALSE)
 
 head(newdata)
 
@@ -361,7 +361,7 @@ When obtaining p-values for the predictors with the **mixed** function in the *a
 ```{r}
 library(afex)
 
-pvals <- mixed(mod, data = sdat$data, check_contrasts = FALSE)
+pvals <- mixed(mod, data = sobj$data, check_contrasts = FALSE)
 
 pvals
 ```

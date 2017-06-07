@@ -115,43 +115,43 @@
 #' dat$subj <- rep(1:30, each = 18)
 #' dat$y <- rnorm(nrow(dat), -2, 5)
 #' 
-#' sdat <- standardize(y ~ log(x + 1) + scale_by(z ~ subj) + ufac + ofac +
+#' sobj <- standardize(y ~ log(x + 1) + scale_by(z ~ subj) + ufac + ofac +
 #'   (1 | subj), dat)
 #' 
-#' sdat
-#' sdat$formula
+#' sobj
+#' sobj$formula
 #' head(dat)
-#' head(sdat$data)
-#' sdat$contrasts
-#' sdat$groups
-#' mean(sdat$data$y)
-#' sd(sdat$data$y)
-#' mean(sdat$data$log_x.p.1)
-#' sd(sdat$data$log_x.p.1)
-#' with(sdat$data, tapply(z_scaled_by_subj, subj, mean))
-#' with(sdat$data, tapply(z_scaled_by_subj, subj, sd))
+#' head(sobj$data)
+#' sobj$contrasts
+#' sobj$groups
+#' mean(sobj$data$y)
+#' sd(sobj$data$y)
+#' mean(sobj$data$log_x.p.1)
+#' sd(sobj$data$log_x.p.1)
+#' with(sobj$data, tapply(z_scaled_by_subj, subj, mean))
+#' with(sobj$data, tapply(z_scaled_by_subj, subj, sd))
 #' 
-#' sdat <- standardize(y ~ log(x + 1) + scale_by(z ~ subj) + ufac + ofac +
+#' sobj <- standardize(y ~ log(x + 1) + scale_by(z ~ subj) + ufac + ofac +
 #'   (1 | subj), dat, scale = 0.5)
 #' 
-#' sdat
-#' sdat$formula
+#' sobj
+#' sobj$formula
 #' head(dat)
-#' head(sdat$data)
-#' sdat$contrasts
-#' sdat$groups
-#' mean(sdat$data$y)
-#' sd(sdat$data$y)
-#' mean(sdat$data$log_x.p.1)
-#' sd(sdat$data$log_x.p.1)
-#' with(sdat$data, tapply(z_scaled_by_subj, subj, mean))
-#' with(sdat$data, tapply(z_scaled_by_subj, subj, sd))
+#' head(sobj$data)
+#' sobj$contrasts
+#' sobj$groups
+#' mean(sobj$data$y)
+#' sd(sobj$data$y)
+#' mean(sobj$data$log_x.p.1)
+#' sd(sobj$data$log_x.p.1)
+#' with(sobj$data, tapply(z_scaled_by_subj, subj, mean))
+#' with(sobj$data, tapply(z_scaled_by_subj, subj, sd))
 #'
 #' \dontrun{
-#' mod <- lmer(sdat$formula, sdat$data)
+#' mod <- lmer(sobj$formula, sobj$data)
 #' # this next line causes warnings about contrasts being dropped, but
 #' # these warnings can be ignored (i.e. the statement still evaluates to TRUE)
-#' all.equal(predict(mod, newdata = predict(sdat, dat)), fitted(mod))
+#' all.equal(predict(mod, newdata = predict(sobj, dat)), fitted(mod))
 #' }
 #' 
 #' @importFrom lme4 subbars

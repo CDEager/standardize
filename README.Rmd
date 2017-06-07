@@ -43,28 +43,28 @@ summary(ptk)
 Suppose we want to fit a linear mixed effects regression with total consonant duration *cdur* as the response, *place*, *stress*, *preheight*, the natural log of *wordfreq*, and *speaker*-relative *speechrate* as fixed effects, and random intercepts for *speaker*.  The variables for this regression can be easily placed into a standardized space with the **standardize** function:
 
 ```{r}
-sdat <- standardize(cdur ~ place + stress + preheight + log(wordfreq) +
+sobj <- standardize(cdur ~ place + stress + preheight + log(wordfreq) +
   scale_by(speechrate ~ speaker) + (1 | speaker), ptk)
   
-sdat
+sobj
 
-names(sdat)
+names(sobj)
 
-head(sdat$data)
+head(sobj$data)
 
-mean(sdat$data$cdur)
-sd(sdat$data$cdur)
+mean(sobj$data$cdur)
+sd(sobj$data$cdur)
 
-mean(sdat$data$log_wordfreq)
-sd(sdat$data$log_wordfreq)
-all.equal(scale(log(ptk$wordfreq))[, 1], sdat$data$log_wordfreq[, 1])
+mean(sobj$data$log_wordfreq)
+sd(sobj$data$log_wordfreq)
+all.equal(scale(log(ptk$wordfreq))[, 1], sobj$data$log_wordfreq[, 1])
 
-with(sdat$data, tapply(speechrate_scaled_by_speaker, speaker, mean))
-with(sdat$data, tapply(speechrate_scaled_by_speaker, speaker, sd))
+with(sobj$data, tapply(speechrate_scaled_by_speaker, speaker, mean))
+with(sobj$data, tapply(speechrate_scaled_by_speaker, speaker, sd))
 
-sdat$contrasts
+sobj$contrasts
 
-sdat$groups
+sobj$groups
 ```
 
 The default settings for **standardize** have placed all the continuous variables on unit scale, set (named) sum contrasts for all unordered factors, and orthogonal polynomial contrasts with column standard deviations of 1 for all ordered factors.  In the case of *speechrate*, the call to **scale_by** ensured that rather than simply placing *speechrate* on unit scale, it was placed on unit scale for each *speaker*, so that the resulting variable represents speaker-relative speech rate.  We can then simply use the *formula* and *data* elements of the object returned by **standardize** to fit the mixed effects regression in this standardized space:
@@ -72,7 +72,7 @@ The default settings for **standardize** have placed all the continuous variable
 ```{r}
 library(lme4)
 
-mod <- lmer(sdat$formula, sdat$data)
+mod <- lmer(sobj$formula, sobj$data)
 
 summary(mod)
 ```
@@ -80,28 +80,28 @@ summary(mod)
 The scaling of the predictors can be controlled through the **scale** argument to **standardize**.  For example:
 
 ```{r}
-sdat <- standardize(cdur ~ place + stress + preheight + log(wordfreq) +
+sobj <- standardize(cdur ~ place + stress + preheight + log(wordfreq) +
   scale_by(speechrate ~ speaker) + (1 | speaker), ptk, scale = 0.5)
   
-sdat
+sobj
 
-names(sdat)
+names(sobj)
 
-head(sdat$data)
+head(sobj$data)
 
-mean(sdat$data$cdur)
-sd(sdat$data$cdur)
+mean(sobj$data$cdur)
+sd(sobj$data$cdur)
 
-mean(sdat$data$log_wordfreq)
-sd(sdat$data$log_wordfreq)
-all.equal(0.5 * scale(log(ptk$wordfreq))[, 1], sdat$data$log_wordfreq[, 1])
+mean(sobj$data$log_wordfreq)
+sd(sobj$data$log_wordfreq)
+all.equal(0.5 * scale(log(ptk$wordfreq))[, 1], sobj$data$log_wordfreq[, 1])
 
-with(sdat$data, tapply(speechrate_scaled_by_speaker, speaker, mean))
-with(sdat$data, tapply(speechrate_scaled_by_speaker, speaker, sd))
+with(sobj$data, tapply(speechrate_scaled_by_speaker, speaker, mean))
+with(sobj$data, tapply(speechrate_scaled_by_speaker, speaker, sd))
 
-sdat$contrasts
+sobj$contrasts
 
-sdat$groups
+sobj$groups
 ```
 
 The **standardize** function works by making use of the function **scale** from base *R*, as well as the *standardize* functions **scale_by**, **named_contr_sum**, and **scaled_contr_poly**.  For more details, install the package and see the vignette "Using the standardize Package".
