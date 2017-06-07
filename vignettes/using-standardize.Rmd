@@ -388,7 +388,7 @@ The *standardize* package provides several functions which aid in placing regres
 
 If you use the *standardize* package in a publication, please cite:
 
-    Eager, Christopher D. (2017). standardize: Tools for Standardizing Variables for Regression in R. R package version 0.2.0-9000. https://CRAN.R-project.org/package=standardize
+    Eager, Christopher D. (2017). standardize: Tools for Standardizing Variables for Regression in R. R package version 0.2.1. https://CRAN.R-project.org/package=standardize
 
 If you analyze the **ptk** dataset in a publication, please cite:
 

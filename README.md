@@ -1,6 +1,6 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
-standardize 0.2.0
+standardize 0.2.1
 =================
 
 [![Build Status](https://travis-ci.org/CDEager/standardize.svg?branch=master)](https://travis-ci.org/CDEager/standardize)

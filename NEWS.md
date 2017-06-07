@@ -1,4 +1,4 @@
-# standardize 0.2.0-9000
+# standardize 0.2.1
 
 * Changes to default na.action are now deprecated and ignored with a warning
 

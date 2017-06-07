@@ -1,5 +1,11 @@
 
 
+# for warnings and errors
+add_quotes <- function(x, collapse = " ") {
+  return(paste0("'", x, "'", collapse = collapse))
+}
+
+
 check_dots_standardize <- function(...) {
   dots <- list(...)
   
@@ -51,7 +57,8 @@ msplit <- function(x, f, byrow = TRUE, drop = FALSE, ...) {
 
 is.linear <- function(family) {
   if (!inherits(family, "family")) family <- get_family(family)
-  return(family$family == "gaussian" && family$link == "identity")
+  return(inherits(family, "family") && family$family == "gaussian" &&
+    family$link == "identity")
 }
 
 
