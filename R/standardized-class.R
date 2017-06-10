@@ -193,9 +193,18 @@ print.standardized <- function(x, ...) {
   sc <- round(x$scale, 3)
   
   cat("\nCall:\n")
-  print(x$call)
+  cl <- x$call
+  f <- get_family(x$family)
+  cl["family"] <- NULL
+  print(cl)
   
-  cat("\nStandardized Formula:\n")
+  if (is.character(f)) {
+    cat("\nFamily:", f, "\n\n")
+  } else {
+    print(f)
+  }
+  
+  cat("Standardized Formula:\n")
   f <- x$formula
   attr(f, "standardized.scale") <- NULL
   print(f, showEnv = FALSE)
