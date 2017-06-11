@@ -67,6 +67,9 @@ sobj
 #> standardize(formula = cdur ~ place + stress + preheight + log(wordfreq) + 
 #>     scale_by(speechrate ~ speaker) + (1 | speaker), data = ptk)
 #> 
+#> Family: gaussian 
+#> Link function: identity 
+#> 
 #> Standardized Formula:
 #> cdur ~ place + stress + preheight + log_wordfreq + speechrate_scaled_by_speaker + 
 #>     (1 | speaker)
@@ -231,6 +234,9 @@ sobj
 #> standardize(formula = cdur ~ place + stress + preheight + log(wordfreq) + 
 #>     scale_by(speechrate ~ speaker) + (1 | speaker), data = ptk, 
 #>     scale = 0.5)
+#> 
+#> Family: gaussian 
+#> Link function: identity 
 #> 
 #> Standardized Formula:
 #> cdur ~ place + stress + preheight + log_wordfreq + speechrate_scaled_by_speaker + 
