@@ -46,7 +46,7 @@ polynomial contrast matrix of the appropriate degree. The contrast matrix is
 is put on unit scale and then multiplied by the \code{scale} argument,
 resulting in an orthogonal polynomial contrast matrix where
 each column has standard deviation \code{scale}.  If
-\code{return_contr = TRUE}, the contrast matrix is returned.  If 
+\code{return_contr = TRUE}, the contrast matrix is returned.  If
 \code{return_contr = FALSE}, then \code{x} is coerced to
 an ordered factor with the contrast matrix applied, and \code{x} is returned.
 \code{NA} is never
@@ -71,9 +71,10 @@ scaled_contr_poly(c(2, 5, 6))
 # return factor
 f2 <- scaled_contr_poly(f, return_contr = FALSE)
 f2
-
 }
 \seealso{
 \code{\link{named_contr_sum}} for unordered factors.
 }
-
+\author{
+Christopher D. Eager <eager.stats@gmail.com>
+}

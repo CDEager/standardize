@@ -14,4 +14,6 @@
 \description{
 S3 \code{print} method for class \code{\link[=standardized-class]{standardized}}.
 }
-
+\author{
+Christopher D. Eager <eager.stats@gmail.com>
+}

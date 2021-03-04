@@ -1,7 +1,7 @@
 
 
 #' Center and scale a continuous variable conditioning on factors.
-#' 
+#'
 #' \code{scale_by} centers and scales a numeric variable within each level
 #' of a factor (or the interaction of several factors).
 #'
@@ -59,8 +59,10 @@
 #'   factors to condition this scaling on; or the result of a previous call
 #'   to \code{scale_by} or the \code{pred} attribute of a previous call.
 #'   See 'Details'.
+#'
 #' @param data A data.frame containing the numeric variable to be scaled and
 #'   the factors to condition on.
+#'
 #' @param scale Numeric (default 1).  The desired standard deviation for the
 #'   numeric variable within-factor-level.  If the numeric variable is a matrix,
 #'   then \code{scale} must have either one element (used for all columns),
@@ -79,41 +81,13 @@
 #'
 #' @seealso \code{\link[base]{scale}}.
 #'
-#' @examples
-#' dat <- data.frame(
-#'   f1 = rep(c("a", "b", "c"), c(5, 10, 20)),
-#'   x1 = rnorm(35, rep(c(1, 2, 3), c(5, 10, 20)),
-#'     rep(c(.5, 1.5, 3), c(5, 10, 20))))
-#' 
-#' dat$x1_scaled <- scale(dat$x1)
-#' dat$x1_scaled_by_f1 <- scale_by(x1 ~ f1, dat)
+#' @example examples/scale_by.R
 #'
-#' mean(dat$x1)
-#' sd(dat$x1)
-#' with(dat, tapply(x1, f1, mean))
-#' with(dat, tapply(x1, f1, sd))
-#' 
-#' mean(dat$x1_scaled)
-#' sd(dat$x1_scaled)
-#' with(dat, tapply(x1_scaled, f1, mean))
-#' with(dat, tapply(x1_scaled, f1, sd))
-#' 
-#' mean(dat$x1_scaled_by_f1)
-#' sd(dat$x1_scaled_by_f1)
-#' with(dat, tapply(x1_scaled_by_f1, f1, mean))
-#' with(dat, tapply(x1_scaled_by_f1, f1, sd))
-#'
-#' newdata <- data.frame(
-#'   f1 = c("a", "b", "c", "d"),
-#'   x1 = rep(1, 4))
-#'
-#' newdata$x1_pred_scaledby <- scale_by(dat$x1_scaled_by_f1, newdata)
-#'
-#' newdata
+#' @author Christopher D. Eager <eager.stats@gmail.com>
 #'
 #' @export
 scale_by <- function(object = NULL, data = NULL, scale = 1) {
-  
+
   if (inherits(object, "scaledby")) {
     pred <- attr(object, "pred")
   } else if (inherits(object, "scaledby_pred")) {
@@ -125,7 +99,7 @@ scale_by <- function(object = NULL, data = NULL, scale = 1) {
     stop("Invalid 'object'; should be a formula or result of previous",
       " scale_by call")
   }
-  
+
   if (!is.null(pred)) {
     if (!inherits(pred, "scaledby_pred")) {
       stop("'object', if not a formula, must be the 'pred' attribute of a\n",
@@ -142,14 +116,14 @@ scale_by <- function(object = NULL, data = NULL, scale = 1) {
     data <- stats::model.frame(formula = formula, data = data,
       na.action = "na.pass")
   }
-  
+
   mt <- attr(data, "terms")
   fmat <- attr(mt, "factors")
   if (!is.matrix(fmat) || sum(rowSums(fmat) == 0) != 1 ||
   all(rowSums(fmat) == 0)) {
     stop("'formula' must be a two-sided formula")
   }
-  
+
   x <- data[[1]]
   if (!is.numeric(x)) stop("left hand side of 'formula' must be numeric")
   if (is.integer(x)) x[] <- as.numeric(x[])
@@ -157,12 +131,12 @@ scale_by <- function(object = NULL, data = NULL, scale = 1) {
   a$class <- class(x)
   if (!is.matrix(x)) x <- matrix(x)
   d <- ncol(x)
-  
+
   facs <- rownames(fmat)[rowSums(fmat) > 0]
   data[facs] <- lapply(data[facs], function(f) addNA(factor(f, ordered = FALSE)))
   fi <- interaction(data[facs], drop = TRUE)
   levels(fi)[is.na(levels(fi))] <- "NA"
-  
+
   if (!is.null(pred)) {
     centers <- pred$centers
     scales <- pred$scales
@@ -172,7 +146,7 @@ scale_by <- function(object = NULL, data = NULL, scale = 1) {
     if (ncol(centers) != d || (scale && ncol(scales) != d)) {
       stop("'pred' and 'data' imply different dimensions for numeric variable")
     }
-    
+
     if (length(newlvs <- setdiff(levels(fi), rownames(centers)))) {
       newc <- matrix(new_center, length(newlvs), d, byrow = TRUE)
       rownames(newc) <- newlvs
@@ -183,9 +157,9 @@ scale_by <- function(object = NULL, data = NULL, scale = 1) {
         scales <- rbind(scales, news)
       }
     }
-    
+
     fi <- factor(fi, levels = rownames(centers))
-    
+
   } else {
     if (!is.numeric(scale) || !is.vector(scale) || any(scale < 0)) {
       stop("'scale' must be a positive numeric vector or '0' to indicate ",
@@ -197,11 +171,11 @@ scale_by <- function(object = NULL, data = NULL, scale = 1) {
       stop("'scale' must have either a single element, or as many elements ",
         "as there are columns in the numeric variable")
     }
-    
+
     xi <- msplit(x, fi)
     r2 <- sapply(xi, nval) >= 2
     xi <- xi[r2]
-    
+
     centers <- matrix(nrow = nlevels(fi), ncol = d)
     rownames(centers) <- levels(fi)
     if (d > 1) {
@@ -216,7 +190,7 @@ scale_by <- function(object = NULL, data = NULL, scale = 1) {
     if (any(rna <- rowna(centers))) {
       centers[rna, ] <- matrix(new_center, sum(rna), d, byrow = TRUE)
     }
-    
+
     if (scale[1]) {
       scales <- matrix(nrow = nlevels(fi), ncol = d)
       rownames(scales) <- levels(fi)
@@ -236,7 +210,7 @@ scale_by <- function(object = NULL, data = NULL, scale = 1) {
       new_scale <- 0
     }
   }
-  
+
   fi <- as.numeric(fi)
   if (scale[1]) {
     x <- (x - centers[fi, , drop = FALSE]) / scales[fi, , drop = FALSE]
@@ -253,7 +227,7 @@ scale_by <- function(object = NULL, data = NULL, scale = 1) {
     "list"))
   a$class <- unique(c("scaledby", a$class))
   attributes(x) <- a
-  
+
   return(x)
 }
 
@@ -265,6 +239,8 @@ scale_by <- function(object = NULL, data = NULL, scale = 1) {
 #' makes the correct call to \code{scale_by}.
 #'
 #' @param var,call See \code{\link[stats]{makepredictcall}}.
+#'
+#' @author Christopher D. Eager <eager.stats@gmail.com>
 #'
 #' @export
 makepredictcall.scaledby <- function(var, call) {

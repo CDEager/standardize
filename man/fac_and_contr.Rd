@@ -24,4 +24,6 @@ The \code{fac_and_contr} function is a convenience function which coerces
 \code{\link{named_contr_sum}} (unordered factors) and
   \code{\link{scaled_contr_poly}} (ordered factors).
 }
-
+\author{
+Christopher D. Eager <eager.stats@gmail.com>
+}

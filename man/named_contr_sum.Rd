@@ -86,9 +86,10 @@ f
 named_contr_sum(5)
 named_contr_sum(rep(c("a", NA), 3))
 }
-
 }
 \seealso{
 \code{\link{scaled_contr_poly}} for ordered factors.
 }
-
+\author{
+Christopher D. Eager <eager.stats@gmail.com>
+}

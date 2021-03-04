@@ -4,8 +4,14 @@
 \alias{predict.standardized}
 \title{Place new data into an already existing standardized space.}
 \usage{
-\method{predict}{standardized}(object, newdata = NULL, response = FALSE,
-  fixed = TRUE, random = TRUE, ...)
+\method{predict}{standardized}(
+  object,
+  newdata = NULL,
+  response = FALSE,
+  fixed = TRUE,
+  random = TRUE,
+  ...
+)
 }
 \arguments{
 \item{object}{An object of class \code{standardized}.}
@@ -32,7 +38,7 @@ A data.frame with the \code{newdata} standardized using the
 }
 \description{
 To put new data into the same standardized space as the data in the
-\code{\link[=standardized-class]{standardized}} object, 
+\code{\link[=standardized-class]{standardized}} object,
 \code{predict} can be used with the \code{standardized} object as the first
 argument.  The \code{predict} method also allows logicals \code{response},
 \code{fixed}, and \code{random} to be used to specify which elements of the
@@ -51,6 +57,7 @@ If an offset was passed to the \code{offset} argument in the call to
   each factor when predicting new data with a fitted model object, but this
   warning can be ignored (the actual predictions will still be correct).
 }
+
 \examples{
 \dontrun{
 train <- subset(mydata, train)
@@ -61,6 +68,7 @@ test.s <- predict(train.s, test, response = TRUE)
 preds <- predict(mod, newdata = test.s)  # can ignore warning about dropped contrasts
 res <- test.s$y - preds
 }
-
 }
-
+\author{
+Christopher D. Eager <eager.stats@gmail.com>
+}

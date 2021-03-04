@@ -1,26 +1,64 @@
-# standardize 0.2.1
+# Version History (standardize)
 
-* Changes to default na.action are now deprecated and ignored with a warning
+&nbsp;
 
+<hr style="border:2px solid black"> </hr>
 
-# standardize 0.2.0
+### v0.2.2
 
-* Offsets are now supported
+- The package vignette now uses `emmeans` rather than `lsmeans` since the `lsemans` package is deprecated.
 
-* The formula with renamed terms now always has the same structure/ordering as the input
+- Added function `standardize.news`.
 
-* Efficiency improvements
-
-
-# standardize 0.1.1
-
-* Minor documentation and vignette updates
-
-* Fixed reverse dependency issue for lme4 1.1-13
-
-* Now suggests the latest version of afex, 0.17-8
+- Documentation formatting updates.
 
 
-# standardize 0.1.0
+&nbsp;
 
-* Initial release
+<hr style="border:1.5px solid grey"> </hr>
+
+### v0.2.1
+
+- Changes to default na.action are now deprecated and ignored with a warning.
+
+
+&nbsp;
+
+<hr style="border:1.5px solid grey"> </hr>
+
+### v0.2.0
+
+- Offsets are now supported.
+
+- The formula with renamed terms now always has the same structure/ordering as the input.
+
+- Efficiency improvements.
+
+
+&nbsp;
+
+<hr style="border:1.5px solid grey"> </hr>
+
+### v0.1.1
+
+- Minor documentation and vignette updates.
+
+- Fixed reverse dependency issue for lme4 1.1-13.
+
+- Now suggests the latest version of afex, 0.17-8.
+
+
+&nbsp;
+
+<hr style="border:1.5px solid grey"> </hr>
+
+### v0.1.0
+
+- Initial release.
+
+
+&nbsp;
+
+<hr style="border:2px solid black"> </hr>
+
+&nbsp;

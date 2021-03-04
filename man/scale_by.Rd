@@ -118,9 +118,10 @@ newdata <- data.frame(
 newdata$x1_pred_scaledby <- scale_by(dat$x1_scaled_by_f1, newdata)
 
 newdata
-
 }
 \seealso{
 \code{\link[base]{scale}}.
 }
-
+\author{
+Christopher D. Eager <eager.stats@gmail.com>
+}

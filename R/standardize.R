@@ -1,7 +1,7 @@
 
 
 #' Standardize a formula and data frame for regression.
-#' 
+#'
 #' Create a \code{\link[=standardized-class]{standardized}} object which places
 #' all variables in \code{data} on the same scale based on \code{formula},
 #' making regression output easier to interpret.
@@ -51,8 +51,8 @@
 #'
 #' With the default value of \code{scale = 1}, the result is a
 #' \code{\linkS4class{standardized}} object which contains a formula and data
-#' frame (and offset vector if the \code{offset} argument to the 
-#' \code{standardize} function was used) which can be used to fit regressions 
+#' frame (and offset vector if the \code{offset} argument to the
+#' \code{standardize} function was used) which can be used to fit regressions
 #' where the predictors are all on a similar scale.  Its data frame
 #' has numeric variables on unit scale, unordered factors with named sum
 #' sum contrasts, and ordered factors with orthogonal polynomial contrasts
@@ -67,23 +67,28 @@
 #' in the case of \code{\link{scale_by}} calls).
 #'
 #' @param formula A regression \code{\link[stats]{formula}}.
+#'
 #' @param data A data.frame containing the variables in \code{formula}.
+#'
 #' @param family A regression \code{\link[stats]{family}} (default gaussian).
+#'
 #' @param scale The desired scale for the regression frame. Must be a single
 #'   positive number. See 'Details'.
+#'
 #' @param offset An optional \code{\link[stats]{offset}} vector. Offsets can
 #'   also be included in the \code{formula} (e.g. \code{y ~ x + offset(o)}), but
-#'   if this is done, then the column \code{o} (in this example) must be in any 
-#'   data frame passed as the \code{newdata} argument to 
+#'   if this is done, then the column \code{o} (in this example) must be in any
+#'   data frame passed as the \code{newdata} argument to
 #'   \code{\link[=predict.standardized]{predict}}.
+#'
 #' @param ... Currently unused.  If \code{na.action} is specified in \code{...}
 #'   and is anything other than \code{na.pass}, a warning is issued and the argument
 #'   argument is ignored.
-#' 
+#'
 #' @return A \code{\link[=standardized-class]{standardized}} object. The
-#'   \code{formula}, \code{data}, and \code{offset} elements of the object can 
+#'   \code{formula}, \code{data}, and \code{offset} elements of the object can
 #'   be used in calls to regression functions.
-#' 
+#'
 #' @section Note: The \code{\link{scale_by}}
 #'   function is supported so long as it is not nested within other function
 #'   calls.  The \code{\link[stats]{poly}} function is supported so long as
@@ -96,7 +101,7 @@
 #'   \code{na.action} could be specified.  Starting with v0.2.1, specifying
 #'   something other than \code{na.pass} is ignored with a warning.  Use of
 #'   \code{na.omit} and \code{na.exclude} should be done when calling regression
-#'   fitting functions using the elements returned in the 
+#'   fitting functions using the elements returned in the
 #'   \code{\link[=standardized-class]{standardized}} object.
 #'
 #' @seealso For scaling and contrasts, see \code{\link[base]{scale}},
@@ -105,63 +110,19 @@
 #'   as the standardized data, see \code{\link[=predict.standardized]{predict}}.
 #'   For the elements in the returned object, see
 #'   \code{\linkS4class{standardized}}.
-#' 
-#' @examples
-#' dat <- expand.grid(ufac = letters[1:3], ofac = 1:3)
-#' dat <- as.data.frame(lapply(dat, function(n) rep(n, 60)))
-#' dat$ofac <- factor(dat$ofac, ordered = TRUE)
-#' dat$x <- rpois(nrow(dat), 5)
-#' dat$z <- rnorm(nrow(dat), rep(rnorm(30), each = 18), rep(runif(30), each = 18))
-#' dat$subj <- rep(1:30, each = 18)
-#' dat$y <- rnorm(nrow(dat), -2, 5)
-#' 
-#' sobj <- standardize(y ~ log(x + 1) + scale_by(z ~ subj) + ufac + ofac +
-#'   (1 | subj), dat)
-#' 
-#' sobj
-#' sobj$formula
-#' head(dat)
-#' head(sobj$data)
-#' sobj$contrasts
-#' sobj$groups
-#' mean(sobj$data$y)
-#' sd(sobj$data$y)
-#' mean(sobj$data$log_x.p.1)
-#' sd(sobj$data$log_x.p.1)
-#' with(sobj$data, tapply(z_scaled_by_subj, subj, mean))
-#' with(sobj$data, tapply(z_scaled_by_subj, subj, sd))
-#' 
-#' sobj <- standardize(y ~ log(x + 1) + scale_by(z ~ subj) + ufac + ofac +
-#'   (1 | subj), dat, scale = 0.5)
-#' 
-#' sobj
-#' sobj$formula
-#' head(dat)
-#' head(sobj$data)
-#' sobj$contrasts
-#' sobj$groups
-#' mean(sobj$data$y)
-#' sd(sobj$data$y)
-#' mean(sobj$data$log_x.p.1)
-#' sd(sobj$data$log_x.p.1)
-#' with(sobj$data, tapply(z_scaled_by_subj, subj, mean))
-#' with(sobj$data, tapply(z_scaled_by_subj, subj, sd))
 #'
-#' \dontrun{
-#' mod <- lmer(sobj$formula, sobj$data)
-#' # this next line causes warnings about contrasts being dropped, but
-#' # these warnings can be ignored (i.e. the statement still evaluates to TRUE)
-#' all.equal(predict(mod, newdata = predict(sobj, dat)), fitted(mod))
-#' }
-#' 
+#' @example examples/standardize.R
+#'
+#' @author Christopher D. Eager <eager.stats@gmail.com>
+#'
 #' @importFrom lme4 subbars
 #'
 #' @export
 standardize <- function(formula, data, family = gaussian, scale = 1, offset, ...) {
   mc <- match.call()
-  
+
   check_dots_standardize(...)
-  
+
   formula <- stats::formula(formula)
   if (!inherits(formula, "formula")) {
     stop("'formula' must be coercible to formula")
@@ -170,21 +131,21 @@ standardize <- function(formula, data, family = gaussian, scale = 1, offset, ...
   if (!attr(tt, "response")) stop("no response in formula")
   if (!length(attr(tt, "term.labels"))) stop("no variables in formula")
   gfacs <- ranef_groups(formula)
-  
+
   if (!is.data.frame(data)) stop("'data' must be a data.frame")
   attr(data, "terms") <- NULL
-  
+
   gau <- is.linear(family <- get_family(family))
-  
+
   if (!is.scalar(scale, 1)) {
     stop("'scale' must be a single positive number")
   }
-  
+
   mf <- stats::model.frame(formula = lme4::subbars(formula), data = data,
     na.action = na.pass, drop.unused.levels = TRUE)
-  
+
   p <- attr(attr(mf, "terms"), "predvars")
-  
+
   if (gau) {
     if (!is.numeric(mf[[1]])) {
       stop("'family' is gaussian but response is not numeric")
@@ -204,7 +165,7 @@ standardize <- function(formula, data, family = gaussian, scale = 1, offset, ...
   } else {
     pred_offset <- NULL
   }
-    
+
   # there won't be an "(offset)" column since we set the argument to NULL
   # the call to stats::model.frame and are handling it separately.
   # The goal is to produce the equivalent of the 'data' arg to a reg func,
@@ -216,44 +177,44 @@ standardize <- function(formula, data, family = gaussian, scale = 1, offset, ...
     p[o + 1] <- mapply(mpc_offset, pv = p[o + 1],
       MoreArgs = list(po = pred_offset), SIMPLIFY = FALSE)
   }
-  
+
   if (missing(offset)) {
     offset <- NULL
   } else {
     check_offset(offset, mf[[1]])
     if (gau) offset <- scale_offset(pred_offset, offset, data)
   }
-  
+
   check_uf <- setdiff(2:ncol(mf), o)
   mf[check_uf] <- charlogbin_to_uf(mf[check_uf])
-  
+
   d <- get_data_classes(mf, gfacs, o)
   vt <- split(2:ncol(mf), d[-1])
-  
+
   p[vt$group + 1] <- mapply(mpc_group, pv = p[vt$group + 1], v = mf[vt$group],
     SIMPLIFY = FALSE)
-  
+
   p[vt$factor + 1] <- mapply(mpc_factor, pv = p[vt$factor + 1],
     v = mf[vt$factor], MoreArgs = list(scale = scale), SIMPLIFY = FALSE)
-  
+
   p[vt$ordered + 1] <- mapply(mpc_ordered, pv = p[vt$ordered + 1],
     v = mf[vt$ordered], MoreArgs = list(scale = scale), SIMPLIFY = FALSE)
-  
+
   if (length(w <- c(vt$numeric, vt$poly))) {
     w <- sort(w)
     p[w + 1] <- mapply(mpc_numeric, pv = p[w + 1], v = mf[w],
       MoreArgs = list(scale = scale), SIMPLIFY = FALSE)
   }
-  
+
   if (length(w <- c(vt$scaledby, vt$scaledby.poly))) {
     w <- sort(w)
     p[w + 1] <- mapply(mpc_scaledby, pv = p[w + 1], MoreArgs = list(data = data,
       scale = scale), SIMPLIFY = FALSE)
   }
-  
+
   old_names <- colnames(mf)
   new_names <- make_new_names(old_names)
-  
+
   vars <- data.frame(Variable = old_names, `Standardized Name` = new_names,
     Class = d, check.names = FALSE)
   names(p)[2:length(p)] <- new_names
@@ -261,13 +222,13 @@ standardize <- function(formula, data, family = gaussian, scale = 1, offset, ...
     new_names)
   fr[new_names] <- eval(p, envir = data)
   fr <- strip_attr(fr)
-  
+
   old_names[o] <- paste0("offset(", old_names[o], ")")
   new_names[o] <- paste0("offset(", new_names[o], ")")
-  
+
   form <- replace_variables(formula, old_names, new_names)
   attr(form, "standardized.scale") <- scale
-  
+
   if (length(facs <- d %in% c("factor", "ordered"))) {
     contr <- lapply(fr[facs], contrasts)
   } else {
@@ -278,7 +239,7 @@ standardize <- function(formula, data, family = gaussian, scale = 1, offset, ...
   } else {
     groups <- NULL
   }
-  
+
   if (length(pfe <- varnms(delete.response(terms(lme4::nobars(form)))))) {
     pfe <- p[sort(c(1, 2, match(pfe, names(p))))]
   } else {
@@ -291,7 +252,7 @@ standardize <- function(formula, data, family = gaussian, scale = 1, offset, ...
     pre <- NULL
   }
   pred <- list(all = p, fixed = pfe, random = pre, offset = pred_offset)
-  
+
   return(structure(list(call = mc, scale = scale, formula = form,
     family = family, data = fr, offset = offset, pred = pred, variables = vars,
     contrasts = contr, groups = groups), class = "standardized"))

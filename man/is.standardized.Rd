@@ -16,4 +16,6 @@ is.standardized(object)
 \description{
 Determine if an object has class \code{\link[=standardized-class]{standardized}}.
 }
-
+\author{
+Christopher D. Eager <eager.stats@gmail.com>
+}

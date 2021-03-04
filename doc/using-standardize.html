@@ -1,0 +1,1193 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<meta name="author" content="Christopher D. Eager" />
+
+<meta name="date" content="2021-03-04" />
+
+<title>Using the standardize package</title>
+
+
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css" data-origin="pandoc">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    for (var j = 0; j < rules.length; j++) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") continue;
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') continue;
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+
+
+
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+#header {
+text-align: center;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+
+code > span.kw { color: #555; font-weight: bold; } 
+code > span.dt { color: #902000; } 
+code > span.dv { color: #40a070; } 
+code > span.bn { color: #d14; } 
+code > span.fl { color: #d14; } 
+code > span.ch { color: #d14; } 
+code > span.st { color: #d14; } 
+code > span.co { color: #888888; font-style: italic; } 
+code > span.ot { color: #007020; } 
+code > span.al { color: #ff0000; font-weight: bold; } 
+code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61717; background-color: #e3d2d2; } 
+</style>
+
+
+
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">Using the standardize package</h1>
+<h4 class="author">Christopher D. Eager</h4>
+<h4 class="date">2021-03-04</h4>
+
+
+
+<div id="the-standardize-package" class="section level1">
+<h1>The <em>standardize</em> package</h1>
+<p>The <em>standardize</em> package provides tools for controlling continuous variable scaling and factor contrasts. The goal of these standardizations is to keep the regression parameters on similar scales, and to ensure that the intercept (which is the predicted value of an observation when all other coefficients are multiplied by 0) represents the corrected mean (i.e. the predicted value for an observation which is average in every way, holding covariates at their mean values and averaging over group differences in factors). When the predictors are all on a similar scale, there are computational benefits for both frequentist and Bayesian approaches in mixed effects regressions, reasonable Bayesian priors are easier to specify, and regression output is easier to interpret.</p>
+<p>Throughout this vignette, we will use the <strong>ptk</strong> dataset to demonstrate the use of the <em>standardize</em> package. A summary of the data can be seen below. We will first discuss scaling continuous variables with the <strong>scale</strong> function from base <em>R</em>, and with the <strong>scale_by</strong> function from <em>standardize</em>. Then we’ll discuss contrasts for unordered and ordered factors with <strong>named_sum_contr</strong> and <strong>scaled_contr_poly</strong> (respectively). Finally, we will use the <strong>standardize</strong> function to quickly use all of these tools at once.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a><span class="kw">library</span>(standardize)</span>
+<span id="cb1-2"><a href="#cb1-2"></a><span class="co">#&gt; </span></span>
+<span id="cb1-3"><a href="#cb1-3"></a><span class="co">#&gt;  **********************************************************  </span></span>
+<span id="cb1-4"><a href="#cb1-4"></a><span class="co">#&gt;           Loading standardize package version 0.2.2          </span></span>
+<span id="cb1-5"><a href="#cb1-5"></a><span class="co">#&gt;      Call standardize.news() to see new features/changes     </span></span>
+<span id="cb1-6"><a href="#cb1-6"></a><span class="co">#&gt;  ***********************************************************</span></span>
+<span id="cb1-7"><a href="#cb1-7"></a></span>
+<span id="cb1-8"><a href="#cb1-8"></a><span class="kw">summary</span>(ptk)</span>
+<span id="cb1-9"><a href="#cb1-9"></a><span class="co">#&gt;       cdur            vdur             place            stress    prevowel</span></span>
+<span id="cb1-10"><a href="#cb1-10"></a><span class="co">#&gt;  Min.   : 61.0   Min.   :  0.00   Bilabial:228   Post-Tonic:250   a:217   </span></span>
+<span id="cb1-11"><a href="#cb1-11"></a><span class="co">#&gt;  1st Qu.:117.0   1st Qu.: 49.00   Dental  :275   Tonic     :252   e:169   </span></span>
+<span id="cb1-12"><a href="#cb1-12"></a><span class="co">#&gt;  Median :133.0   Median : 62.00   Velar   :248   Unstressed:249   i:146   </span></span>
+<span id="cb1-13"><a href="#cb1-13"></a><span class="co">#&gt;  Mean   :137.5   Mean   : 60.69                                   o:151   </span></span>
+<span id="cb1-14"><a href="#cb1-14"></a><span class="co">#&gt;  3rd Qu.:155.0   3rd Qu.: 77.00                                   u: 68   </span></span>
+<span id="cb1-15"><a href="#cb1-15"></a><span class="co">#&gt;  Max.   :281.0   Max.   :190.00                                           </span></span>
+<span id="cb1-16"><a href="#cb1-16"></a><span class="co">#&gt;                                                                           </span></span>
+<span id="cb1-17"><a href="#cb1-17"></a><span class="co">#&gt;  posvowel    wordpos       wordfreq        speechrate         sex     </span></span>
+<span id="cb1-18"><a href="#cb1-18"></a><span class="co">#&gt;  a:212    Initial:322   Min.   :     1   Min.   : 2.000   Female:384  </span></span>
+<span id="cb1-19"><a href="#cb1-19"></a><span class="co">#&gt;  e:144    Medial :429   1st Qu.:  1104   1st Qu.: 5.000   Male  :367  </span></span>
+<span id="cb1-20"><a href="#cb1-20"></a><span class="co">#&gt;  i: 86                  Median :  4899   Median : 6.000               </span></span>
+<span id="cb1-21"><a href="#cb1-21"></a><span class="co">#&gt;  o:255                  Mean   : 18840   Mean   : 5.812               </span></span>
+<span id="cb1-22"><a href="#cb1-22"></a><span class="co">#&gt;  u: 54                  3rd Qu.: 26610   3rd Qu.: 7.000               </span></span>
+<span id="cb1-23"><a href="#cb1-23"></a><span class="co">#&gt;                         Max.   :158168   Max.   :10.000               </span></span>
+<span id="cb1-24"><a href="#cb1-24"></a><span class="co">#&gt;                                                                       </span></span>
+<span id="cb1-25"><a href="#cb1-25"></a><span class="co">#&gt;     speaker   </span></span>
+<span id="cb1-26"><a href="#cb1-26"></a><span class="co">#&gt;  s02    : 45  </span></span>
+<span id="cb1-27"><a href="#cb1-27"></a><span class="co">#&gt;  s03    : 45  </span></span>
+<span id="cb1-28"><a href="#cb1-28"></a><span class="co">#&gt;  s04    : 45  </span></span>
+<span id="cb1-29"><a href="#cb1-29"></a><span class="co">#&gt;  s07    : 45  </span></span>
+<span id="cb1-30"><a href="#cb1-30"></a><span class="co">#&gt;  s11    : 45  </span></span>
+<span id="cb1-31"><a href="#cb1-31"></a><span class="co">#&gt;  s16    : 44  </span></span>
+<span id="cb1-32"><a href="#cb1-32"></a><span class="co">#&gt;  (Other):482</span></span></code></pre></div>
+<div id="continuous-variables" class="section level2">
+<h2>Continuous variables</h2>
+<p>Continuous variables include covariates (i.e. fixed effects which take on continuous values) and the dependent variable in linear regression. The <strong>scale</strong> function in base <em>R</em>, with its default arguments, places continuous variables on unit scale by subtracting the mean of the variable and dividing the result by the variable’s standard deviation (also sometimes called z-scoring or simply scaling). The result is that the values in the transformed variable have the same relationship to one another as in the untransformed variable, but the transformed variable has mean 0 and standard deviation 1. As an example, consider the simple linear regression on total consonant duration <em>cdur</em> with <em>speechrate</em> as the predictor when we don’t scale either variable:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1"></a><span class="kw">mean</span>(ptk<span class="op">$</span>cdur)</span>
+<span id="cb2-2"><a href="#cb2-2"></a><span class="co">#&gt; [1] 137.5473</span></span>
+<span id="cb2-3"><a href="#cb2-3"></a><span class="kw">sd</span>(ptk<span class="op">$</span>cdur)</span>
+<span id="cb2-4"><a href="#cb2-4"></a><span class="co">#&gt; [1] 30.074</span></span>
+<span id="cb2-5"><a href="#cb2-5"></a></span>
+<span id="cb2-6"><a href="#cb2-6"></a><span class="kw">mean</span>(ptk<span class="op">$</span>speechrate)</span>
+<span id="cb2-7"><a href="#cb2-7"></a><span class="co">#&gt; [1] 5.811869</span></span>
+<span id="cb2-8"><a href="#cb2-8"></a><span class="kw">sd</span>(ptk<span class="op">$</span>speechrate)</span>
+<span id="cb2-9"><a href="#cb2-9"></a><span class="co">#&gt; [1] 1.294624</span></span>
+<span id="cb2-10"><a href="#cb2-10"></a></span>
+<span id="cb2-11"><a href="#cb2-11"></a><span class="kw">summary</span>(<span class="kw">lm</span>(cdur <span class="op">~</span><span class="st"> </span>speechrate, ptk))</span>
+<span id="cb2-12"><a href="#cb2-12"></a><span class="co">#&gt; </span></span>
+<span id="cb2-13"><a href="#cb2-13"></a><span class="co">#&gt; Call:</span></span>
+<span id="cb2-14"><a href="#cb2-14"></a><span class="co">#&gt; lm(formula = cdur ~ speechrate, data = ptk)</span></span>
+<span id="cb2-15"><a href="#cb2-15"></a><span class="co">#&gt; </span></span>
+<span id="cb2-16"><a href="#cb2-16"></a><span class="co">#&gt; Residuals:</span></span>
+<span id="cb2-17"><a href="#cb2-17"></a><span class="co">#&gt;     Min      1Q  Median      3Q     Max </span></span>
+<span id="cb2-18"><a href="#cb2-18"></a><span class="co">#&gt; -75.064 -19.688  -4.486  16.514 123.142 </span></span>
+<span id="cb2-19"><a href="#cb2-19"></a><span class="co">#&gt; </span></span>
+<span id="cb2-20"><a href="#cb2-20"></a><span class="co">#&gt; Coefficients:</span></span>
+<span id="cb2-21"><a href="#cb2-21"></a><span class="co">#&gt;             Estimate Std. Error t value Pr(&gt;|t|)    </span></span>
+<span id="cb2-22"><a href="#cb2-22"></a><span class="co">#&gt; (Intercept) 186.7623     4.7061   39.69   &lt;2e-16 ***</span></span>
+<span id="cb2-23"><a href="#cb2-23"></a><span class="co">#&gt; speechrate   -8.4680     0.7904  -10.71   &lt;2e-16 ***</span></span>
+<span id="cb2-24"><a href="#cb2-24"></a><span class="co">#&gt; ---</span></span>
+<span id="cb2-25"><a href="#cb2-25"></a><span class="co">#&gt; Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</span></span>
+<span id="cb2-26"><a href="#cb2-26"></a><span class="co">#&gt; </span></span>
+<span id="cb2-27"><a href="#cb2-27"></a><span class="co">#&gt; Residual standard error: 28.02 on 749 degrees of freedom</span></span>
+<span id="cb2-28"><a href="#cb2-28"></a><span class="co">#&gt; Multiple R-squared:  0.1329, Adjusted R-squared:  0.1317 </span></span>
+<span id="cb2-29"><a href="#cb2-29"></a><span class="co">#&gt; F-statistic: 114.8 on 1 and 749 DF,  p-value: &lt; 2.2e-16</span></span></code></pre></div>
+<p>In the output for the regression on the raw variables, the intercept is 186.8 ms. This is the predicted value when all of the other coefficients are multiplied by 0. In this case, this does not describe anything interpretable, since from the data summary we can see that the minimum speech rate is 2 nuclei per second (and a value of 0 nuclei per second is not possible). The coefficient for speech rate (-8.5) means that for each increase of 1 nucleus per second in speechrate, there is an expected decrease in total consonant duration of 8.5 ms. But is an increase of 1 nucleus per second a large increase? And is a decrease in 8.5 ms a large decrease? This information is not in the output. When we scale <em>cdur</em> and <em>speechrate</em> so that they both have mean 0 and standard deviation 1, the output becomes easier to interpret:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1"></a>ptk<span class="op">$</span>cdur_scaled &lt;-<span class="st"> </span><span class="kw">scale</span>(ptk<span class="op">$</span>cdur)[, <span class="dv">1</span>]</span>
+<span id="cb3-2"><a href="#cb3-2"></a>ptk<span class="op">$</span>sr_scaled &lt;-<span class="st"> </span><span class="kw">scale</span>(ptk<span class="op">$</span>speechrate)[, <span class="dv">1</span>]</span>
+<span id="cb3-3"><a href="#cb3-3"></a></span>
+<span id="cb3-4"><a href="#cb3-4"></a><span class="kw">mean</span>(ptk<span class="op">$</span>cdur_scaled)</span>
+<span id="cb3-5"><a href="#cb3-5"></a><span class="co">#&gt; [1] -1.539605e-16</span></span>
+<span id="cb3-6"><a href="#cb3-6"></a><span class="kw">sd</span>(ptk<span class="op">$</span>cdur_scaled)</span>
+<span id="cb3-7"><a href="#cb3-7"></a><span class="co">#&gt; [1] 1</span></span>
+<span id="cb3-8"><a href="#cb3-8"></a></span>
+<span id="cb3-9"><a href="#cb3-9"></a><span class="kw">mean</span>(ptk<span class="op">$</span>sr_scaled)</span>
+<span id="cb3-10"><a href="#cb3-10"></a><span class="co">#&gt; [1] -1.573508e-16</span></span>
+<span id="cb3-11"><a href="#cb3-11"></a><span class="kw">sd</span>(ptk<span class="op">$</span>sr_scaled)</span>
+<span id="cb3-12"><a href="#cb3-12"></a><span class="co">#&gt; [1] 1</span></span>
+<span id="cb3-13"><a href="#cb3-13"></a></span>
+<span id="cb3-14"><a href="#cb3-14"></a><span class="kw">summary</span>(<span class="kw">lm</span>(cdur_scaled <span class="op">~</span><span class="st"> </span>sr_scaled, ptk))</span>
+<span id="cb3-15"><a href="#cb3-15"></a><span class="co">#&gt; </span></span>
+<span id="cb3-16"><a href="#cb3-16"></a><span class="co">#&gt; Call:</span></span>
+<span id="cb3-17"><a href="#cb3-17"></a><span class="co">#&gt; lm(formula = cdur_scaled ~ sr_scaled, data = ptk)</span></span>
+<span id="cb3-18"><a href="#cb3-18"></a><span class="co">#&gt; </span></span>
+<span id="cb3-19"><a href="#cb3-19"></a><span class="co">#&gt; Residuals:</span></span>
+<span id="cb3-20"><a href="#cb3-20"></a><span class="co">#&gt;     Min      1Q  Median      3Q     Max </span></span>
+<span id="cb3-21"><a href="#cb3-21"></a><span class="co">#&gt; -2.4960 -0.6547 -0.1492  0.5491  4.0946 </span></span>
+<span id="cb3-22"><a href="#cb3-22"></a><span class="co">#&gt; </span></span>
+<span id="cb3-23"><a href="#cb3-23"></a><span class="co">#&gt; Coefficients:</span></span>
+<span id="cb3-24"><a href="#cb3-24"></a><span class="co">#&gt;               Estimate Std. Error t value Pr(&gt;|t|)    </span></span>
+<span id="cb3-25"><a href="#cb3-25"></a><span class="co">#&gt; (Intercept) -2.164e-16  3.400e-02    0.00        1    </span></span>
+<span id="cb3-26"><a href="#cb3-26"></a><span class="co">#&gt; sr_scaled   -3.645e-01  3.402e-02  -10.71   &lt;2e-16 ***</span></span>
+<span id="cb3-27"><a href="#cb3-27"></a><span class="co">#&gt; ---</span></span>
+<span id="cb3-28"><a href="#cb3-28"></a><span class="co">#&gt; Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</span></span>
+<span id="cb3-29"><a href="#cb3-29"></a><span class="co">#&gt; </span></span>
+<span id="cb3-30"><a href="#cb3-30"></a><span class="co">#&gt; Residual standard error: 0.9318 on 749 degrees of freedom</span></span>
+<span id="cb3-31"><a href="#cb3-31"></a><span class="co">#&gt; Multiple R-squared:  0.1329, Adjusted R-squared:  0.1317 </span></span>
+<span id="cb3-32"><a href="#cb3-32"></a><span class="co">#&gt; F-statistic: 114.8 on 1 and 749 DF,  p-value: &lt; 2.2e-16</span></span></code></pre></div>
+<p>Looking at the output of the regression on the scaled variables, we see that the R-squared value and F-statistic are unchanged, but now the intercept term is 0 and the estimate for the effect of scaled speech rate is -0.36. In this case, a value of 0 for scaled speech rate indicates the average value, and so the intercept represents the predicted consonant duration on unit scale at an average speech rate. The effect of scaled speech rate now represents the expected change in standard deviations of consonant duration for a 1-standard-deviation increase in speech rate; that is, for a 1-SD increase in speech rate, we expect a 0.36-SD decrease in consonant duration, which we could call an effect of moderate magnitude. When we add more covariates into the model, so long as they are all scaled prior to regression, we can directly compare the effect sizes of the different coefficients with no further math required, since they all represent the expected change in dependent variable standard deviations for a 1-SD increase in the covariate.</p>
+<p>In addition to the <strong>scale</strong> function in base <em>R</em>, the <em>standardize</em> package has the function <strong>scale_by</strong>, which allows a continuous variable to be placed on unit scale within each level of a factor (or the interaction of several factors). For example, say that we are interested in whether or not a speaker’s <em>relative</em> speech rate affects their total consonant durations rather than speech rate in general. In other words, some speakers may simply speak more quickly or more slowly in general, and some may exhibit more speech rate variation than others, and we are interested in modeling speech rate relative to the speaker’s tendencies. In this case, we can use the <strong>scale_by</strong> function:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1"></a>ptk<span class="op">$</span>sr_scaled_by_speaker &lt;-<span class="st"> </span><span class="kw">scale_by</span>(speechrate <span class="op">~</span><span class="st"> </span>speaker, ptk)</span>
+<span id="cb4-2"><a href="#cb4-2"></a></span>
+<span id="cb4-3"><a href="#cb4-3"></a><span class="kw">mean</span>(ptk<span class="op">$</span>sr_scaled_by_speaker)</span>
+<span id="cb4-4"><a href="#cb4-4"></a><span class="co">#&gt; [1] -3.607564e-17</span></span>
+<span id="cb4-5"><a href="#cb4-5"></a><span class="kw">sd</span>(ptk<span class="op">$</span>sr_scaled_by_speaker)</span>
+<span id="cb4-6"><a href="#cb4-6"></a><span class="co">#&gt; [1] 0.9886017</span></span>
+<span id="cb4-7"><a href="#cb4-7"></a></span>
+<span id="cb4-8"><a href="#cb4-8"></a><span class="kw">with</span>(ptk, <span class="kw">tapply</span>(speechrate, speaker, mean))</span>
+<span id="cb4-9"><a href="#cb4-9"></a><span class="co">#&gt;      s01      s02      s03      s04      s05      s06      s07      s08 </span></span>
+<span id="cb4-10"><a href="#cb4-10"></a><span class="co">#&gt; 5.540706 5.650011 5.773467 6.049278 6.005344 5.619478 6.516664 5.802228 </span></span>
+<span id="cb4-11"><a href="#cb4-11"></a><span class="co">#&gt;      s09      s10      s11      s12      s13      s14      s15      s16 </span></span>
+<span id="cb4-12"><a href="#cb4-12"></a><span class="co">#&gt; 5.855702 5.381143 5.702743 5.483161 6.290449 6.353387 5.358924 5.769699 </span></span>
+<span id="cb4-13"><a href="#cb4-13"></a><span class="co">#&gt;      s17      s18 </span></span>
+<span id="cb4-14"><a href="#cb4-14"></a><span class="co">#&gt; 5.542354 5.777147</span></span>
+<span id="cb4-15"><a href="#cb4-15"></a><span class="kw">with</span>(ptk, <span class="kw">tapply</span>(speechrate, speaker, sd))</span>
+<span id="cb4-16"><a href="#cb4-16"></a><span class="co">#&gt;      s01      s02      s03      s04      s05      s06      s07      s08 </span></span>
+<span id="cb4-17"><a href="#cb4-17"></a><span class="co">#&gt; 1.084740 1.230526 1.136553 1.261346 1.294189 1.339326 1.242599 1.350230 </span></span>
+<span id="cb4-18"><a href="#cb4-18"></a><span class="co">#&gt;      s09      s10      s11      s12      s13      s14      s15      s16 </span></span>
+<span id="cb4-19"><a href="#cb4-19"></a><span class="co">#&gt; 1.472762 1.184024 1.146887 1.160242 1.437768 1.145203 1.432073 1.254818 </span></span>
+<span id="cb4-20"><a href="#cb4-20"></a><span class="co">#&gt;      s17      s18 </span></span>
+<span id="cb4-21"><a href="#cb4-21"></a><span class="co">#&gt; 1.357880 1.250270</span></span>
+<span id="cb4-22"><a href="#cb4-22"></a></span>
+<span id="cb4-23"><a href="#cb4-23"></a><span class="kw">with</span>(ptk, <span class="kw">tapply</span>(sr_scaled, speaker, mean))</span>
+<span id="cb4-24"><a href="#cb4-24"></a><span class="co">#&gt;          s01          s02          s03          s04          s05          s06 </span></span>
+<span id="cb4-25"><a href="#cb4-25"></a><span class="co">#&gt; -0.209453180 -0.125023252 -0.029663172  0.183380177  0.149444392 -0.148607756 </span></span>
+<span id="cb4-26"><a href="#cb4-26"></a><span class="co">#&gt;          s07          s08          s09          s10          s11          s12 </span></span>
+<span id="cb4-27"><a href="#cb4-27"></a><span class="co">#&gt;  0.544401163 -0.007446973  0.033857642 -0.332704012 -0.084291855 -0.253902532 </span></span>
+<span id="cb4-28"><a href="#cb4-28"></a><span class="co">#&gt;          s13          s14          s15          s16          s17          s18 </span></span>
+<span id="cb4-29"><a href="#cb4-29"></a><span class="co">#&gt;  0.369666620  0.418281977 -0.349865920 -0.032573278 -0.208180769 -0.026820301</span></span>
+<span id="cb4-30"><a href="#cb4-30"></a><span class="kw">with</span>(ptk, <span class="kw">tapply</span>(sr_scaled, speaker, sd))</span>
+<span id="cb4-31"><a href="#cb4-31"></a><span class="co">#&gt;       s01       s02       s03       s04       s05       s06       s07       s08 </span></span>
+<span id="cb4-32"><a href="#cb4-32"></a><span class="co">#&gt; 0.8378801 0.9504890 0.8779020 0.9742948 0.9996641 1.0345287 0.9598147 1.0429513 </span></span>
+<span id="cb4-33"><a href="#cb4-33"></a><span class="co">#&gt;       s09       s10       s11       s12       s13       s14       s15       s16 </span></span>
+<span id="cb4-34"><a href="#cb4-34"></a><span class="co">#&gt; 1.1375979 0.9145695 0.8858839 0.8961996 1.1105678 0.8845834 1.1061685 0.9692528 </span></span>
+<span id="cb4-35"><a href="#cb4-35"></a><span class="co">#&gt;       s17       s18 </span></span>
+<span id="cb4-36"><a href="#cb4-36"></a><span class="co">#&gt; 1.0488603 0.9657396</span></span>
+<span id="cb4-37"><a href="#cb4-37"></a></span>
+<span id="cb4-38"><a href="#cb4-38"></a><span class="kw">with</span>(ptk, <span class="kw">tapply</span>(sr_scaled_by_speaker, speaker, mean))</span>
+<span id="cb4-39"><a href="#cb4-39"></a><span class="co">#&gt;           s01           s02           s03           s04           s05 </span></span>
+<span id="cb4-40"><a href="#cb4-40"></a><span class="co">#&gt; -2.960268e-16  3.165268e-18 -3.119346e-16  1.004790e-16  2.183358e-16 </span></span>
+<span id="cb4-41"><a href="#cb4-41"></a><span class="co">#&gt;           s06           s07           s08           s09           s10 </span></span>
+<span id="cb4-42"><a href="#cb4-42"></a><span class="co">#&gt; -7.174906e-17 -1.953684e-16 -2.200950e-16  1.468327e-16 -1.266348e-16 </span></span>
+<span id="cb4-43"><a href="#cb4-43"></a><span class="co">#&gt;           s11           s12           s13           s14           s15 </span></span>
+<span id="cb4-44"><a href="#cb4-44"></a><span class="co">#&gt; -2.923792e-16  3.850162e-16  1.980309e-16  6.325185e-17  1.427623e-16 </span></span>
+<span id="cb4-45"><a href="#cb4-45"></a><span class="co">#&gt;           s16           s17           s18 </span></span>
+<span id="cb4-46"><a href="#cb4-46"></a><span class="co">#&gt; -2.220446e-16  1.582818e-16 -2.505491e-16</span></span>
+<span id="cb4-47"><a href="#cb4-47"></a><span class="kw">with</span>(ptk, <span class="kw">tapply</span>(sr_scaled_by_speaker, speaker, sd))</span>
+<span id="cb4-48"><a href="#cb4-48"></a><span class="co">#&gt; s01 s02 s03 s04 s05 s06 s07 s08 s09 s10 s11 s12 s13 s14 s15 s16 s17 s18 </span></span>
+<span id="cb4-49"><a href="#cb4-49"></a><span class="co">#&gt;   1   1   1   1   1   1   1   1   1   1   1   1   1   1   1   1   1   1</span></span></code></pre></div>
+<p>The overall mean of <em>sr_scaled_by_speaker</em> is still 0, and while the standard deviation is not exactly 1, it is very close at 0.99. When we look at the raw <em>speechrate</em> variable by speaker, we can see that speakers differ somewhat in their mean speech rate and in the amount that the deviate from their own mean speech rate. When we look at the <em>sr_scaled</em> variable that we created earlier with the base <em>R</em> <strong>scale</strong> function, these same differences persist, but now expressed on unit scale in terms of the overall dataset. For <em>sr_scaled_by_speaker</em>, however, each speaker’s mean value is 0 and each speaker’s standard deviation is 1, and the variable is interpreted as <em>how slowly or quickly the speaker was talking given their own speech rate tendencies</em>.</p>
+<p>If we wanted the variables resulting from <strong>scale</strong> and <strong>scale_by</strong> to have a different standard deviation than 1, this can be easily accomplished in the following way:</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1"></a>ptk<span class="op">$</span>sr_scaled_<span class="fl">0.5</span> &lt;-<span class="st"> </span><span class="kw">scale</span>(ptk<span class="op">$</span>speechrate) <span class="op">*</span><span class="st"> </span><span class="fl">0.5</span></span>
+<span id="cb5-2"><a href="#cb5-2"></a>ptk<span class="op">$</span>sr_scaled_by_speaker_<span class="fl">0.5</span> &lt;-<span class="st"> </span><span class="kw">scale_by</span>(speechrate <span class="op">~</span><span class="st"> </span>speaker, ptk, <span class="dt">scale =</span> <span class="fl">0.5</span>)</span>
+<span id="cb5-3"><a href="#cb5-3"></a></span>
+<span id="cb5-4"><a href="#cb5-4"></a><span class="kw">mean</span>(ptk<span class="op">$</span>sr_scaled_<span class="fl">0.5</span>)</span>
+<span id="cb5-5"><a href="#cb5-5"></a><span class="co">#&gt; [1] -7.867542e-17</span></span>
+<span id="cb5-6"><a href="#cb5-6"></a><span class="kw">sd</span>(ptk<span class="op">$</span>sr_scaled_<span class="fl">0.5</span>)</span>
+<span id="cb5-7"><a href="#cb5-7"></a><span class="co">#&gt; [1] 0.5</span></span>
+<span id="cb5-8"><a href="#cb5-8"></a></span>
+<span id="cb5-9"><a href="#cb5-9"></a><span class="kw">with</span>(ptk, <span class="kw">tapply</span>(sr_scaled_by_speaker_<span class="fl">0.5</span>, speaker, mean))</span>
+<span id="cb5-10"><a href="#cb5-10"></a><span class="co">#&gt;           s01           s02           s03           s04           s05 </span></span>
+<span id="cb5-11"><a href="#cb5-11"></a><span class="co">#&gt; -1.480134e-16  1.582634e-18 -1.559673e-16  5.023952e-17  1.091679e-16 </span></span>
+<span id="cb5-12"><a href="#cb5-12"></a><span class="co">#&gt;           s06           s07           s08           s09           s10 </span></span>
+<span id="cb5-13"><a href="#cb5-13"></a><span class="co">#&gt; -3.587453e-17 -9.768421e-17 -1.100475e-16  7.341635e-17 -6.331741e-17 </span></span>
+<span id="cb5-14"><a href="#cb5-14"></a><span class="co">#&gt;           s11           s12           s13           s14           s15 </span></span>
+<span id="cb5-15"><a href="#cb5-15"></a><span class="co">#&gt; -1.461896e-16  1.925081e-16  9.901544e-17  3.162593e-17  7.138116e-17 </span></span>
+<span id="cb5-16"><a href="#cb5-16"></a><span class="co">#&gt;           s16           s17           s18 </span></span>
+<span id="cb5-17"><a href="#cb5-17"></a><span class="co">#&gt; -1.110223e-16  7.914090e-17 -1.252746e-16</span></span>
+<span id="cb5-18"><a href="#cb5-18"></a><span class="kw">with</span>(ptk, <span class="kw">tapply</span>(sr_scaled_by_speaker_<span class="fl">0.5</span>, speaker, sd))</span>
+<span id="cb5-19"><a href="#cb5-19"></a><span class="co">#&gt; s01 s02 s03 s04 s05 s06 s07 s08 s09 s10 s11 s12 s13 s14 s15 s16 s17 s18 </span></span>
+<span id="cb5-20"><a href="#cb5-20"></a><span class="co">#&gt; 0.5 0.5 0.5 0.5 0.5 0.5 0.5 0.5 0.5 0.5 0.5 0.5 0.5 0.5 0.5 0.5 0.5 0.5</span></span></code></pre></div>
+</div>
+<div id="factors" class="section level2">
+<h2>Factors</h2>
+<p>Factors are variables which take on a defined set of categorical values called levels rather than continuous values. In regression, a factor with <em>K</em> levels is modeled through the use of <em>K - 1</em> dummy variables. Each level of the factor is assigned a value for each dummy variable based on a contrast matrix. So, for example, a factor with four levels has a contrast matrix with four rows (one for each level) and three columns (one for each dummy variable), with the values in the cells of the matrix determining the numerical expression for the factor levels in the dummy variables. There are two general types of factors, ordered and unordered, whose contrasts are treated differently.</p>
+<div id="unordered-factors" class="section level3">
+<h3>Unordered factors</h3>
+<p>Unordered factors take on two or more categorical values which are not intrinsically ordered (or have a somewhat ordered interpretation but there are only two categories, as is sometimes the case with factors coded as false vs. true, 0 vs. 1, or no vs. yes). For unordered factors, the default in <em>R</em> is to use treatment contrasts, where the first level is coded as 0 for all of the dummy variables, and the remaining levels each have a dummy variable for which they are coded +1, and are then coded as 0 for the other dummy variables, as can be seen in the following example using <em>prevowel</em> (the preceding vowel’s phoneme identity).</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1"></a><span class="kw">options</span>(<span class="dt">contrasts =</span> <span class="kw">c</span>(<span class="st">&quot;contr.treatment&quot;</span>, <span class="st">&quot;contr.poly&quot;</span>))</span>
+<span id="cb6-2"><a href="#cb6-2"></a></span>
+<span id="cb6-3"><a href="#cb6-3"></a><span class="kw">contrasts</span>(ptk<span class="op">$</span>prevowel)</span>
+<span id="cb6-4"><a href="#cb6-4"></a><span class="co">#&gt;   e i o u</span></span>
+<span id="cb6-5"><a href="#cb6-5"></a><span class="co">#&gt; a 0 0 0 0</span></span>
+<span id="cb6-6"><a href="#cb6-6"></a><span class="co">#&gt; e 1 0 0 0</span></span>
+<span id="cb6-7"><a href="#cb6-7"></a><span class="co">#&gt; i 0 1 0 0</span></span>
+<span id="cb6-8"><a href="#cb6-8"></a><span class="co">#&gt; o 0 0 1 0</span></span>
+<span id="cb6-9"><a href="#cb6-9"></a><span class="co">#&gt; u 0 0 0 1</span></span>
+<span id="cb6-10"><a href="#cb6-10"></a></span>
+<span id="cb6-11"><a href="#cb6-11"></a><span class="kw">summary</span>(<span class="kw">lm</span>(cdur_scaled <span class="op">~</span><span class="st"> </span>prevowel, ptk))</span>
+<span id="cb6-12"><a href="#cb6-12"></a><span class="co">#&gt; </span></span>
+<span id="cb6-13"><a href="#cb6-13"></a><span class="co">#&gt; Call:</span></span>
+<span id="cb6-14"><a href="#cb6-14"></a><span class="co">#&gt; lm(formula = cdur_scaled ~ prevowel, data = ptk)</span></span>
+<span id="cb6-15"><a href="#cb6-15"></a><span class="co">#&gt; </span></span>
+<span id="cb6-16"><a href="#cb6-16"></a><span class="co">#&gt; Residuals:</span></span>
+<span id="cb6-17"><a href="#cb6-17"></a><span class="co">#&gt;     Min      1Q  Median      3Q     Max </span></span>
+<span id="cb6-18"><a href="#cb6-18"></a><span class="co">#&gt; -2.3844 -0.6886 -0.1139  0.5714  4.7076 </span></span>
+<span id="cb6-19"><a href="#cb6-19"></a><span class="co">#&gt; </span></span>
+<span id="cb6-20"><a href="#cb6-20"></a><span class="co">#&gt; Coefficients:</span></span>
+<span id="cb6-21"><a href="#cb6-21"></a><span class="co">#&gt;             Estimate Std. Error t value Pr(&gt;|t|)  </span></span>
+<span id="cb6-22"><a href="#cb6-22"></a><span class="co">#&gt; (Intercept)  0.06240    0.06765   0.922   0.3566  </span></span>
+<span id="cb6-23"><a href="#cb6-23"></a><span class="co">#&gt; prevowele   -0.11995    0.10224  -1.173   0.2411  </span></span>
+<span id="cb6-24"><a href="#cb6-24"></a><span class="co">#&gt; prevoweli    0.09704    0.10667   0.910   0.3632  </span></span>
+<span id="cb6-25"><a href="#cb6-25"></a><span class="co">#&gt; prevowelo   -0.22329    0.10561  -2.114   0.0348 *</span></span>
+<span id="cb6-26"><a href="#cb6-26"></a><span class="co">#&gt; prevowelu   -0.10358    0.13850  -0.748   0.4547  </span></span>
+<span id="cb6-27"><a href="#cb6-27"></a><span class="co">#&gt; ---</span></span>
+<span id="cb6-28"><a href="#cb6-28"></a><span class="co">#&gt; Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</span></span>
+<span id="cb6-29"><a href="#cb6-29"></a><span class="co">#&gt; </span></span>
+<span id="cb6-30"><a href="#cb6-30"></a><span class="co">#&gt; Residual standard error: 0.9965 on 746 degrees of freedom</span></span>
+<span id="cb6-31"><a href="#cb6-31"></a><span class="co">#&gt; Multiple R-squared:  0.01219,    Adjusted R-squared:  0.006891 </span></span>
+<span id="cb6-32"><a href="#cb6-32"></a><span class="co">#&gt; F-statistic: 2.301 on 4 and 746 DF,  p-value: 0.05722</span></span></code></pre></div>
+<p>With treatment contrasts, the intercept loses the interpretation of the corrected mean, since when all of the dummy variables in the contrast matrix above are multiplied by 0, the resulting value corresponds to a preceding /a/. The coefficients <em>prevowele … prevowelu</em> then represent the difference between each of the other preceding vowel categories and /a/. To avoid this (and to ensure that the coefficients for the dummy variables stay, on average, closer to zero, but without altering the ultimate interpretation of the results), sum contrasts are used. With sum contrasts in <em>R</em>, the first <em>K - 1</em> levels each get a dummy variable for which they are coded +1, and then are valued 0 for the other dummy variables. The last level is assigned a value of -1 for all of the dummy variables. Sum contrasts also have additional computational benefits in comparison to treatment contrasts for similar reasons as covariate scaling. Recoding the contrasts for <em>prevowel</em> with sum contrasts, we get:</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1"></a><span class="kw">options</span>(<span class="dt">contrasts =</span> <span class="kw">c</span>(<span class="st">&quot;contr.sum&quot;</span>, <span class="st">&quot;contr.poly&quot;</span>))</span>
+<span id="cb7-2"><a href="#cb7-2"></a></span>
+<span id="cb7-3"><a href="#cb7-3"></a><span class="kw">contrasts</span>(ptk<span class="op">$</span>prevowel)</span>
+<span id="cb7-4"><a href="#cb7-4"></a><span class="co">#&gt;   [,1] [,2] [,3] [,4]</span></span>
+<span id="cb7-5"><a href="#cb7-5"></a><span class="co">#&gt; a    1    0    0    0</span></span>
+<span id="cb7-6"><a href="#cb7-6"></a><span class="co">#&gt; e    0    1    0    0</span></span>
+<span id="cb7-7"><a href="#cb7-7"></a><span class="co">#&gt; i    0    0    1    0</span></span>
+<span id="cb7-8"><a href="#cb7-8"></a><span class="co">#&gt; o    0    0    0    1</span></span>
+<span id="cb7-9"><a href="#cb7-9"></a><span class="co">#&gt; u   -1   -1   -1   -1</span></span>
+<span id="cb7-10"><a href="#cb7-10"></a></span>
+<span id="cb7-11"><a href="#cb7-11"></a><span class="kw">summary</span>(<span class="kw">lm</span>(cdur_scaled <span class="op">~</span><span class="st"> </span>prevowel, ptk))</span>
+<span id="cb7-12"><a href="#cb7-12"></a><span class="co">#&gt; </span></span>
+<span id="cb7-13"><a href="#cb7-13"></a><span class="co">#&gt; Call:</span></span>
+<span id="cb7-14"><a href="#cb7-14"></a><span class="co">#&gt; lm(formula = cdur_scaled ~ prevowel, data = ptk)</span></span>
+<span id="cb7-15"><a href="#cb7-15"></a><span class="co">#&gt; </span></span>
+<span id="cb7-16"><a href="#cb7-16"></a><span class="co">#&gt; Residuals:</span></span>
+<span id="cb7-17"><a href="#cb7-17"></a><span class="co">#&gt;     Min      1Q  Median      3Q     Max </span></span>
+<span id="cb7-18"><a href="#cb7-18"></a><span class="co">#&gt; -2.3844 -0.6886 -0.1139  0.5714  4.7076 </span></span>
+<span id="cb7-19"><a href="#cb7-19"></a><span class="co">#&gt; </span></span>
+<span id="cb7-20"><a href="#cb7-20"></a><span class="co">#&gt; Coefficients:</span></span>
+<span id="cb7-21"><a href="#cb7-21"></a><span class="co">#&gt;              Estimate Std. Error t value Pr(&gt;|t|)  </span></span>
+<span id="cb7-22"><a href="#cb7-22"></a><span class="co">#&gt; (Intercept) -0.007554   0.039210  -0.193   0.8473  </span></span>
+<span id="cb7-23"><a href="#cb7-23"></a><span class="co">#&gt; prevowel1    0.069957   0.065448   1.069   0.2855  </span></span>
+<span id="cb7-24"><a href="#cb7-24"></a><span class="co">#&gt; prevowel2   -0.049994   0.071157  -0.703   0.4825  </span></span>
+<span id="cb7-25"><a href="#cb7-25"></a><span class="co">#&gt; prevowel3    0.167001   0.074958   2.228   0.0262 *</span></span>
+<span id="cb7-26"><a href="#cb7-26"></a><span class="co">#&gt; prevowel4   -0.153338   0.074051  -2.071   0.0387 *</span></span>
+<span id="cb7-27"><a href="#cb7-27"></a><span class="co">#&gt; ---</span></span>
+<span id="cb7-28"><a href="#cb7-28"></a><span class="co">#&gt; Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</span></span>
+<span id="cb7-29"><a href="#cb7-29"></a><span class="co">#&gt; </span></span>
+<span id="cb7-30"><a href="#cb7-30"></a><span class="co">#&gt; Residual standard error: 0.9965 on 746 degrees of freedom</span></span>
+<span id="cb7-31"><a href="#cb7-31"></a><span class="co">#&gt; Multiple R-squared:  0.01219,    Adjusted R-squared:  0.006891 </span></span>
+<span id="cb7-32"><a href="#cb7-32"></a><span class="co">#&gt; F-statistic: 2.301 on 4 and 746 DF,  p-value: 0.05722</span></span></code></pre></div>
+<p>With sum contrasts, the intercept maintains the interpretation of the corrected mean, since when all of the dummy variable coefficients are multiplied by 0, it averages over their effects (note that no row in the contrast matrix above has all 0’s, and thus multiplying all of the coefficients by 0 cannot describe any one level; rather, the mean of the values in each column is 0, and so multiplying all of the dummy variable coefficients by 0 averages over their effects). However, one downside to the default implementation is that the coefficients are numbered rather than named. The <strong>named_contr_sum</strong> function from the <em>standardize</em> package orders levels alphabetically, applies sum contrasts to them, and names the contrasts:</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1"></a><span class="kw">contrasts</span>(ptk<span class="op">$</span>prevowel) &lt;-<span class="st"> </span><span class="kw">named_contr_sum</span>(ptk<span class="op">$</span>prevowel)</span>
+<span id="cb8-2"><a href="#cb8-2"></a></span>
+<span id="cb8-3"><a href="#cb8-3"></a><span class="kw">contrasts</span>(ptk<span class="op">$</span>prevowel)</span>
+<span id="cb8-4"><a href="#cb8-4"></a><span class="co">#&gt;    a  e  i  o</span></span>
+<span id="cb8-5"><a href="#cb8-5"></a><span class="co">#&gt; a  1  0  0  0</span></span>
+<span id="cb8-6"><a href="#cb8-6"></a><span class="co">#&gt; e  0  1  0  0</span></span>
+<span id="cb8-7"><a href="#cb8-7"></a><span class="co">#&gt; i  0  0  1  0</span></span>
+<span id="cb8-8"><a href="#cb8-8"></a><span class="co">#&gt; o  0  0  0  1</span></span>
+<span id="cb8-9"><a href="#cb8-9"></a><span class="co">#&gt; u -1 -1 -1 -1</span></span>
+<span id="cb8-10"><a href="#cb8-10"></a></span>
+<span id="cb8-11"><a href="#cb8-11"></a><span class="kw">summary</span>(<span class="kw">lm</span>(cdur_scaled <span class="op">~</span><span class="st"> </span>prevowel, ptk))</span>
+<span id="cb8-12"><a href="#cb8-12"></a><span class="co">#&gt; </span></span>
+<span id="cb8-13"><a href="#cb8-13"></a><span class="co">#&gt; Call:</span></span>
+<span id="cb8-14"><a href="#cb8-14"></a><span class="co">#&gt; lm(formula = cdur_scaled ~ prevowel, data = ptk)</span></span>
+<span id="cb8-15"><a href="#cb8-15"></a><span class="co">#&gt; </span></span>
+<span id="cb8-16"><a href="#cb8-16"></a><span class="co">#&gt; Residuals:</span></span>
+<span id="cb8-17"><a href="#cb8-17"></a><span class="co">#&gt;     Min      1Q  Median      3Q     Max </span></span>
+<span id="cb8-18"><a href="#cb8-18"></a><span class="co">#&gt; -2.3844 -0.6886 -0.1139  0.5714  4.7076 </span></span>
+<span id="cb8-19"><a href="#cb8-19"></a><span class="co">#&gt; </span></span>
+<span id="cb8-20"><a href="#cb8-20"></a><span class="co">#&gt; Coefficients:</span></span>
+<span id="cb8-21"><a href="#cb8-21"></a><span class="co">#&gt;              Estimate Std. Error t value Pr(&gt;|t|)  </span></span>
+<span id="cb8-22"><a href="#cb8-22"></a><span class="co">#&gt; (Intercept) -0.007554   0.039210  -0.193   0.8473  </span></span>
+<span id="cb8-23"><a href="#cb8-23"></a><span class="co">#&gt; prevowela    0.069957   0.065448   1.069   0.2855  </span></span>
+<span id="cb8-24"><a href="#cb8-24"></a><span class="co">#&gt; prevowele   -0.049994   0.071157  -0.703   0.4825  </span></span>
+<span id="cb8-25"><a href="#cb8-25"></a><span class="co">#&gt; prevoweli    0.167001   0.074958   2.228   0.0262 *</span></span>
+<span id="cb8-26"><a href="#cb8-26"></a><span class="co">#&gt; prevowelo   -0.153338   0.074051  -2.071   0.0387 *</span></span>
+<span id="cb8-27"><a href="#cb8-27"></a><span class="co">#&gt; ---</span></span>
+<span id="cb8-28"><a href="#cb8-28"></a><span class="co">#&gt; Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</span></span>
+<span id="cb8-29"><a href="#cb8-29"></a><span class="co">#&gt; </span></span>
+<span id="cb8-30"><a href="#cb8-30"></a><span class="co">#&gt; Residual standard error: 0.9965 on 746 degrees of freedom</span></span>
+<span id="cb8-31"><a href="#cb8-31"></a><span class="co">#&gt; Multiple R-squared:  0.01219,    Adjusted R-squared:  0.006891 </span></span>
+<span id="cb8-32"><a href="#cb8-32"></a><span class="co">#&gt; F-statistic: 2.301 on 4 and 746 DF,  p-value: 0.05722</span></span></code></pre></div>
+<p>Note that the named output is identical in all other ways to the number output in this case. The intercept is the corrected mean, <em>prevowela … prevowelo</em> represent the difference between the named category and the corrected mean, and the /u/ category is obtained by subtracting all four the <em>prevowel</em> coefficients from the intercept.</p>
+<p>The <strong>named_contr_sum</strong> function also accepts a <em>scale</em> argument by which the entire contrast matrix is multiplied. This allows the contrast matrix deviation magnitude to be defined. For example:</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1"></a><span class="kw">contrasts</span>(ptk<span class="op">$</span>prevowel) &lt;-<span class="st"> </span><span class="kw">named_contr_sum</span>(ptk<span class="op">$</span>prevowel, <span class="dt">scale =</span> <span class="fl">0.5</span>)</span>
+<span id="cb9-2"><a href="#cb9-2"></a></span>
+<span id="cb9-3"><a href="#cb9-3"></a><span class="kw">contrasts</span>(ptk<span class="op">$</span>prevowel)</span>
+<span id="cb9-4"><a href="#cb9-4"></a><span class="co">#&gt;      a    e    i    o</span></span>
+<span id="cb9-5"><a href="#cb9-5"></a><span class="co">#&gt; a  0.5  0.0  0.0  0.0</span></span>
+<span id="cb9-6"><a href="#cb9-6"></a><span class="co">#&gt; e  0.0  0.5  0.0  0.0</span></span>
+<span id="cb9-7"><a href="#cb9-7"></a><span class="co">#&gt; i  0.0  0.0  0.5  0.0</span></span>
+<span id="cb9-8"><a href="#cb9-8"></a><span class="co">#&gt; o  0.0  0.0  0.0  0.5</span></span>
+<span id="cb9-9"><a href="#cb9-9"></a><span class="co">#&gt; u -0.5 -0.5 -0.5 -0.5</span></span></code></pre></div>
+<p>One last note on <strong>named_contr_sum</strong> is that if there are only two levels and they are equal to (ingoring case) “F” and “T”, “FALSE” and “TRUE”, “N”, and “Y”, “NO”, and “YES”, or “0” and “1”, then their order is reversed. This makes it so the positive level gets the dummy coefficient rather than the negative level, yielding a more intuitive interpretation for the resulting coefficients. For example, if we were interested in differntiating only between high vowels (/i/ and /u/) and non-high vowels (/e/, /o/, and /a/), we could do the following (note also that <em>return_contr</em> can be set to FALSE to create a factor with the contrasts, which is useful when the original variable is not a factor):</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1"></a>ptk<span class="op">$</span>prehigh &lt;-<span class="st"> </span>ptk<span class="op">$</span>prevowel <span class="op">%in%</span><span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;i&quot;</span>, <span class="st">&quot;u&quot;</span>)</span>
+<span id="cb10-2"><a href="#cb10-2"></a></span>
+<span id="cb10-3"><a href="#cb10-3"></a><span class="kw">class</span>(ptk<span class="op">$</span>prehigh)</span>
+<span id="cb10-4"><a href="#cb10-4"></a><span class="co">#&gt; [1] &quot;logical&quot;</span></span>
+<span id="cb10-5"><a href="#cb10-5"></a></span>
+<span id="cb10-6"><a href="#cb10-6"></a><span class="kw">unique</span>(ptk<span class="op">$</span>prehigh)</span>
+<span id="cb10-7"><a href="#cb10-7"></a><span class="co">#&gt; [1] FALSE  TRUE</span></span>
+<span id="cb10-8"><a href="#cb10-8"></a></span>
+<span id="cb10-9"><a href="#cb10-9"></a>ptk<span class="op">$</span>prehigh &lt;-<span class="st"> </span><span class="kw">named_contr_sum</span>(ptk<span class="op">$</span>prehigh, <span class="dt">return_contr =</span> <span class="ot">FALSE</span>)</span>
+<span id="cb10-10"><a href="#cb10-10"></a></span>
+<span id="cb10-11"><a href="#cb10-11"></a><span class="kw">class</span>(ptk<span class="op">$</span>prehigh)</span>
+<span id="cb10-12"><a href="#cb10-12"></a><span class="co">#&gt; [1] &quot;factor&quot;</span></span>
+<span id="cb10-13"><a href="#cb10-13"></a></span>
+<span id="cb10-14"><a href="#cb10-14"></a><span class="kw">levels</span>(ptk<span class="op">$</span>prehigh)</span>
+<span id="cb10-15"><a href="#cb10-15"></a><span class="co">#&gt; [1] &quot;TRUE&quot;  &quot;FALSE&quot;</span></span>
+<span id="cb10-16"><a href="#cb10-16"></a></span>
+<span id="cb10-17"><a href="#cb10-17"></a><span class="kw">contrasts</span>(ptk<span class="op">$</span>prehigh)</span>
+<span id="cb10-18"><a href="#cb10-18"></a><span class="co">#&gt;       TRUE</span></span>
+<span id="cb10-19"><a href="#cb10-19"></a><span class="co">#&gt; TRUE     1</span></span>
+<span id="cb10-20"><a href="#cb10-20"></a><span class="co">#&gt; FALSE   -1</span></span></code></pre></div>
+</div>
+<div id="ordered-factors" class="section level3">
+<h3>Ordered factors</h3>
+<p>Ordered factors are variables which take on more than two categorical values, with the categories representing a hierarchy for which we may not expect the trend to be strictly linear. For example, say we are interested in the effect of preceding vowel height, considering three levels (/a/ = Low, /e o/ = Mid, /i u/ = High). We might hypothesize that the general trend is for relatively higher vowels to have shorter durations than relatively lower vowels, but at the same time not expect that the difference between <em>Low</em> and <em>Mid</em> is the same as the difference between <em>Mid</em> and <em>High</em>. In this case we could create an ordered factor <em>preheight</em> with levels <em>Low &lt; Mid &lt; High</em>. In <em>R</em>, the default contrasts for ordered factors are orthogonal polynomial contrasts. That is, if there are <em>K</em> factor levels, then the contrast matrix is an orthogonal polynomial of degree <em>K - 1</em>, where the first contrast column is the linear component, the second the quadratic, the third the cubic, the fourth the fourth power, etc. until the <em>K - 1</em>’th power is reached. Our hypothesis that the trend is in general negative then would be supported by a negative lienar trend. This is exemplified in the following code:</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1"></a>ptk<span class="op">$</span>preheight &lt;-<span class="st"> &quot;Mid&quot;</span></span>
+<span id="cb11-2"><a href="#cb11-2"></a>ptk<span class="op">$</span>preheight[ptk<span class="op">$</span>prevowel <span class="op">==</span><span class="st"> &quot;a&quot;</span>] &lt;-<span class="st"> &quot;Low&quot;</span></span>
+<span id="cb11-3"><a href="#cb11-3"></a>ptk<span class="op">$</span>preheight[ptk<span class="op">$</span>prevowel <span class="op">%in%</span><span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;i&quot;</span>, <span class="st">&quot;u&quot;</span>)] &lt;-<span class="st"> &quot;High&quot;</span></span>
+<span id="cb11-4"><a href="#cb11-4"></a>ptk<span class="op">$</span>preheight &lt;-<span class="st"> </span><span class="kw">factor</span>(ptk<span class="op">$</span>preheight, <span class="dt">ordered =</span> <span class="ot">TRUE</span>, <span class="dt">levels =</span> <span class="kw">c</span>(<span class="st">&quot;Low&quot;</span>,</span>
+<span id="cb11-5"><a href="#cb11-5"></a>  <span class="st">&quot;Mid&quot;</span>, <span class="st">&quot;High&quot;</span>))</span>
+<span id="cb11-6"><a href="#cb11-6"></a></span>
+<span id="cb11-7"><a href="#cb11-7"></a><span class="kw">head</span>(ptk<span class="op">$</span>preheight)</span>
+<span id="cb11-8"><a href="#cb11-8"></a><span class="co">#&gt; [1] Low  High High High Mid  High</span></span>
+<span id="cb11-9"><a href="#cb11-9"></a><span class="co">#&gt; Levels: Low &lt; Mid &lt; High</span></span>
+<span id="cb11-10"><a href="#cb11-10"></a></span>
+<span id="cb11-11"><a href="#cb11-11"></a><span class="kw">contrasts</span>(ptk<span class="op">$</span>preheight)</span>
+<span id="cb11-12"><a href="#cb11-12"></a><span class="co">#&gt;                 .L         .Q</span></span>
+<span id="cb11-13"><a href="#cb11-13"></a><span class="co">#&gt; [1,] -7.071068e-01  0.4082483</span></span>
+<span id="cb11-14"><a href="#cb11-14"></a><span class="co">#&gt; [2,] -9.073800e-17 -0.8164966</span></span>
+<span id="cb11-15"><a href="#cb11-15"></a><span class="co">#&gt; [3,]  7.071068e-01  0.4082483</span></span></code></pre></div>
+<p>However, the scale of the contrast matrix columns depends on the number of levels. The mean of each contrast column is always 0, and the columns of the contrast matrix are completely uncorrelated, but the standard deviations of the contrast matrix columns decreases as the number of levels increases:</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1"></a>contr3 &lt;-<span class="st"> </span><span class="kw">contr.poly</span>(<span class="dv">3</span>)</span>
+<span id="cb12-2"><a href="#cb12-2"></a>contr5 &lt;-<span class="st"> </span><span class="kw">contr.poly</span>(<span class="dv">5</span>)</span>
+<span id="cb12-3"><a href="#cb12-3"></a></span>
+<span id="cb12-4"><a href="#cb12-4"></a><span class="kw">apply</span>(contr3, <span class="dv">2</span>, mean)</span>
+<span id="cb12-5"><a href="#cb12-5"></a><span class="co">#&gt;            .L            .Q </span></span>
+<span id="cb12-6"><a href="#cb12-6"></a><span class="co">#&gt; -6.723860e-17  3.700743e-17</span></span>
+<span id="cb12-7"><a href="#cb12-7"></a><span class="kw">apply</span>(contr5, <span class="dv">2</span>, mean)</span>
+<span id="cb12-8"><a href="#cb12-8"></a><span class="co">#&gt;            .L            .Q            .C            ^4 </span></span>
+<span id="cb12-9"><a href="#cb12-9"></a><span class="co">#&gt; -6.591949e-18  2.219362e-17  4.148700e-17  2.783689e-18</span></span>
+<span id="cb12-10"><a href="#cb12-10"></a></span>
+<span id="cb12-11"><a href="#cb12-11"></a><span class="kw">apply</span>(contr3, <span class="dv">2</span>, sd)</span>
+<span id="cb12-12"><a href="#cb12-12"></a><span class="co">#&gt;        .L        .Q </span></span>
+<span id="cb12-13"><a href="#cb12-13"></a><span class="co">#&gt; 0.7071068 0.7071068</span></span>
+<span id="cb12-14"><a href="#cb12-14"></a><span class="kw">apply</span>(contr5, <span class="dv">2</span>, sd)</span>
+<span id="cb12-15"><a href="#cb12-15"></a><span class="co">#&gt;  .L  .Q  .C  ^4 </span></span>
+<span id="cb12-16"><a href="#cb12-16"></a><span class="co">#&gt; 0.5 0.5 0.5 0.5</span></span></code></pre></div>
+<p>For this reason, the <em>standardize</em> package has a function <strong>scaled_contr_poly</strong> where the standard deviation of the contrast matrix columns for ordered factors can be specified through its <strong>scale</strong> argument (with default 1):</p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1"></a>sc_<span class="dv">1</span>_contr3 &lt;-<span class="st"> </span><span class="kw">scaled_contr_poly</span>(<span class="dv">3</span>)</span>
+<span id="cb13-2"><a href="#cb13-2"></a>sc_<span class="fl">0.5</span>_contr3 &lt;-<span class="st"> </span><span class="kw">scaled_contr_poly</span>(<span class="dv">3</span>, <span class="dt">scale =</span> <span class="fl">0.5</span>)</span>
+<span id="cb13-3"><a href="#cb13-3"></a></span>
+<span id="cb13-4"><a href="#cb13-4"></a>sc_<span class="dv">1</span>_contr3</span>
+<span id="cb13-5"><a href="#cb13-5"></a><span class="co">#&gt;                .L         .Q</span></span>
+<span id="cb13-6"><a href="#cb13-6"></a><span class="co">#&gt; [1,] -1.00000e+00  0.5773503</span></span>
+<span id="cb13-7"><a href="#cb13-7"></a><span class="co">#&gt; [2,] -3.32076e-17 -1.1547005</span></span>
+<span id="cb13-8"><a href="#cb13-8"></a><span class="co">#&gt; [3,]  1.00000e+00  0.5773503</span></span>
+<span id="cb13-9"><a href="#cb13-9"></a></span>
+<span id="cb13-10"><a href="#cb13-10"></a><span class="kw">apply</span>(sc_<span class="dv">1</span>_contr3, <span class="dv">2</span>, sd)</span>
+<span id="cb13-11"><a href="#cb13-11"></a><span class="co">#&gt; .L .Q </span></span>
+<span id="cb13-12"><a href="#cb13-12"></a><span class="co">#&gt;  1  1</span></span>
+<span id="cb13-13"><a href="#cb13-13"></a></span>
+<span id="cb13-14"><a href="#cb13-14"></a>sc_<span class="fl">0.5</span>_contr3</span>
+<span id="cb13-15"><a href="#cb13-15"></a><span class="co">#&gt;                .L         .Q</span></span>
+<span id="cb13-16"><a href="#cb13-16"></a><span class="co">#&gt; [1,] -5.00000e-01  0.2886751</span></span>
+<span id="cb13-17"><a href="#cb13-17"></a><span class="co">#&gt; [2,] -1.66038e-17 -0.5773503</span></span>
+<span id="cb13-18"><a href="#cb13-18"></a><span class="co">#&gt; [3,]  5.00000e-01  0.2886751</span></span>
+<span id="cb13-19"><a href="#cb13-19"></a></span>
+<span id="cb13-20"><a href="#cb13-20"></a><span class="kw">apply</span>(sc_<span class="fl">0.5</span>_contr3, <span class="dv">2</span>, sd)</span>
+<span id="cb13-21"><a href="#cb13-21"></a><span class="co">#&gt;  .L  .Q </span></span>
+<span id="cb13-22"><a href="#cb13-22"></a><span class="co">#&gt; 0.5 0.5</span></span></code></pre></div>
+<p>The resulting contrasts are still orthogonal polynomial contrasts; they are simply placed on a uniform scale regardless of the number of factor levels. This affects the magnitude of the resulting coefficients, but, as with the standardization of unordered factors and continuous varibles discussed above, it does not alter the significance of the variable:</p>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1"></a><span class="kw">contrasts</span>(ptk<span class="op">$</span>preheight)</span>
+<span id="cb14-2"><a href="#cb14-2"></a><span class="co">#&gt;                 .L         .Q</span></span>
+<span id="cb14-3"><a href="#cb14-3"></a><span class="co">#&gt; [1,] -7.071068e-01  0.4082483</span></span>
+<span id="cb14-4"><a href="#cb14-4"></a><span class="co">#&gt; [2,] -9.073800e-17 -0.8164966</span></span>
+<span id="cb14-5"><a href="#cb14-5"></a><span class="co">#&gt; [3,]  7.071068e-01  0.4082483</span></span>
+<span id="cb14-6"><a href="#cb14-6"></a></span>
+<span id="cb14-7"><a href="#cb14-7"></a><span class="kw">summary</span>(<span class="kw">lm</span>(cdur_scaled <span class="op">~</span><span class="st"> </span>preheight, ptk))</span>
+<span id="cb14-8"><a href="#cb14-8"></a><span class="co">#&gt; </span></span>
+<span id="cb14-9"><a href="#cb14-9"></a><span class="co">#&gt; Call:</span></span>
+<span id="cb14-10"><a href="#cb14-10"></a><span class="co">#&gt; lm(formula = cdur_scaled ~ preheight, data = ptk)</span></span>
+<span id="cb14-11"><a href="#cb14-11"></a><span class="co">#&gt; </span></span>
+<span id="cb14-12"><a href="#cb14-12"></a><span class="co">#&gt; Residuals:</span></span>
+<span id="cb14-13"><a href="#cb14-13"></a><span class="co">#&gt;     Min      1Q  Median      3Q     Max </span></span>
+<span id="cb14-14"><a href="#cb14-14"></a><span class="co">#&gt; -2.4390 -0.7099 -0.1139  0.5536  4.7076 </span></span>
+<span id="cb14-15"><a href="#cb14-15"></a><span class="co">#&gt; </span></span>
+<span id="cb14-16"><a href="#cb14-16"></a><span class="co">#&gt; Coefficients:</span></span>
+<span id="cb14-17"><a href="#cb14-17"></a><span class="co">#&gt;             Estimate Std. Error t value Pr(&gt;|t|)  </span></span>
+<span id="cb14-18"><a href="#cb14-18"></a><span class="co">#&gt; (Intercept)  0.01726    0.03702   0.466    0.641  </span></span>
+<span id="cb14-19"><a href="#cb14-19"></a><span class="co">#&gt; preheight.L  0.02354    0.06792   0.347    0.729  </span></span>
+<span id="cb14-20"><a href="#cb14-20"></a><span class="co">#&gt; preheight.Q  0.15135    0.06007   2.519    0.012 *</span></span>
+<span id="cb14-21"><a href="#cb14-21"></a><span class="co">#&gt; ---</span></span>
+<span id="cb14-22"><a href="#cb14-22"></a><span class="co">#&gt; Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</span></span>
+<span id="cb14-23"><a href="#cb14-23"></a><span class="co">#&gt; </span></span>
+<span id="cb14-24"><a href="#cb14-24"></a><span class="co">#&gt; Residual standard error: 0.997 on 748 degrees of freedom</span></span>
+<span id="cb14-25"><a href="#cb14-25"></a><span class="co">#&gt; Multiple R-squared:  0.008562,   Adjusted R-squared:  0.005911 </span></span>
+<span id="cb14-26"><a href="#cb14-26"></a><span class="co">#&gt; F-statistic:  3.23 on 2 and 748 DF,  p-value: 0.04011</span></span>
+<span id="cb14-27"><a href="#cb14-27"></a></span>
+<span id="cb14-28"><a href="#cb14-28"></a><span class="kw">contrasts</span>(ptk<span class="op">$</span>preheight) &lt;-<span class="st"> </span><span class="kw">scaled_contr_poly</span>(ptk<span class="op">$</span>preheight)</span>
+<span id="cb14-29"><a href="#cb14-29"></a></span>
+<span id="cb14-30"><a href="#cb14-30"></a><span class="kw">contrasts</span>(ptk<span class="op">$</span>preheight)</span>
+<span id="cb14-31"><a href="#cb14-31"></a><span class="co">#&gt;                .L         .Q</span></span>
+<span id="cb14-32"><a href="#cb14-32"></a><span class="co">#&gt; Low  -1.00000e+00  0.5773503</span></span>
+<span id="cb14-33"><a href="#cb14-33"></a><span class="co">#&gt; Mid  -3.32076e-17 -1.1547005</span></span>
+<span id="cb14-34"><a href="#cb14-34"></a><span class="co">#&gt; High  1.00000e+00  0.5773503</span></span>
+<span id="cb14-35"><a href="#cb14-35"></a></span>
+<span id="cb14-36"><a href="#cb14-36"></a><span class="kw">summary</span>(<span class="kw">lm</span>(cdur_scaled <span class="op">~</span><span class="st"> </span>preheight, ptk))</span>
+<span id="cb14-37"><a href="#cb14-37"></a><span class="co">#&gt; </span></span>
+<span id="cb14-38"><a href="#cb14-38"></a><span class="co">#&gt; Call:</span></span>
+<span id="cb14-39"><a href="#cb14-39"></a><span class="co">#&gt; lm(formula = cdur_scaled ~ preheight, data = ptk)</span></span>
+<span id="cb14-40"><a href="#cb14-40"></a><span class="co">#&gt; </span></span>
+<span id="cb14-41"><a href="#cb14-41"></a><span class="co">#&gt; Residuals:</span></span>
+<span id="cb14-42"><a href="#cb14-42"></a><span class="co">#&gt;     Min      1Q  Median      3Q     Max </span></span>
+<span id="cb14-43"><a href="#cb14-43"></a><span class="co">#&gt; -2.4390 -0.7099 -0.1139  0.5536  4.7076 </span></span>
+<span id="cb14-44"><a href="#cb14-44"></a><span class="co">#&gt; </span></span>
+<span id="cb14-45"><a href="#cb14-45"></a><span class="co">#&gt; Coefficients:</span></span>
+<span id="cb14-46"><a href="#cb14-46"></a><span class="co">#&gt;             Estimate Std. Error t value Pr(&gt;|t|)  </span></span>
+<span id="cb14-47"><a href="#cb14-47"></a><span class="co">#&gt; (Intercept)  0.01726    0.03702   0.466    0.641  </span></span>
+<span id="cb14-48"><a href="#cb14-48"></a><span class="co">#&gt; preheight.L  0.01665    0.04803   0.347    0.729  </span></span>
+<span id="cb14-49"><a href="#cb14-49"></a><span class="co">#&gt; preheight.Q  0.10702    0.04248   2.519    0.012 *</span></span>
+<span id="cb14-50"><a href="#cb14-50"></a><span class="co">#&gt; ---</span></span>
+<span id="cb14-51"><a href="#cb14-51"></a><span class="co">#&gt; Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</span></span>
+<span id="cb14-52"><a href="#cb14-52"></a><span class="co">#&gt; </span></span>
+<span id="cb14-53"><a href="#cb14-53"></a><span class="co">#&gt; Residual standard error: 0.997 on 748 degrees of freedom</span></span>
+<span id="cb14-54"><a href="#cb14-54"></a><span class="co">#&gt; Multiple R-squared:  0.008562,   Adjusted R-squared:  0.005911 </span></span>
+<span id="cb14-55"><a href="#cb14-55"></a><span class="co">#&gt; F-statistic:  3.23 on 2 and 748 DF,  p-value: 0.04011</span></span></code></pre></div>
+</div>
+</div>
+<div id="the-standardize-function" class="section level2">
+<h2>The <strong>standardize</strong> function</h2>
+<p>The <strong>standardize</strong> function implements <strong>scale</strong>, <strong>scale_by</strong>, <strong>named_contr_sum</strong>, and <strong>scaled_contr_poly</strong> automatically, allowing regressions to be easily fit in a standardized space. It takes the following arguments:</p>
+<ul>
+<li>formula: A regression formula, possibly containing random effects and/or offsets.</li>
+<li>data: A data.frame containing the variables in the formula.</li>
+<li>family: A regression family (defaults to guassian)</li>
+<li>scale: The desired scale for the predictors (defaults to 1).</li>
+<li>offset: An optional vector of offsets.</li>
+</ul>
+<p>The function first calls <strong>model.frame</strong>. If <strong>family</strong> is guassian (i.e. a linear model), then the response (i.e. dependent variable) is placed on unit scale (mean 0 and standard deviation 1) regardless of what the <strong>scale</strong> argument to <strong>standardize</strong> is; if the response contains a call to <strong>scale_by</strong>, then it is placed on unit scale within each level of the conditioning factor. For offsets (again, if <strong>family* is gaussian), the values are divided by the standard deviation of the response variable prior to scaling (within-factor-level if </strong>scale_by** is used on the response). Then, for all values of <strong>family</strong>, random effects groups (if any) are coerced to unordered factors, and any other predictors which are characters or which contain only two unique non-NA values (regardless of their class) are converted to unordered factors and assigned contrasts with <strong>named_contr_sum</strong>, passing along the <strong>scale</strong> argument. Ordered factors are assigned contrasts with <strong>scaled_contr_poly</strong>, passing along the <strong>scale</strong> argument. Continuous predictors which contain a call to <strong>scale_by</strong> are re-calculated passing along the <strong>scale</strong> argument. Finally, continuous predictors which do not contain a call to <strong>scale_by</strong> are scaled using the <strong>scale</strong> function, ensuring that the resulting variable has standard deviation equal to the <strong>scale</strong> argument to <strong>standardize</strong>.</p>
+<p>The column names of the model frame are then renamed so that they are valid variable names, and the formula passed to <strong>standardize</strong> is updated with these variable names. A list with class <strong>standardized</strong> is then returned with the following elements:</p>
+<ul>
+<li>call: The call to <strong>standardize</strong> which created the object.</li>
+<li>scale: The <strong>scale</strong> argument to <strong>standardize</strong>.</li>
+<li>formula: The regression formula in standardized space (with new names) which can be used along with the <strong>data</strong> element to fit regressions.</li>
+<li>family: The regression family.</li>
+<li>data: A data frame containing the regression variables in the standardized space (renamed to have valid variable names corresponding to those in the <strong>formula</strong> element).</li>
+<li>pred: A list containing unevaluated function calls that allows the predict method to work.</li>
+<li>offset: If the <strong>offset</strong> argment to <strong>standardize</strong> was used, then it is stored in the standardized object’s offset element (and will be scaled as described above for linear regression).</li>
+<li>variables: A data frame with the name of the original variable, the corresponding name in the standardized data frame and formula, and the class of the variable in the standardized data frame.</li>
+<li>contrasts: A named list of contrasts for all factors in the standardized data frame (or NULL if the regression contains no factors).</li>
+<li>groups: A named list of levels for random effects grouping factors (or NULL if the regression contains no random effects).</li>
+</ul>
+<p>To illustrate the use of the <strong>standardize</strong> function, we will fit a linear mixed effects regression with <strong>lmer</strong> in the <em>lme4</em> package with <em>cdur</em> as the response, <em>place</em>, <em>stress</em>, <em>preheight</em>, the natural log of <em>wordfreq</em>, and <em>speecrhate</em> scaled by <em>speaker</em> as fixed effects, and random intercepts for <em>speaker</em>. We begin by creating <em>preheight</em> and then calling <strong>standardize</strong>:</p>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1"></a>ptk<span class="op">$</span>preheight &lt;-<span class="st"> &quot;Mid&quot;</span></span>
+<span id="cb15-2"><a href="#cb15-2"></a>ptk<span class="op">$</span>preheight[ptk<span class="op">$</span>prevowel <span class="op">==</span><span class="st"> &quot;a&quot;</span>] &lt;-<span class="st"> &quot;Low&quot;</span></span>
+<span id="cb15-3"><a href="#cb15-3"></a>ptk<span class="op">$</span>preheight[ptk<span class="op">$</span>prevowel <span class="op">%in%</span><span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;i&quot;</span>, <span class="st">&quot;u&quot;</span>)] &lt;-<span class="st"> &quot;High&quot;</span></span>
+<span id="cb15-4"><a href="#cb15-4"></a>ptk<span class="op">$</span>preheight &lt;-<span class="st"> </span><span class="kw">factor</span>(ptk<span class="op">$</span>preheight, <span class="dt">ordered =</span> <span class="ot">TRUE</span>, <span class="dt">levels =</span> <span class="kw">c</span>(<span class="st">&quot;Low&quot;</span>,</span>
+<span id="cb15-5"><a href="#cb15-5"></a>  <span class="st">&quot;Mid&quot;</span>, <span class="st">&quot;High&quot;</span>))</span>
+<span id="cb15-6"><a href="#cb15-6"></a></span>
+<span id="cb15-7"><a href="#cb15-7"></a>sobj &lt;-<span class="st"> </span><span class="kw">standardize</span>(cdur <span class="op">~</span><span class="st"> </span>place <span class="op">+</span><span class="st"> </span>stress <span class="op">+</span><span class="st"> </span>preheight <span class="op">+</span><span class="st"> </span><span class="kw">log</span>(wordfreq) <span class="op">+</span></span>
+<span id="cb15-8"><a href="#cb15-8"></a><span class="st">  </span><span class="kw">scale_by</span>(speechrate <span class="op">~</span><span class="st"> </span>speaker) <span class="op">+</span><span class="st"> </span>(<span class="dv">1</span> <span class="op">|</span><span class="st"> </span>speaker), ptk)</span></code></pre></div>
+<p>Now lets examine the <em>sobj</em> object created by <strong>standardize</strong>:</p>
+<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1"></a><span class="kw">is.standardized</span>(sobj)</span>
+<span id="cb16-2"><a href="#cb16-2"></a><span class="co">#&gt; [1] TRUE</span></span>
+<span id="cb16-3"><a href="#cb16-3"></a></span>
+<span id="cb16-4"><a href="#cb16-4"></a>sobj</span>
+<span id="cb16-5"><a href="#cb16-5"></a><span class="co">#&gt; </span></span>
+<span id="cb16-6"><a href="#cb16-6"></a><span class="co">#&gt; Call:</span></span>
+<span id="cb16-7"><a href="#cb16-7"></a><span class="co">#&gt; standardize(formula = cdur ~ place + stress + preheight + log(wordfreq) + </span></span>
+<span id="cb16-8"><a href="#cb16-8"></a><span class="co">#&gt;     scale_by(speechrate ~ speaker) + (1 | speaker), data = ptk)</span></span>
+<span id="cb16-9"><a href="#cb16-9"></a><span class="co">#&gt; </span></span>
+<span id="cb16-10"><a href="#cb16-10"></a><span class="co">#&gt; Family: gaussian </span></span>
+<span id="cb16-11"><a href="#cb16-11"></a><span class="co">#&gt; Link function: identity </span></span>
+<span id="cb16-12"><a href="#cb16-12"></a><span class="co">#&gt; </span></span>
+<span id="cb16-13"><a href="#cb16-13"></a><span class="co">#&gt; Standardized Formula:</span></span>
+<span id="cb16-14"><a href="#cb16-14"></a><span class="co">#&gt; cdur ~ place + stress + preheight + log_wordfreq + speechrate_scaled_by_speaker + </span></span>
+<span id="cb16-15"><a href="#cb16-15"></a><span class="co">#&gt;     (1 | speaker)</span></span>
+<span id="cb16-16"><a href="#cb16-16"></a><span class="co">#&gt; </span></span>
+<span id="cb16-17"><a href="#cb16-17"></a><span class="co">#&gt; Variables:</span></span>
+<span id="cb16-18"><a href="#cb16-18"></a><span class="co">#&gt;  Variable                       Standardized Name            Class           </span></span>
+<span id="cb16-19"><a href="#cb16-19"></a><span class="co">#&gt;  cdur                           cdur                         response.numeric</span></span>
+<span id="cb16-20"><a href="#cb16-20"></a><span class="co">#&gt;  place                          place                        factor          </span></span>
+<span id="cb16-21"><a href="#cb16-21"></a><span class="co">#&gt;  stress                         stress                       factor          </span></span>
+<span id="cb16-22"><a href="#cb16-22"></a><span class="co">#&gt;  preheight                      preheight                    ordered         </span></span>
+<span id="cb16-23"><a href="#cb16-23"></a><span class="co">#&gt;  log(wordfreq)                  log_wordfreq                 numeric         </span></span>
+<span id="cb16-24"><a href="#cb16-24"></a><span class="co">#&gt;  scale_by(speechrate ~ speaker) speechrate_scaled_by_speaker scaledby        </span></span>
+<span id="cb16-25"><a href="#cb16-25"></a><span class="co">#&gt;  speaker                        speaker                      group           </span></span>
+<span id="cb16-26"><a href="#cb16-26"></a><span class="co">#&gt; </span></span>
+<span id="cb16-27"><a href="#cb16-27"></a><span class="co">#&gt; Response has mean 0 and standard deviation 1.</span></span>
+<span id="cb16-28"><a href="#cb16-28"></a><span class="co">#&gt; </span></span>
+<span id="cb16-29"><a href="#cb16-29"></a><span class="co">#&gt; Continuous variables have mean 0 and standard deviation 1</span></span>
+<span id="cb16-30"><a href="#cb16-30"></a><span class="co">#&gt;   (within-factor-level if scale_by was used)</span></span>
+<span id="cb16-31"><a href="#cb16-31"></a><span class="co">#&gt; Unordered factors have sum contrasts with deviation 1</span></span>
+<span id="cb16-32"><a href="#cb16-32"></a><span class="co">#&gt; Ordered factors have orthogonal polynomial contrasts whose</span></span>
+<span id="cb16-33"><a href="#cb16-33"></a><span class="co">#&gt;   columns have standard deviation 1</span></span>
+<span id="cb16-34"><a href="#cb16-34"></a><span class="co">#&gt; Grouping factors are coded as unordered factors with default contrasts</span></span>
+<span id="cb16-35"><a href="#cb16-35"></a></span>
+<span id="cb16-36"><a href="#cb16-36"></a><span class="kw">names</span>(sobj)</span>
+<span id="cb16-37"><a href="#cb16-37"></a><span class="co">#&gt;  [1] &quot;call&quot;      &quot;scale&quot;     &quot;formula&quot;   &quot;family&quot;    &quot;data&quot;      &quot;offset&quot;   </span></span>
+<span id="cb16-38"><a href="#cb16-38"></a><span class="co">#&gt;  [7] &quot;pred&quot;      &quot;variables&quot; &quot;contrasts&quot; &quot;groups&quot;</span></span>
+<span id="cb16-39"><a href="#cb16-39"></a></span>
+<span id="cb16-40"><a href="#cb16-40"></a><span class="kw">head</span>(sobj<span class="op">$</span>data)</span>
+<span id="cb16-41"><a href="#cb16-41"></a><span class="co">#&gt;          cdur  place     stress preheight log_wordfreq</span></span>
+<span id="cb16-42"><a href="#cb16-42"></a><span class="co">#&gt; 1  0.58032620  Velar Unstressed       Low  -1.64753617</span></span>
+<span id="cb16-43"><a href="#cb16-43"></a><span class="co">#&gt; 2  0.21456174  Velar Post-Tonic      High  -1.64753617</span></span>
+<span id="cb16-44"><a href="#cb16-44"></a><span class="co">#&gt; 3 -0.11795140 Dental Unstressed      High  -0.05570344</span></span>
+<span id="cb16-45"><a href="#cb16-45"></a><span class="co">#&gt; 4  0.01505386 Dental Post-Tonic      High  -1.90076049</span></span>
+<span id="cb16-46"><a href="#cb16-46"></a><span class="co">#&gt; 5  0.91283934  Velar      Tonic       Mid  -0.19203879</span></span>
+<span id="cb16-47"><a href="#cb16-47"></a><span class="co">#&gt; 6  1.51136300 Dental Post-Tonic      High  -0.22152148</span></span>
+<span id="cb16-48"><a href="#cb16-48"></a><span class="co">#&gt;   speechrate_scaled_by_speaker speaker</span></span>
+<span id="cb16-49"><a href="#cb16-49"></a><span class="co">#&gt; 1                   -0.4984662     s01</span></span>
+<span id="cb16-50"><a href="#cb16-50"></a><span class="co">#&gt; 2                    1.3452937     s01</span></span>
+<span id="cb16-51"><a href="#cb16-51"></a><span class="co">#&gt; 3                   -0.4984662     s01</span></span>
+<span id="cb16-52"><a href="#cb16-52"></a><span class="co">#&gt; 4                    0.6454974     s01</span></span>
+<span id="cb16-53"><a href="#cb16-53"></a><span class="co">#&gt; 5                    2.2671736     s01</span></span>
+<span id="cb16-54"><a href="#cb16-54"></a><span class="co">#&gt; 6                   -2.3422261     s01</span></span>
+<span id="cb16-55"><a href="#cb16-55"></a></span>
+<span id="cb16-56"><a href="#cb16-56"></a><span class="kw">mean</span>(sobj<span class="op">$</span>data<span class="op">$</span>cdur)</span>
+<span id="cb16-57"><a href="#cb16-57"></a><span class="co">#&gt; [1] -1.539605e-16</span></span>
+<span id="cb16-58"><a href="#cb16-58"></a><span class="kw">sd</span>(sobj<span class="op">$</span>data<span class="op">$</span>cdur)</span>
+<span id="cb16-59"><a href="#cb16-59"></a><span class="co">#&gt; [1] 1</span></span>
+<span id="cb16-60"><a href="#cb16-60"></a></span>
+<span id="cb16-61"><a href="#cb16-61"></a><span class="kw">mean</span>(sobj<span class="op">$</span>data<span class="op">$</span>log_wordfreq)</span>
+<span id="cb16-62"><a href="#cb16-62"></a><span class="co">#&gt; [1] 1.550764e-16</span></span>
+<span id="cb16-63"><a href="#cb16-63"></a><span class="kw">sd</span>(sobj<span class="op">$</span>data<span class="op">$</span>log_wordfreq)</span>
+<span id="cb16-64"><a href="#cb16-64"></a><span class="co">#&gt; [1] 1</span></span>
+<span id="cb16-65"><a href="#cb16-65"></a><span class="kw">all.equal</span>(<span class="kw">scale</span>(<span class="kw">log</span>(ptk<span class="op">$</span>wordfreq))[, <span class="dv">1</span>], sobj<span class="op">$</span>data<span class="op">$</span>log_wordfreq[, <span class="dv">1</span>])</span>
+<span id="cb16-66"><a href="#cb16-66"></a><span class="co">#&gt; [1] TRUE</span></span>
+<span id="cb16-67"><a href="#cb16-67"></a></span>
+<span id="cb16-68"><a href="#cb16-68"></a><span class="kw">with</span>(sobj<span class="op">$</span>data, <span class="kw">tapply</span>(speechrate_scaled_by_speaker, speaker, mean))</span>
+<span id="cb16-69"><a href="#cb16-69"></a><span class="co">#&gt;           s01           s02           s03           s04           s05 </span></span>
+<span id="cb16-70"><a href="#cb16-70"></a><span class="co">#&gt; -2.960268e-16  3.165268e-18 -3.119346e-16  1.004790e-16  2.183358e-16 </span></span>
+<span id="cb16-71"><a href="#cb16-71"></a><span class="co">#&gt;           s06           s07           s08           s09           s10 </span></span>
+<span id="cb16-72"><a href="#cb16-72"></a><span class="co">#&gt; -7.174906e-17 -1.953684e-16 -2.200950e-16  1.468327e-16 -1.266348e-16 </span></span>
+<span id="cb16-73"><a href="#cb16-73"></a><span class="co">#&gt;           s11           s12           s13           s14           s15 </span></span>
+<span id="cb16-74"><a href="#cb16-74"></a><span class="co">#&gt; -2.923792e-16  3.850162e-16  1.980309e-16  6.325185e-17  1.427623e-16 </span></span>
+<span id="cb16-75"><a href="#cb16-75"></a><span class="co">#&gt;           s16           s17           s18 </span></span>
+<span id="cb16-76"><a href="#cb16-76"></a><span class="co">#&gt; -2.220446e-16  1.582818e-16 -2.505491e-16</span></span>
+<span id="cb16-77"><a href="#cb16-77"></a><span class="kw">with</span>(sobj<span class="op">$</span>data, <span class="kw">tapply</span>(speechrate_scaled_by_speaker, speaker, sd))</span>
+<span id="cb16-78"><a href="#cb16-78"></a><span class="co">#&gt; s01 s02 s03 s04 s05 s06 s07 s08 s09 s10 s11 s12 s13 s14 s15 s16 s17 s18 </span></span>
+<span id="cb16-79"><a href="#cb16-79"></a><span class="co">#&gt;   1   1   1   1   1   1   1   1   1   1   1   1   1   1   1   1   1   1</span></span>
+<span id="cb16-80"><a href="#cb16-80"></a></span>
+<span id="cb16-81"><a href="#cb16-81"></a>sobj<span class="op">$</span>contrasts</span>
+<span id="cb16-82"><a href="#cb16-82"></a><span class="co">#&gt; $place</span></span>
+<span id="cb16-83"><a href="#cb16-83"></a><span class="co">#&gt;          Bilabial Dental</span></span>
+<span id="cb16-84"><a href="#cb16-84"></a><span class="co">#&gt; Bilabial        1      0</span></span>
+<span id="cb16-85"><a href="#cb16-85"></a><span class="co">#&gt; Dental          0      1</span></span>
+<span id="cb16-86"><a href="#cb16-86"></a><span class="co">#&gt; Velar          -1     -1</span></span>
+<span id="cb16-87"><a href="#cb16-87"></a><span class="co">#&gt; </span></span>
+<span id="cb16-88"><a href="#cb16-88"></a><span class="co">#&gt; $stress</span></span>
+<span id="cb16-89"><a href="#cb16-89"></a><span class="co">#&gt;            Post-Tonic Tonic</span></span>
+<span id="cb16-90"><a href="#cb16-90"></a><span class="co">#&gt; Post-Tonic          1     0</span></span>
+<span id="cb16-91"><a href="#cb16-91"></a><span class="co">#&gt; Tonic               0     1</span></span>
+<span id="cb16-92"><a href="#cb16-92"></a><span class="co">#&gt; Unstressed         -1    -1</span></span>
+<span id="cb16-93"><a href="#cb16-93"></a><span class="co">#&gt; </span></span>
+<span id="cb16-94"><a href="#cb16-94"></a><span class="co">#&gt; $preheight</span></span>
+<span id="cb16-95"><a href="#cb16-95"></a><span class="co">#&gt;                .L         .Q</span></span>
+<span id="cb16-96"><a href="#cb16-96"></a><span class="co">#&gt; Low  -1.00000e+00  0.5773503</span></span>
+<span id="cb16-97"><a href="#cb16-97"></a><span class="co">#&gt; Mid  -3.32076e-17 -1.1547005</span></span>
+<span id="cb16-98"><a href="#cb16-98"></a><span class="co">#&gt; High  1.00000e+00  0.5773503</span></span>
+<span id="cb16-99"><a href="#cb16-99"></a></span>
+<span id="cb16-100"><a href="#cb16-100"></a>sobj<span class="op">$</span>groups</span>
+<span id="cb16-101"><a href="#cb16-101"></a><span class="co">#&gt; $speaker</span></span>
+<span id="cb16-102"><a href="#cb16-102"></a><span class="co">#&gt;  [1] &quot;s01&quot; &quot;s02&quot; &quot;s03&quot; &quot;s04&quot; &quot;s05&quot; &quot;s06&quot; &quot;s07&quot; &quot;s08&quot; &quot;s09&quot; &quot;s10&quot; &quot;s11&quot; &quot;s12&quot;</span></span>
+<span id="cb16-103"><a href="#cb16-103"></a><span class="co">#&gt; [13] &quot;s13&quot; &quot;s14&quot; &quot;s15&quot; &quot;s16&quot; &quot;s17&quot; &quot;s18&quot;</span></span></code></pre></div>
+<p>We can see that all of the regression variables have been placed on a similar scale, using the default <strong>scale</strong> argument of 1. The majority of the predictors did not change name, but those which included function calls (<em>log(wordfreq)</em> and <em>scale_by(speechrate ~ speaker)</em>) have been altered so that they are valid variable names. If we were to call <strong>standardize</strong> with <strong>scale = 0.5</strong>, then <em>cdur</em> would still have mean 0 and standard deviation 1, but the predictors would all have scale 0.5:</p>
+<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1"></a>sobj &lt;-<span class="st"> </span><span class="kw">standardize</span>(cdur <span class="op">~</span><span class="st"> </span>place <span class="op">+</span><span class="st"> </span>stress <span class="op">+</span><span class="st"> </span>preheight <span class="op">+</span><span class="st"> </span><span class="kw">log</span>(wordfreq) <span class="op">+</span></span>
+<span id="cb17-2"><a href="#cb17-2"></a><span class="st">  </span><span class="kw">scale_by</span>(speechrate <span class="op">~</span><span class="st"> </span>speaker) <span class="op">+</span><span class="st"> </span>(<span class="dv">1</span> <span class="op">|</span><span class="st"> </span>speaker), ptk, <span class="dt">scale =</span> <span class="fl">0.5</span>)</span>
+<span id="cb17-3"><a href="#cb17-3"></a></span>
+<span id="cb17-4"><a href="#cb17-4"></a>sobj</span>
+<span id="cb17-5"><a href="#cb17-5"></a><span class="co">#&gt; </span></span>
+<span id="cb17-6"><a href="#cb17-6"></a><span class="co">#&gt; Call:</span></span>
+<span id="cb17-7"><a href="#cb17-7"></a><span class="co">#&gt; standardize(formula = cdur ~ place + stress + preheight + log(wordfreq) + </span></span>
+<span id="cb17-8"><a href="#cb17-8"></a><span class="co">#&gt;     scale_by(speechrate ~ speaker) + (1 | speaker), data = ptk, </span></span>
+<span id="cb17-9"><a href="#cb17-9"></a><span class="co">#&gt;     scale = 0.5)</span></span>
+<span id="cb17-10"><a href="#cb17-10"></a><span class="co">#&gt; </span></span>
+<span id="cb17-11"><a href="#cb17-11"></a><span class="co">#&gt; Family: gaussian </span></span>
+<span id="cb17-12"><a href="#cb17-12"></a><span class="co">#&gt; Link function: identity </span></span>
+<span id="cb17-13"><a href="#cb17-13"></a><span class="co">#&gt; </span></span>
+<span id="cb17-14"><a href="#cb17-14"></a><span class="co">#&gt; Standardized Formula:</span></span>
+<span id="cb17-15"><a href="#cb17-15"></a><span class="co">#&gt; cdur ~ place + stress + preheight + log_wordfreq + speechrate_scaled_by_speaker + </span></span>
+<span id="cb17-16"><a href="#cb17-16"></a><span class="co">#&gt;     (1 | speaker)</span></span>
+<span id="cb17-17"><a href="#cb17-17"></a><span class="co">#&gt; </span></span>
+<span id="cb17-18"><a href="#cb17-18"></a><span class="co">#&gt; Variables:</span></span>
+<span id="cb17-19"><a href="#cb17-19"></a><span class="co">#&gt;  Variable                       Standardized Name            Class           </span></span>
+<span id="cb17-20"><a href="#cb17-20"></a><span class="co">#&gt;  cdur                           cdur                         response.numeric</span></span>
+<span id="cb17-21"><a href="#cb17-21"></a><span class="co">#&gt;  place                          place                        factor          </span></span>
+<span id="cb17-22"><a href="#cb17-22"></a><span class="co">#&gt;  stress                         stress                       factor          </span></span>
+<span id="cb17-23"><a href="#cb17-23"></a><span class="co">#&gt;  preheight                      preheight                    ordered         </span></span>
+<span id="cb17-24"><a href="#cb17-24"></a><span class="co">#&gt;  log(wordfreq)                  log_wordfreq                 numeric         </span></span>
+<span id="cb17-25"><a href="#cb17-25"></a><span class="co">#&gt;  scale_by(speechrate ~ speaker) speechrate_scaled_by_speaker scaledby        </span></span>
+<span id="cb17-26"><a href="#cb17-26"></a><span class="co">#&gt;  speaker                        speaker                      group           </span></span>
+<span id="cb17-27"><a href="#cb17-27"></a><span class="co">#&gt; </span></span>
+<span id="cb17-28"><a href="#cb17-28"></a><span class="co">#&gt; Response has mean 0 and standard deviation 1.</span></span>
+<span id="cb17-29"><a href="#cb17-29"></a><span class="co">#&gt; </span></span>
+<span id="cb17-30"><a href="#cb17-30"></a><span class="co">#&gt; Continuous variables have mean 0 and standard deviation 0.5</span></span>
+<span id="cb17-31"><a href="#cb17-31"></a><span class="co">#&gt;   (within-factor-level if scale_by was used)</span></span>
+<span id="cb17-32"><a href="#cb17-32"></a><span class="co">#&gt; Unordered factors have sum contrasts with deviation 0.5</span></span>
+<span id="cb17-33"><a href="#cb17-33"></a><span class="co">#&gt; Ordered factors have orthogonal polynomial contrasts whose</span></span>
+<span id="cb17-34"><a href="#cb17-34"></a><span class="co">#&gt;   columns have standard deviation 0.5</span></span>
+<span id="cb17-35"><a href="#cb17-35"></a><span class="co">#&gt; Grouping factors are coded as unordered factors with default contrasts</span></span>
+<span id="cb17-36"><a href="#cb17-36"></a></span>
+<span id="cb17-37"><a href="#cb17-37"></a><span class="kw">names</span>(sobj)</span>
+<span id="cb17-38"><a href="#cb17-38"></a><span class="co">#&gt;  [1] &quot;call&quot;      &quot;scale&quot;     &quot;formula&quot;   &quot;family&quot;    &quot;data&quot;      &quot;offset&quot;   </span></span>
+<span id="cb17-39"><a href="#cb17-39"></a><span class="co">#&gt;  [7] &quot;pred&quot;      &quot;variables&quot; &quot;contrasts&quot; &quot;groups&quot;</span></span>
+<span id="cb17-40"><a href="#cb17-40"></a></span>
+<span id="cb17-41"><a href="#cb17-41"></a><span class="kw">head</span>(sobj<span class="op">$</span>data)</span>
+<span id="cb17-42"><a href="#cb17-42"></a><span class="co">#&gt;          cdur  place     stress preheight log_wordfreq</span></span>
+<span id="cb17-43"><a href="#cb17-43"></a><span class="co">#&gt; 1  0.58032620  Velar Unstressed       Low  -0.82376808</span></span>
+<span id="cb17-44"><a href="#cb17-44"></a><span class="co">#&gt; 2  0.21456174  Velar Post-Tonic      High  -0.82376808</span></span>
+<span id="cb17-45"><a href="#cb17-45"></a><span class="co">#&gt; 3 -0.11795140 Dental Unstressed      High  -0.02785172</span></span>
+<span id="cb17-46"><a href="#cb17-46"></a><span class="co">#&gt; 4  0.01505386 Dental Post-Tonic      High  -0.95038025</span></span>
+<span id="cb17-47"><a href="#cb17-47"></a><span class="co">#&gt; 5  0.91283934  Velar      Tonic       Mid  -0.09601939</span></span>
+<span id="cb17-48"><a href="#cb17-48"></a><span class="co">#&gt; 6  1.51136300 Dental Post-Tonic      High  -0.11076074</span></span>
+<span id="cb17-49"><a href="#cb17-49"></a><span class="co">#&gt;   speechrate_scaled_by_speaker speaker</span></span>
+<span id="cb17-50"><a href="#cb17-50"></a><span class="co">#&gt; 1                   -0.2492331     s01</span></span>
+<span id="cb17-51"><a href="#cb17-51"></a><span class="co">#&gt; 2                    0.6726468     s01</span></span>
+<span id="cb17-52"><a href="#cb17-52"></a><span class="co">#&gt; 3                   -0.2492331     s01</span></span>
+<span id="cb17-53"><a href="#cb17-53"></a><span class="co">#&gt; 4                    0.3227487     s01</span></span>
+<span id="cb17-54"><a href="#cb17-54"></a><span class="co">#&gt; 5                    1.1335868     s01</span></span>
+<span id="cb17-55"><a href="#cb17-55"></a><span class="co">#&gt; 6                   -1.1711131     s01</span></span>
+<span id="cb17-56"><a href="#cb17-56"></a></span>
+<span id="cb17-57"><a href="#cb17-57"></a><span class="kw">mean</span>(sobj<span class="op">$</span>data<span class="op">$</span>cdur)</span>
+<span id="cb17-58"><a href="#cb17-58"></a><span class="co">#&gt; [1] -1.539605e-16</span></span>
+<span id="cb17-59"><a href="#cb17-59"></a><span class="kw">sd</span>(sobj<span class="op">$</span>data<span class="op">$</span>cdur)</span>
+<span id="cb17-60"><a href="#cb17-60"></a><span class="co">#&gt; [1] 1</span></span>
+<span id="cb17-61"><a href="#cb17-61"></a></span>
+<span id="cb17-62"><a href="#cb17-62"></a><span class="kw">mean</span>(sobj<span class="op">$</span>data<span class="op">$</span>log_wordfreq)</span>
+<span id="cb17-63"><a href="#cb17-63"></a><span class="co">#&gt; [1] 7.753821e-17</span></span>
+<span id="cb17-64"><a href="#cb17-64"></a><span class="kw">sd</span>(sobj<span class="op">$</span>data<span class="op">$</span>log_wordfreq)</span>
+<span id="cb17-65"><a href="#cb17-65"></a><span class="co">#&gt; [1] 0.5</span></span>
+<span id="cb17-66"><a href="#cb17-66"></a><span class="kw">all.equal</span>(<span class="fl">0.5</span> <span class="op">*</span><span class="st"> </span><span class="kw">scale</span>(<span class="kw">log</span>(ptk<span class="op">$</span>wordfreq))[, <span class="dv">1</span>], sobj<span class="op">$</span>data<span class="op">$</span>log_wordfreq[, <span class="dv">1</span>])</span>
+<span id="cb17-67"><a href="#cb17-67"></a><span class="co">#&gt; [1] TRUE</span></span>
+<span id="cb17-68"><a href="#cb17-68"></a></span>
+<span id="cb17-69"><a href="#cb17-69"></a><span class="kw">with</span>(sobj<span class="op">$</span>data, <span class="kw">tapply</span>(speechrate_scaled_by_speaker, speaker, mean))</span>
+<span id="cb17-70"><a href="#cb17-70"></a><span class="co">#&gt;           s01           s02           s03           s04           s05 </span></span>
+<span id="cb17-71"><a href="#cb17-71"></a><span class="co">#&gt; -1.480134e-16  1.582634e-18 -1.559673e-16  5.023952e-17  1.091679e-16 </span></span>
+<span id="cb17-72"><a href="#cb17-72"></a><span class="co">#&gt;           s06           s07           s08           s09           s10 </span></span>
+<span id="cb17-73"><a href="#cb17-73"></a><span class="co">#&gt; -3.587453e-17 -9.768421e-17 -1.100475e-16  7.341635e-17 -6.331741e-17 </span></span>
+<span id="cb17-74"><a href="#cb17-74"></a><span class="co">#&gt;           s11           s12           s13           s14           s15 </span></span>
+<span id="cb17-75"><a href="#cb17-75"></a><span class="co">#&gt; -1.461896e-16  1.925081e-16  9.901544e-17  3.162593e-17  7.138116e-17 </span></span>
+<span id="cb17-76"><a href="#cb17-76"></a><span class="co">#&gt;           s16           s17           s18 </span></span>
+<span id="cb17-77"><a href="#cb17-77"></a><span class="co">#&gt; -1.110223e-16  7.914090e-17 -1.252746e-16</span></span>
+<span id="cb17-78"><a href="#cb17-78"></a><span class="kw">with</span>(sobj<span class="op">$</span>data, <span class="kw">tapply</span>(speechrate_scaled_by_speaker, speaker, sd))</span>
+<span id="cb17-79"><a href="#cb17-79"></a><span class="co">#&gt; s01 s02 s03 s04 s05 s06 s07 s08 s09 s10 s11 s12 s13 s14 s15 s16 s17 s18 </span></span>
+<span id="cb17-80"><a href="#cb17-80"></a><span class="co">#&gt; 0.5 0.5 0.5 0.5 0.5 0.5 0.5 0.5 0.5 0.5 0.5 0.5 0.5 0.5 0.5 0.5 0.5 0.5</span></span>
+<span id="cb17-81"><a href="#cb17-81"></a></span>
+<span id="cb17-82"><a href="#cb17-82"></a>sobj<span class="op">$</span>contrasts</span>
+<span id="cb17-83"><a href="#cb17-83"></a><span class="co">#&gt; $place</span></span>
+<span id="cb17-84"><a href="#cb17-84"></a><span class="co">#&gt;          Bilabial Dental</span></span>
+<span id="cb17-85"><a href="#cb17-85"></a><span class="co">#&gt; Bilabial      0.5    0.0</span></span>
+<span id="cb17-86"><a href="#cb17-86"></a><span class="co">#&gt; Dental        0.0    0.5</span></span>
+<span id="cb17-87"><a href="#cb17-87"></a><span class="co">#&gt; Velar        -0.5   -0.5</span></span>
+<span id="cb17-88"><a href="#cb17-88"></a><span class="co">#&gt; </span></span>
+<span id="cb17-89"><a href="#cb17-89"></a><span class="co">#&gt; $stress</span></span>
+<span id="cb17-90"><a href="#cb17-90"></a><span class="co">#&gt;            Post-Tonic Tonic</span></span>
+<span id="cb17-91"><a href="#cb17-91"></a><span class="co">#&gt; Post-Tonic        0.5   0.0</span></span>
+<span id="cb17-92"><a href="#cb17-92"></a><span class="co">#&gt; Tonic             0.0   0.5</span></span>
+<span id="cb17-93"><a href="#cb17-93"></a><span class="co">#&gt; Unstressed       -0.5  -0.5</span></span>
+<span id="cb17-94"><a href="#cb17-94"></a><span class="co">#&gt; </span></span>
+<span id="cb17-95"><a href="#cb17-95"></a><span class="co">#&gt; $preheight</span></span>
+<span id="cb17-96"><a href="#cb17-96"></a><span class="co">#&gt;                .L         .Q</span></span>
+<span id="cb17-97"><a href="#cb17-97"></a><span class="co">#&gt; Low  -5.00000e-01  0.2886751</span></span>
+<span id="cb17-98"><a href="#cb17-98"></a><span class="co">#&gt; Mid  -1.66038e-17 -0.5773503</span></span>
+<span id="cb17-99"><a href="#cb17-99"></a><span class="co">#&gt; High  5.00000e-01  0.2886751</span></span>
+<span id="cb17-100"><a href="#cb17-100"></a></span>
+<span id="cb17-101"><a href="#cb17-101"></a>sobj<span class="op">$</span>groups</span>
+<span id="cb17-102"><a href="#cb17-102"></a><span class="co">#&gt; $speaker</span></span>
+<span id="cb17-103"><a href="#cb17-103"></a><span class="co">#&gt;  [1] &quot;s01&quot; &quot;s02&quot; &quot;s03&quot; &quot;s04&quot; &quot;s05&quot; &quot;s06&quot; &quot;s07&quot; &quot;s08&quot; &quot;s09&quot; &quot;s10&quot; &quot;s11&quot; &quot;s12&quot;</span></span>
+<span id="cb17-104"><a href="#cb17-104"></a><span class="co">#&gt; [13] &quot;s13&quot; &quot;s14&quot; &quot;s15&quot; &quot;s16&quot; &quot;s17&quot; &quot;s18&quot;</span></span></code></pre></div>
+</div>
+<div id="using-the-standardized-object" class="section level2">
+<h2>Using the <strong>standardized</strong> object</h2>
+<p>The <strong>standardized</strong> object can be used to fit regression models, and the resulting regression model can then be used with functions from other packages such as <em>lme4</em>, <em>afex</em>, and <em>emmeans</em> with a few caveats.</p>
+<div id="fitting-a-regression" class="section level3">
+<h3>Fitting a regression</h3>
+<p>We fit the mixed effects regression using the <strong>standardized</strong> object with <strong>scale = 0.5</strong> by simply passing its formula and data elements to the <strong>lmer</strong> function:</p>
+<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1"></a><span class="kw">library</span>(lme4)</span>
+<span id="cb18-2"><a href="#cb18-2"></a><span class="co">#&gt; Loading required package: Matrix</span></span>
+<span id="cb18-3"><a href="#cb18-3"></a><span class="co">#&gt; Warning: package &#39;Matrix&#39; was built under R version 3.6.3</span></span>
+<span id="cb18-4"><a href="#cb18-4"></a></span>
+<span id="cb18-5"><a href="#cb18-5"></a>mod &lt;-<span class="st"> </span><span class="kw">lmer</span>(sobj<span class="op">$</span>formula, sobj<span class="op">$</span>data)</span>
+<span id="cb18-6"><a href="#cb18-6"></a></span>
+<span id="cb18-7"><a href="#cb18-7"></a><span class="kw">summary</span>(mod)</span>
+<span id="cb18-8"><a href="#cb18-8"></a><span class="co">#&gt; Linear mixed model fit by REML [&#39;lmerMod&#39;]</span></span>
+<span id="cb18-9"><a href="#cb18-9"></a><span class="co">#&gt; Formula: </span></span>
+<span id="cb18-10"><a href="#cb18-10"></a><span class="co">#&gt; cdur ~ place + stress + preheight + log_wordfreq + speechrate_scaled_by_speaker +  </span></span>
+<span id="cb18-11"><a href="#cb18-11"></a><span class="co">#&gt;     (1 | speaker)</span></span>
+<span id="cb18-12"><a href="#cb18-12"></a><span class="co">#&gt;    Data: sobj$data</span></span>
+<span id="cb18-13"><a href="#cb18-13"></a><span class="co">#&gt; </span></span>
+<span id="cb18-14"><a href="#cb18-14"></a><span class="co">#&gt; REML criterion at convergence: 2006.9</span></span>
+<span id="cb18-15"><a href="#cb18-15"></a><span class="co">#&gt; </span></span>
+<span id="cb18-16"><a href="#cb18-16"></a><span class="co">#&gt; Scaled residuals: </span></span>
+<span id="cb18-17"><a href="#cb18-17"></a><span class="co">#&gt;     Min      1Q  Median      3Q     Max </span></span>
+<span id="cb18-18"><a href="#cb18-18"></a><span class="co">#&gt; -2.5479 -0.6919 -0.1014  0.5883  4.2981 </span></span>
+<span id="cb18-19"><a href="#cb18-19"></a><span class="co">#&gt; </span></span>
+<span id="cb18-20"><a href="#cb18-20"></a><span class="co">#&gt; Random effects:</span></span>
+<span id="cb18-21"><a href="#cb18-21"></a><span class="co">#&gt;  Groups   Name        Variance Std.Dev.</span></span>
+<span id="cb18-22"><a href="#cb18-22"></a><span class="co">#&gt;  speaker  (Intercept) 0.09375  0.3062  </span></span>
+<span id="cb18-23"><a href="#cb18-23"></a><span class="co">#&gt;  Residual             0.79081  0.8893  </span></span>
+<span id="cb18-24"><a href="#cb18-24"></a><span class="co">#&gt; Number of obs: 751, groups:  speaker, 18</span></span>
+<span id="cb18-25"><a href="#cb18-25"></a><span class="co">#&gt; </span></span>
+<span id="cb18-26"><a href="#cb18-26"></a><span class="co">#&gt; Fixed effects:</span></span>
+<span id="cb18-27"><a href="#cb18-27"></a><span class="co">#&gt;                              Estimate Std. Error t value</span></span>
+<span id="cb18-28"><a href="#cb18-28"></a><span class="co">#&gt; (Intercept)                   0.01576    0.07946   0.198</span></span>
+<span id="cb18-29"><a href="#cb18-29"></a><span class="co">#&gt; placeBilabial                 0.01651    0.09553   0.173</span></span>
+<span id="cb18-30"><a href="#cb18-30"></a><span class="co">#&gt; placeDental                  -0.02341    0.09183  -0.255</span></span>
+<span id="cb18-31"><a href="#cb18-31"></a><span class="co">#&gt; stressPost-Tonic             -0.12491    0.09681  -1.290</span></span>
+<span id="cb18-32"><a href="#cb18-32"></a><span class="co">#&gt; stressTonic                   0.42435    0.09595   4.423</span></span>
+<span id="cb18-33"><a href="#cb18-33"></a><span class="co">#&gt; preheight.L                   0.03529    0.09331   0.378</span></span>
+<span id="cb18-34"><a href="#cb18-34"></a><span class="co">#&gt; preheight.Q                   0.11910    0.07848   1.518</span></span>
+<span id="cb18-35"><a href="#cb18-35"></a><span class="co">#&gt; log_wordfreq                 -0.07557    0.06763  -1.117</span></span>
+<span id="cb18-36"><a href="#cb18-36"></a><span class="co">#&gt; speechrate_scaled_by_speaker -0.61373    0.06643  -9.239</span></span>
+<span id="cb18-37"><a href="#cb18-37"></a><span class="co">#&gt; </span></span>
+<span id="cb18-38"><a href="#cb18-38"></a><span class="co">#&gt; Correlation of Fixed Effects:</span></span>
+<span id="cb18-39"><a href="#cb18-39"></a><span class="co">#&gt;             (Intr) plcBlb plcDnt strP-T strssT prhg.L prhg.Q lg_wrd</span></span>
+<span id="cb18-40"><a href="#cb18-40"></a><span class="co">#&gt; placeBilabl  0.024                                                 </span></span>
+<span id="cb18-41"><a href="#cb18-41"></a><span class="co">#&gt; placeDental -0.039 -0.500                                          </span></span>
+<span id="cb18-42"><a href="#cb18-42"></a><span class="co">#&gt; strssPst-Tn  0.004  0.053 -0.051                                   </span></span>
+<span id="cb18-43"><a href="#cb18-43"></a><span class="co">#&gt; stressTonic -0.006  0.003 -0.003 -0.524                            </span></span>
+<span id="cb18-44"><a href="#cb18-44"></a><span class="co">#&gt; preheight.L  0.009  0.075 -0.106 -0.272  0.276                     </span></span>
+<span id="cb18-45"><a href="#cb18-45"></a><span class="co">#&gt; preheight.Q  0.083 -0.041 -0.127  0.029 -0.059  0.023              </span></span>
+<span id="cb18-46"><a href="#cb18-46"></a><span class="co">#&gt; log_wordfrq  0.005 -0.092  0.062 -0.131 -0.029  0.106  0.093       </span></span>
+<span id="cb18-47"><a href="#cb18-47"></a><span class="co">#&gt; spchrt_sc__  0.007  0.015 -0.043  0.058  0.046  0.061  0.073  0.013</span></span></code></pre></div>
+</div>
+<div id="predicting-new-data" class="section level3">
+<h3>Predicting new data</h3>
+<p>When predicting new data with the regression model, the new data first needs to be placed into the same standardized space as <em>sobj$data</em>. This can be done by calling <strong>predict</strong> with the <strong>standardied</strong> object as the first argument. The <strong>predict</strong> method for the <strong>standardized</strong> class also takes logical arguments <strong>response</strong> (whether or not the new data contains the response variable; default FALSE), <strong>fixed</strong> (whether or not the new data contains the fixed effects variables; default TRUE), and <strong>random</strong> (whether or not the new data contains the random effects variables; default TRUE). We will illustrate the use of the <strong>standardized predict</strong> method using the original data <strong>ptk</strong> as if it were new data:</p>
+<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1"></a>newdata &lt;-<span class="st"> </span><span class="kw">predict</span>(sobj, ptk)</span>
+<span id="cb19-2"><a href="#cb19-2"></a>newdata_fe &lt;-<span class="st"> </span><span class="kw">predict</span>(sobj, ptk, <span class="dt">random =</span> <span class="ot">FALSE</span>)</span>
+<span id="cb19-3"><a href="#cb19-3"></a>newdata_re &lt;-<span class="st"> </span><span class="kw">predict</span>(sobj, ptk, <span class="dt">fixed =</span> <span class="ot">FALSE</span>)</span>
+<span id="cb19-4"><a href="#cb19-4"></a></span>
+<span id="cb19-5"><a href="#cb19-5"></a><span class="kw">head</span>(newdata)</span>
+<span id="cb19-6"><a href="#cb19-6"></a><span class="co">#&gt;    place     stress preheight log_wordfreq speechrate_scaled_by_speaker speaker</span></span>
+<span id="cb19-7"><a href="#cb19-7"></a><span class="co">#&gt; 1  Velar Unstressed       Low  -0.82376808                   -0.2492331     s01</span></span>
+<span id="cb19-8"><a href="#cb19-8"></a><span class="co">#&gt; 2  Velar Post-Tonic      High  -0.82376808                    0.6726468     s01</span></span>
+<span id="cb19-9"><a href="#cb19-9"></a><span class="co">#&gt; 3 Dental Unstressed      High  -0.02785172                   -0.2492331     s01</span></span>
+<span id="cb19-10"><a href="#cb19-10"></a><span class="co">#&gt; 4 Dental Post-Tonic      High  -0.95038025                    0.3227487     s01</span></span>
+<span id="cb19-11"><a href="#cb19-11"></a><span class="co">#&gt; 5  Velar      Tonic       Mid  -0.09601939                    1.1335868     s01</span></span>
+<span id="cb19-12"><a href="#cb19-12"></a><span class="co">#&gt; 6 Dental Post-Tonic      High  -0.11076074                   -1.1711131     s01</span></span>
+<span id="cb19-13"><a href="#cb19-13"></a></span>
+<span id="cb19-14"><a href="#cb19-14"></a><span class="kw">head</span>(newdata_fe)</span>
+<span id="cb19-15"><a href="#cb19-15"></a><span class="co">#&gt;    place     stress preheight log_wordfreq speechrate_scaled_by_speaker</span></span>
+<span id="cb19-16"><a href="#cb19-16"></a><span class="co">#&gt; 1  Velar Unstressed       Low  -0.82376808                   -0.2492331</span></span>
+<span id="cb19-17"><a href="#cb19-17"></a><span class="co">#&gt; 2  Velar Post-Tonic      High  -0.82376808                    0.6726468</span></span>
+<span id="cb19-18"><a href="#cb19-18"></a><span class="co">#&gt; 3 Dental Unstressed      High  -0.02785172                   -0.2492331</span></span>
+<span id="cb19-19"><a href="#cb19-19"></a><span class="co">#&gt; 4 Dental Post-Tonic      High  -0.95038025                    0.3227487</span></span>
+<span id="cb19-20"><a href="#cb19-20"></a><span class="co">#&gt; 5  Velar      Tonic       Mid  -0.09601939                    1.1335868</span></span>
+<span id="cb19-21"><a href="#cb19-21"></a><span class="co">#&gt; 6 Dental Post-Tonic      High  -0.11076074                   -1.1711131</span></span>
+<span id="cb19-22"><a href="#cb19-22"></a></span>
+<span id="cb19-23"><a href="#cb19-23"></a><span class="kw">head</span>(newdata_re)</span>
+<span id="cb19-24"><a href="#cb19-24"></a><span class="co">#&gt;   speaker</span></span>
+<span id="cb19-25"><a href="#cb19-25"></a><span class="co">#&gt; 1     s01</span></span>
+<span id="cb19-26"><a href="#cb19-26"></a><span class="co">#&gt; 2     s01</span></span>
+<span id="cb19-27"><a href="#cb19-27"></a><span class="co">#&gt; 3     s01</span></span>
+<span id="cb19-28"><a href="#cb19-28"></a><span class="co">#&gt; 4     s01</span></span>
+<span id="cb19-29"><a href="#cb19-29"></a><span class="co">#&gt; 5     s01</span></span>
+<span id="cb19-30"><a href="#cb19-30"></a><span class="co">#&gt; 6     s01</span></span></code></pre></div>
+<p>This standardized new data can then be used as the <strong>newdata</strong> argument to <strong>predict</strong> with the regression model as the first argument. The <strong>predict</strong> method may generate warnings about contrasts being dropped, but these warnings can be ignored (i.e. the predictions are still correct; warnings shouldn’t occur with the latest version of lme4, but may occur for older versions, and will occur for the <strong>predict</strong> method for fixed-effects-only models):</p>
+<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1"></a><span class="co"># predictions using both the fixed and random effects</span></span>
+<span id="cb20-2"><a href="#cb20-2"></a>preds &lt;-<span class="st"> </span><span class="kw">predict</span>(mod, <span class="dt">newdata =</span> newdata)</span>
+<span id="cb20-3"><a href="#cb20-3"></a><span class="kw">all.equal</span>(preds, <span class="kw">fitted</span>(mod))</span>
+<span id="cb20-4"><a href="#cb20-4"></a><span class="co">#&gt; [1] TRUE</span></span>
+<span id="cb20-5"><a href="#cb20-5"></a></span>
+<span id="cb20-6"><a href="#cb20-6"></a><span class="co"># predictions using only the fixed effects</span></span>
+<span id="cb20-7"><a href="#cb20-7"></a>preds_fe &lt;-<span class="st"> </span><span class="kw">predict</span>(mod, <span class="dt">newdata =</span> newdata_fe, <span class="dt">re.form =</span> <span class="ot">NA</span>)</span>
+<span id="cb20-8"><a href="#cb20-8"></a></span>
+<span id="cb20-9"><a href="#cb20-9"></a><span class="kw">head</span>(preds)</span>
+<span id="cb20-10"><a href="#cb20-10"></a><span class="co">#&gt;           1           2           3           4           5           6 </span></span>
+<span id="cb20-11"><a href="#cb20-11"></a><span class="co">#&gt;  0.36567215 -0.07756456  0.32566494  0.13159718 -0.26161147  0.98498387</span></span>
+<span id="cb20-12"><a href="#cb20-12"></a></span>
+<span id="cb20-13"><a href="#cb20-13"></a><span class="kw">head</span>(preds_fe)</span>
+<span id="cb20-14"><a href="#cb20-14"></a><span class="co">#&gt;           1           2           3           4           5           6 </span></span>
+<span id="cb20-15"><a href="#cb20-15"></a><span class="co">#&gt;  0.10143783 -0.34179887  0.06143062 -0.13263714 -0.52584579  0.72074955</span></span></code></pre></div>
+</div>
+<div id="obtaining-p-values-with-mixed" class="section level3">
+<h3>Obtaining p-values with <strong>mixed</strong></h3>
+<p>When obtaining p-values for the predictors with the <strong>mixed</strong> function in the <em>afex</em> package, the <strong>check_contrasts</strong> argument should be set to FALSE to ensure that the correct contrasts are used (this shouldn’t matter when a regression model is passed to <strong>mixed</strong>, but if the formula and data elements of the <strong>standardized</strong> object are passed directly to <strong>mixed</strong>, it is necessary; it is best to just always specify <strong>check_contrasts = FALSE</strong>):</p>
+<div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1"></a><span class="kw">library</span>(afex)</span>
+<span id="cb21-2"><a href="#cb21-2"></a><span class="co">#&gt; Registered S3 methods overwritten by &#39;car&#39;:</span></span>
+<span id="cb21-3"><a href="#cb21-3"></a><span class="co">#&gt;   method                          from</span></span>
+<span id="cb21-4"><a href="#cb21-4"></a><span class="co">#&gt;   influence.merMod                lme4</span></span>
+<span id="cb21-5"><a href="#cb21-5"></a><span class="co">#&gt;   cooks.distance.influence.merMod lme4</span></span>
+<span id="cb21-6"><a href="#cb21-6"></a><span class="co">#&gt;   dfbeta.influence.merMod         lme4</span></span>
+<span id="cb21-7"><a href="#cb21-7"></a><span class="co">#&gt;   dfbetas.influence.merMod        lme4</span></span>
+<span id="cb21-8"><a href="#cb21-8"></a><span class="co">#&gt; ************</span></span>
+<span id="cb21-9"><a href="#cb21-9"></a><span class="co">#&gt; Welcome to afex. For support visit: http://afex.singmann.science/</span></span>
+<span id="cb21-10"><a href="#cb21-10"></a><span class="co">#&gt; - Functions for ANOVAs: aov_car(), aov_ez(), and aov_4()</span></span>
+<span id="cb21-11"><a href="#cb21-11"></a><span class="co">#&gt; - Methods for calculating p-values with mixed(): &#39;KR&#39;, &#39;S&#39;, &#39;LRT&#39;, and &#39;PB&#39;</span></span>
+<span id="cb21-12"><a href="#cb21-12"></a><span class="co">#&gt; - &#39;afex_aov&#39; and &#39;mixed&#39; objects can be passed to emmeans() for follow-up tests</span></span>
+<span id="cb21-13"><a href="#cb21-13"></a><span class="co">#&gt; - NEWS: library(&#39;emmeans&#39;) now needs to be called explicitly!</span></span>
+<span id="cb21-14"><a href="#cb21-14"></a><span class="co">#&gt; - Get and set global package options with: afex_options()</span></span>
+<span id="cb21-15"><a href="#cb21-15"></a><span class="co">#&gt; - Set orthogonal sum-to-zero contrasts globally: set_sum_contrasts()</span></span>
+<span id="cb21-16"><a href="#cb21-16"></a><span class="co">#&gt; - For example analyses see: browseVignettes(&quot;afex&quot;)</span></span>
+<span id="cb21-17"><a href="#cb21-17"></a><span class="co">#&gt; ************</span></span>
+<span id="cb21-18"><a href="#cb21-18"></a><span class="co">#&gt; </span></span>
+<span id="cb21-19"><a href="#cb21-19"></a><span class="co">#&gt; Attaching package: &#39;afex&#39;</span></span>
+<span id="cb21-20"><a href="#cb21-20"></a><span class="co">#&gt; The following object is masked from &#39;package:lme4&#39;:</span></span>
+<span id="cb21-21"><a href="#cb21-21"></a><span class="co">#&gt; </span></span>
+<span id="cb21-22"><a href="#cb21-22"></a><span class="co">#&gt;     lmer</span></span>
+<span id="cb21-23"><a href="#cb21-23"></a></span>
+<span id="cb21-24"><a href="#cb21-24"></a>pvals &lt;-<span class="st"> </span><span class="kw">mixed</span>(mod, <span class="dt">data =</span> sobj<span class="op">$</span>data, <span class="dt">check_contrasts =</span> <span class="ot">FALSE</span>)</span>
+<span id="cb21-25"><a href="#cb21-25"></a><span class="co">#&gt; Formula (the first argument) converted to formula.</span></span>
+<span id="cb21-26"><a href="#cb21-26"></a><span class="co">#&gt; Fitting one lmer() model. [DONE]</span></span>
+<span id="cb21-27"><a href="#cb21-27"></a><span class="co">#&gt; Calculating p-values. [DONE]</span></span>
+<span id="cb21-28"><a href="#cb21-28"></a></span>
+<span id="cb21-29"><a href="#cb21-29"></a>pvals</span>
+<span id="cb21-30"><a href="#cb21-30"></a><span class="co">#&gt; Mixed Model Anova Table (Type 3 tests, KR-method)</span></span>
+<span id="cb21-31"><a href="#cb21-31"></a><span class="co">#&gt; </span></span>
+<span id="cb21-32"><a href="#cb21-32"></a><span class="co">#&gt; Model: cdur ~ place + stress + preheight + log_wordfreq + speechrate_scaled_by_speaker + </span></span>
+<span id="cb21-33"><a href="#cb21-33"></a><span class="co">#&gt; Model:     (1 | speaker)</span></span>
+<span id="cb21-34"><a href="#cb21-34"></a><span class="co">#&gt; Data: $</span></span>
+<span id="cb21-35"><a href="#cb21-35"></a><span class="co">#&gt; Data: sobj</span></span>
+<span id="cb21-36"><a href="#cb21-36"></a><span class="co">#&gt; Data: data</span></span>
+<span id="cb21-37"><a href="#cb21-37"></a><span class="co">#&gt;                         Effect        df         F p.value</span></span>
+<span id="cb21-38"><a href="#cb21-38"></a><span class="co">#&gt; 1                        place 2, 726.63      0.03    .967</span></span>
+<span id="cb21-39"><a href="#cb21-39"></a><span class="co">#&gt; 2                       stress 2, 726.38 10.51 ***   &lt;.001</span></span>
+<span id="cb21-40"><a href="#cb21-40"></a><span class="co">#&gt; 3                    preheight 2, 732.84      1.21    .299</span></span>
+<span id="cb21-41"><a href="#cb21-41"></a><span class="co">#&gt; 4                 log_wordfreq 1, 731.67      1.25    .264</span></span>
+<span id="cb21-42"><a href="#cb21-42"></a><span class="co">#&gt; 5 speechrate_scaled_by_speaker 1, 725.10 85.35 ***   &lt;.001</span></span>
+<span id="cb21-43"><a href="#cb21-43"></a><span class="co">#&gt; ---</span></span>
+<span id="cb21-44"><a href="#cb21-44"></a><span class="co">#&gt; Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;+&#39; 0.1 &#39; &#39; 1</span></span></code></pre></div>
+</div>
+<div id="obtaining-estimated-marginal-means-with-emmeans" class="section level3">
+<h3>Obtaining estimated marginal means with <strong>emmeans</strong></h3>
+<p>The <strong>emmeans</strong> function in the <em>emmeans</em> package can be called as it would normally be called, but note that if the regression model contains polynomial covariates (i.e. if the formula passed to <strong>standardize</strong> includes calls to the <strong>poly</strong> function), then the results may be misleading (as is often the case). We will illustrate the use of <strong>emmeans</strong> with the <strong>stress</strong> factor (since the p-value for the overall factor was &lt;.0001):</p>
+<div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1"></a><span class="kw">library</span>(emmeans)</span>
+<span id="cb22-2"><a href="#cb22-2"></a></span>
+<span id="cb22-3"><a href="#cb22-3"></a>stress_comparisons &lt;-<span class="st"> </span><span class="kw">emmeans</span>(mod, pairwise <span class="op">~</span><span class="st"> </span>stress)</span>
+<span id="cb22-4"><a href="#cb22-4"></a></span>
+<span id="cb22-5"><a href="#cb22-5"></a>stress_comparisons</span>
+<span id="cb22-6"><a href="#cb22-6"></a><span class="co">#&gt; $emmeans</span></span>
+<span id="cb22-7"><a href="#cb22-7"></a><span class="co">#&gt;  stress      emmean     SE   df lower.CL upper.CL</span></span>
+<span id="cb22-8"><a href="#cb22-8"></a><span class="co">#&gt;  Post-Tonic -0.0467 0.0932 32.5  -0.2365   0.1431</span></span>
+<span id="cb22-9"><a href="#cb22-9"></a><span class="co">#&gt;  Tonic       0.2279 0.0926 31.6   0.0392   0.4166</span></span>
+<span id="cb22-10"><a href="#cb22-10"></a><span class="co">#&gt;  Unstressed -0.1340 0.0924 31.4  -0.3223   0.0544</span></span>
+<span id="cb22-11"><a href="#cb22-11"></a><span class="co">#&gt; </span></span>
+<span id="cb22-12"><a href="#cb22-12"></a><span class="co">#&gt; Results are averaged over the levels of: place, preheight </span></span>
+<span id="cb22-13"><a href="#cb22-13"></a><span class="co">#&gt; Degrees-of-freedom method: kenward-roger </span></span>
+<span id="cb22-14"><a href="#cb22-14"></a><span class="co">#&gt; Confidence level used: 0.95 </span></span>
+<span id="cb22-15"><a href="#cb22-15"></a><span class="co">#&gt; </span></span>
+<span id="cb22-16"><a href="#cb22-16"></a><span class="co">#&gt; $contrasts</span></span>
+<span id="cb22-17"><a href="#cb22-17"></a><span class="co">#&gt;  contrast                  estimate     SE  df t.ratio p.value</span></span>
+<span id="cb22-18"><a href="#cb22-18"></a><span class="co">#&gt;  (Post-Tonic) - Tonic       -0.2746 0.0842 727 -3.263  0.0033 </span></span>
+<span id="cb22-19"><a href="#cb22-19"></a><span class="co">#&gt;  (Post-Tonic) - Unstressed   0.0873 0.0825 726  1.058  0.5406 </span></span>
+<span id="cb22-20"><a href="#cb22-20"></a><span class="co">#&gt;  Tonic - Unstressed          0.3619 0.0817 726  4.428  &lt;.0001 </span></span>
+<span id="cb22-21"><a href="#cb22-21"></a><span class="co">#&gt; </span></span>
+<span id="cb22-22"><a href="#cb22-22"></a><span class="co">#&gt; Results are averaged over the levels of: place, preheight </span></span>
+<span id="cb22-23"><a href="#cb22-23"></a><span class="co">#&gt; Degrees-of-freedom method: kenward-roger </span></span>
+<span id="cb22-24"><a href="#cb22-24"></a><span class="co">#&gt; P value adjustment: tukey method for comparing a family of 3 estimates</span></span></code></pre></div>
+</div>
+</div>
+<div id="conclusion" class="section level2">
+<h2>Conclusion</h2>
+<p>The <em>standardize</em> package provides several functions which aid in placing regression variables on similar scales, namely <strong>scale_by</strong>, <strong>named_contr_sum</strong>, and <strong>scaled_contr_poly</strong>. The <strong>standardize</strong> function offers a convenient way to make use of these functions (along with the <strong>scale</strong> function in base <em>R</em>) automatically, resulting in a <strong>standardized</strong> object which contains a standardized formula and data frame that can be passed to regression fitting functions. The most common use of the <em>standardize</em> package is to call the <strong>standardize</strong> function, passing the same <strong>formula</strong>, <strong>data</strong>, and <strong>family</strong> arguments as would normally be passed to a regression fitting function, leaving the <strong>scale</strong> argument at its default, and then passing the <strong>formula</strong> and <strong>data</strong> elements of the <strong>standardized</strong> object on to the regression fitting function with all other options for the regression fitting function specified as they would normally be specified.</p>
+</div>
+<div id="references" class="section level2">
+<h2>References</h2>
+<p>If you use the <em>standardize</em> package in a publication, please cite:</p>
+<pre><code>Eager, Christopher D. (2017). standardize: Tools for Standardizing Variables for Regression in R. R package version 0.2.1. https://CRAN.R-project.org/package=standardize</code></pre>
+<p>If you analyze the <strong>ptk</strong> dataset in a publication, please cite:</p>
+<pre><code>Eager, Christopher D. (2017). Contrast preservation and constraints on individual phonetic variation. Doctoral thesis. University of Illinois at Urbana-Champaign.</code></pre>
+</div>
+</div>
+
+
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

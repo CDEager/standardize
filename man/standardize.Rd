@@ -18,8 +18,8 @@ positive number. See 'Details'.}
 
 \item{offset}{An optional \code{\link[stats]{offset}} vector. Offsets can
 also be included in the \code{formula} (e.g. \code{y ~ x + offset(o)}), but
-if this is done, then the column \code{o} (in this example) must be in any 
-data frame passed as the \code{newdata} argument to 
+if this is done, then the column \code{o} (in this example) must be in any
+data frame passed as the \code{newdata} argument to
 \code{\link[=predict.standardized]{predict}}.}
 
 \item{...}{Currently unused.  If \code{na.action} is specified in \code{...}
@@ -28,7 +28,7 @@ argument is ignored.}
 }
 \value{
 A \code{\link[=standardized-class]{standardized}} object. The
-  \code{formula}, \code{data}, and \code{offset} elements of the object can 
+  \code{formula}, \code{data}, and \code{offset} elements of the object can
   be used in calls to regression functions.
 }
 \description{
@@ -82,8 +82,8 @@ standard deviation \code{scale}.
 
 With the default value of \code{scale = 1}, the result is a
 \code{\linkS4class{standardized}} object which contains a formula and data
-frame (and offset vector if the \code{offset} argument to the 
-\code{standardize} function was used) which can be used to fit regressions 
+frame (and offset vector if the \code{offset} argument to the
+\code{standardize} function was used) which can be used to fit regressions
 where the predictors are all on a similar scale.  Its data frame
 has numeric variables on unit scale, unordered factors with named sum
 sum contrasts, and ordered factors with orthogonal polynomial contrasts
@@ -110,9 +110,10 @@ in the case of \code{\link{scale_by}} calls).
   \code{na.action} could be specified.  Starting with v0.2.1, specifying
   something other than \code{na.pass} is ignored with a warning.  Use of
   \code{na.omit} and \code{na.exclude} should be done when calling regression
-  fitting functions using the elements returned in the 
+  fitting functions using the elements returned in the
   \code{\link[=standardized-class]{standardized}} object.
 }
+
 \examples{
 dat <- expand.grid(ufac = letters[1:3], ofac = 1:3)
 dat <- as.data.frame(lapply(dat, function(n) rep(n, 60)))
@@ -160,7 +161,6 @@ mod <- lmer(sobj$formula, sobj$data)
 # these warnings can be ignored (i.e. the statement still evaluates to TRUE)
 all.equal(predict(mod, newdata = predict(sobj, dat)), fitted(mod))
 }
-
 }
 \seealso{
 For scaling and contrasts, see \code{\link[base]{scale}},
@@ -170,4 +170,6 @@ For scaling and contrasts, see \code{\link[base]{scale}},
   For the elements in the returned object, see
   \code{\linkS4class{standardized}}.
 }
-
+\author{
+Christopher D. Eager <eager.stats@gmail.com>
+}

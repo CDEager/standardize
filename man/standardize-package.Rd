@@ -13,7 +13,9 @@ the interpretation of their effect sizes more comparable. In the case of
 gaussian regression, placing the response on unit scale also eases
 interpretation.  Standardizing regression variables also has computational
 benefits in the case of mixed effects regressions, and makes determining
-reasonable priors in Bayesian regressions simpler.
+reasonable priors in Bayesian regressions simpler.  To view the package
+vignette, call \code{vignette("using-standardize", package = "standardize")}.
+To see the version history, call \code{standardize.news()}.
 }
 \details{
 The \code{\link{named_contr_sum}} function gives named sum contrasts to
@@ -47,4 +49,3 @@ Offsets for gaussian models are divided by the standard deviation of the
 raw response (within-factor-level if \code{\link{scale_by}} is used on
 the response).
 }
-

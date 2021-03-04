@@ -5,3 +5,7 @@
 ^\.travis\.yml$
 ^cran-comments\.md$
 ^revdep$
+^examples$
+^Rcheck$
+^doc$
+^Meta$

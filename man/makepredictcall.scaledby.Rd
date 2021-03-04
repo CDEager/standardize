@@ -14,4 +14,6 @@ Allows \code{\link{scale_by}} to be used within a regression
 \code{\link[stats]{formula}} and ensures that the \code{predvars} attribute
 makes the correct call to \code{scale_by}.
 }
-
+\author{
+Christopher D. Eager <eager.stats@gmail.com>
+}
