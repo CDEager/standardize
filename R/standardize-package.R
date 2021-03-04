@@ -45,6 +45,8 @@
 #' raw response (within-factor-level if \code{\link{scale_by}} is used on
 #' the response).
 #'
+#' @author Christopher D. Eager <eager.stats@gmail.com>
+#'
 #' @docType package
 #' @name standardize-package
 #'

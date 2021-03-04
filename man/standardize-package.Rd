@@ -49,3 +49,6 @@ Offsets for gaussian models are divided by the standard deviation of the
 raw response (within-factor-level if \code{\link{scale_by}} is used on
 the response).
 }
+\author{
+Christopher D. Eager <eager.stats@gmail.com>
+}
