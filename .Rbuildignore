@@ -9,3 +9,4 @@
 ^Rcheck$
 ^doc$
 ^Meta$
+^.gitattributes

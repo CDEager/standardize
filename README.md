@@ -1,12 +1,12 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
-standardize 0.2.1
-=================
 
-[![Build Status](https://travis-ci.org/CDEager/standardize.svg?branch=master)](https://travis-ci.org/CDEager/standardize)
+# standardize 0.2.2
 
-Installation
-------------
+[![Build
+Status](https://travis-ci.org/CDEager/standardize.svg?branch=master)](https://travis-ci.org/CDEager/standardize)
+
+## Installation
 
 To install the *standardize* package, call:
 
@@ -14,13 +14,30 @@ To install the *standardize* package, call:
 install.packages("standardize")
 ```
 
-Package use
------------
+## Package use
 
-The *standardize* package provides tools for controlling continuous variable scaling and factor contrasts. The goal of these standardizations is to keep the regression parameters on similar scales, and to ensure that the intercept (which is the predicted value of an observation when all other coefficients are multiplied by 0) represents the corrected mean (i.e. the predicted value for an observation which is average in every way, holding covariates at their mean values and averaging over group differences in factors). When the predictors are all on a similar scale, there are computational benefits for both frequentist and Bayesian approaches in mixed effects regressions, reasonable Bayesian priors are easier to specify, and regression output is easier to interpret. Take, for example, the **ptk** dataset included in the package (for which we will create a new ordered factor *preheight*):
+The *standardize* package provides tools for controlling continuous
+variable scaling and factor contrasts. The goal of these
+standardizations is to keep the regression parameters on similar scales,
+and to ensure that the intercept (which is the predicted value of an
+observation when all other coefficients are multiplied by 0) represents
+the corrected mean (i.e. the predicted value for an observation which is
+average in every way, holding covariates at their mean values and
+averaging over group differences in factors). When the predictors are
+all on a similar scale, there are computational benefits for both
+frequentist and Bayesian approaches in mixed effects regressions,
+reasonable Bayesian priors are easier to specify, and regression output
+is easier to interpret. Take, for example, the **ptk** dataset included
+in the package (for which we will create a new ordered factor
+*preheight*):
 
 ``` r
 library(standardize)
+#> 
+#>  *********************************************************** 
+#>           Loading standardize package version 0.2.2          
+#>      Call standardize.news() to see new features/changes     
+#>  ***********************************************************
 
 ptk$preheight <- "Mid"
 ptk$preheight[ptk$prevowel == "a"] <- "Low"
@@ -55,7 +72,12 @@ summary(ptk)
 #>  (Other):482
 ```
 
-Suppose we want to fit a linear mixed effects regression with total consonant duration *cdur* as the response, *place*, *stress*, *preheight*, the natural log of *wordfreq*, and *speaker*-relative *speechrate* as fixed effects, and random intercepts for *speaker*. The variables for this regression can be easily placed into a standardized space with the **standardize** function:
+Suppose we want to fit a linear mixed effects regression with total
+consonant duration *cdur* as the response, *place*, *stress*,
+*preheight*, the natural log of *wordfreq*, and *speaker*-relative
+*speechrate* as fixed effects, and random intercepts for *speaker*. The
+variables for this regression can be easily placed into a standardized
+space with the **standardize** function:
 
 ``` r
 sobj <- standardize(cdur ~ place + stress + preheight + log(wordfreq) +
@@ -75,22 +97,14 @@ sobj
 #>     (1 | speaker)
 #> 
 #> Variables:
-#>  Variable                       Standardized Name           
-#>  cdur                           cdur                        
-#>  place                          place                       
-#>  stress                         stress                      
-#>  preheight                      preheight                   
-#>  log(wordfreq)                  log_wordfreq                
-#>  scale_by(speechrate ~ speaker) speechrate_scaled_by_speaker
-#>  speaker                        speaker                     
-#>  Class           
-#>  response.numeric
-#>  factor          
-#>  factor          
-#>  ordered         
-#>  numeric         
-#>  scaledby        
-#>  group           
+#>  Variable                       Standardized Name            Class           
+#>  cdur                           cdur                         response.numeric
+#>  place                          place                        factor          
+#>  stress                         stress                       factor          
+#>  preheight                      preheight                    ordered         
+#>  log(wordfreq)                  log_wordfreq                 numeric         
+#>  scale_by(speechrate ~ speaker) speechrate_scaled_by_speaker scaledby        
+#>  speaker                        speaker                      group           
 #> 
 #> Response has mean 0 and standard deviation 1.
 #> 
@@ -102,8 +116,8 @@ sobj
 #> Grouping factors are coded as unordered factors with default contrasts
 
 names(sobj)
-#>  [1] "call"      "scale"     "formula"   "family"    "data"     
-#>  [6] "offset"    "pred"      "variables" "contrasts" "groups"
+#>  [1] "call"      "scale"     "formula"   "family"    "data"      "offset"   
+#>  [7] "pred"      "variables" "contrasts" "groups"
 
 head(sobj$data)
 #>          cdur  place     stress preheight log_wordfreq
@@ -160,22 +174,32 @@ sobj$contrasts
 #> Unstressed         -1    -1
 #> 
 #> $preheight
-#>                 .L         .Q
-#> Low  -1.000000e+00  0.5773503
-#> Mid  -2.168241e-17 -1.1547005
-#> High  1.000000e+00  0.5773503
+#>                .L         .Q
+#> Low  -1.00000e+00  0.5773503
+#> Mid  -3.32076e-17 -1.1547005
+#> High  1.00000e+00  0.5773503
 
 sobj$groups
 #> $speaker
-#>  [1] "s01" "s02" "s03" "s04" "s05" "s06" "s07" "s08" "s09" "s10" "s11"
-#> [12] "s12" "s13" "s14" "s15" "s16" "s17" "s18"
+#>  [1] "s01" "s02" "s03" "s04" "s05" "s06" "s07" "s08" "s09" "s10" "s11" "s12"
+#> [13] "s13" "s14" "s15" "s16" "s17" "s18"
 ```
 
-The default settings for **standardize** have placed all the continuous variables on unit scale, set (named) sum contrasts for all unordered factors, and orthogonal polynomial contrasts with column standard deviations of 1 for all ordered factors. In the case of *speechrate*, the call to **scale\_by** ensured that rather than simply placing *speechrate* on unit scale, it was placed on unit scale for each *speaker*, so that the resulting variable represents speaker-relative speech rate. We can then simply use the *formula* and *data* elements of the object returned by **standardize** to fit the mixed effects regression in this standardized space:
+The default settings for **standardize** have placed all the continuous
+variables on unit scale, set (named) sum contrasts for all unordered
+factors, and orthogonal polynomial contrasts with column standard
+deviations of 1 for all ordered factors. In the case of *speechrate*,
+the call to **scale\_by** ensured that rather than simply placing
+*speechrate* on unit scale, it was placed on unit scale for each
+*speaker*, so that the resulting variable represents speaker-relative
+speech rate. We can then simply use the *formula* and *data* elements of
+the object returned by **standardize** to fit the mixed effects
+regression in this standardized space:
 
 ``` r
 library(lme4)
 #> Loading required package: Matrix
+#> Warning: package 'Matrix' was built under R version 3.6.3
 
 mod <- lmer(sobj$formula, sobj$data)
 
@@ -222,7 +246,8 @@ summary(mod)
 #> spchrt_sc__  0.007  0.015 -0.043  0.058  0.046  0.061  0.073  0.013
 ```
 
-The scaling of the predictors can be controlled through the **scale** argument to **standardize**. For example:
+The scaling of the predictors can be controlled through the **scale**
+argument to **standardize**. For example:
 
 ``` r
 sobj <- standardize(cdur ~ place + stress + preheight + log(wordfreq) +
@@ -243,22 +268,14 @@ sobj
 #>     (1 | speaker)
 #> 
 #> Variables:
-#>  Variable                       Standardized Name           
-#>  cdur                           cdur                        
-#>  place                          place                       
-#>  stress                         stress                      
-#>  preheight                      preheight                   
-#>  log(wordfreq)                  log_wordfreq                
-#>  scale_by(speechrate ~ speaker) speechrate_scaled_by_speaker
-#>  speaker                        speaker                     
-#>  Class           
-#>  response.numeric
-#>  factor          
-#>  factor          
-#>  ordered         
-#>  numeric         
-#>  scaledby        
-#>  group           
+#>  Variable                       Standardized Name            Class           
+#>  cdur                           cdur                         response.numeric
+#>  place                          place                        factor          
+#>  stress                         stress                       factor          
+#>  preheight                      preheight                    ordered         
+#>  log(wordfreq)                  log_wordfreq                 numeric         
+#>  scale_by(speechrate ~ speaker) speechrate_scaled_by_speaker scaledby        
+#>  speaker                        speaker                      group           
 #> 
 #> Response has mean 0 and standard deviation 1.
 #> 
@@ -270,8 +287,8 @@ sobj
 #> Grouping factors are coded as unordered factors with default contrasts
 
 names(sobj)
-#>  [1] "call"      "scale"     "formula"   "family"    "data"     
-#>  [6] "offset"    "pred"      "variables" "contrasts" "groups"
+#>  [1] "call"      "scale"     "formula"   "family"    "data"      "offset"   
+#>  [7] "pred"      "variables" "contrasts" "groups"
 
 head(sobj$data)
 #>          cdur  place     stress preheight log_wordfreq
@@ -330,13 +347,17 @@ sobj$contrasts
 #> $preheight
 #>                .L         .Q
 #> Low  -5.00000e-01  0.2886751
-#> Mid  -1.08412e-17 -0.5773503
+#> Mid  -1.66038e-17 -0.5773503
 #> High  5.00000e-01  0.2886751
 
 sobj$groups
 #> $speaker
-#>  [1] "s01" "s02" "s03" "s04" "s05" "s06" "s07" "s08" "s09" "s10" "s11"
-#> [12] "s12" "s13" "s14" "s15" "s16" "s17" "s18"
+#>  [1] "s01" "s02" "s03" "s04" "s05" "s06" "s07" "s08" "s09" "s10" "s11" "s12"
+#> [13] "s13" "s14" "s15" "s16" "s17" "s18"
 ```
 
-The **standardize** function works by making use of the function **scale** from base *R*, as well as the *standardize* functions **scale\_by**, **named\_contr\_sum**, and **scaled\_contr\_poly**. For more details, install the package and see the vignette "Using the standardize Package".
+The **standardize** function works by making use of the function
+**scale** from base *R*, as well as the *standardize* functions
+**scale\_by**, **named\_contr\_sum**, and **scaled\_contr\_poly**. For
+more details, install the package and see the vignette “Using the
+standardize Package”.
