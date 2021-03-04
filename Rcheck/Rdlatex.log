@@ -63,64 +63,65 @@ No file Rd2.aux.
 (/usr/share/texlive/texmf-dist/tex/latex/psnfss/t1phv.fd)
 (/usr/share/texlive/texmf-dist/tex/latex/base/utf8.def) [1{/var/lib/texmf/fonts
 /map/pdftex/updmap/pdftex.map}]
-Overfull \hbox (7.24802pt too wide) in paragraph at lines 70--88
+Overfull \hbox (7.24802pt too wide) in paragraph at lines 68--86
 \T1/ptm/m/n/10 any pre-dic-tor with only two unique val-ues re-gard-less of its
  orig-i-nal class), to [][]\T1/pcr/m/n/10 scaled_contr_poly[][][]
 (/usr/share/texlive/texmf-dist/tex/latex/base/utf8.def) [2]
 (/usr/share/texlive/texmf-dist/tex/latex/base/utf8.def)
 (/usr/share/texlive/texmf-dist/tex/latex/base/utf8.def)
-(/usr/share/texlive/texmf-dist/tex/latex/psnfss/ts1pcr.fd) [3]
-(/usr/share/texlive/texmf-dist/tex/latex/base/utf8.def) [4]
-Overfull \hbox (9.78043pt too wide) in paragraph at lines 253--253
+(/usr/share/texlive/texmf-dist/tex/latex/psnfss/ts1pcr.fd)
+(/usr/share/texlive/texmf-dist/tex/latex/base/utf8.def) [3] [4]
+Overfull \hbox (9.78043pt too wide) in paragraph at lines 251--251
  []\T1/pcr/m/n/9 named_contr_sum(f)  # named sum contrasts (NA dropped; levels 
 alphabetized)[] 
 
-Overfull \hbox (9.78043pt too wide) in paragraph at lines 255--255
+Overfull \hbox (9.78043pt too wide) in paragraph at lines 253--253
  []\T1/pcr/m/n/9 named_contr_sum(f, return_contr = FALSE)  # factor with named 
 sum contrasts[] 
 
-Overfull \hbox (20.58041pt too wide) in paragraph at lines 265--265
+Overfull \hbox (20.58041pt too wide) in paragraph at lines 263--263
  []\T1/pcr/m/n/9 named_contr_sum(rep(letters[1:5], 2), return_contr = FALSE)  #
  creates factor[] 
-[5] (/usr/share/texlive/texmf-dist/tex/latex/base/utf8.def) [6]
-Overfull \hbox (63.78036pt too wide) in paragraph at lines 362--362
+(/usr/share/texlive/texmf-dist/tex/latex/base/utf8.def) [5]
+Overfull \hbox (63.78036pt too wide) in paragraph at lines 360--360
  []\T1/pcr/m/n/9 preds <- predict(mod, newdata = test.s)  # can ignore warning 
 about dropped contrasts[] 
-(/usr/share/texlive/texmf-dist/tex/latex/base/utf8.def)
+(/usr/share/texlive/texmf-dist/tex/latex/base/utf8.def) [6]
 (/usr/share/texlive/texmf-dist/tex/latex/base/utf8.def) [7]
-(/usr/share/texlive/texmf-dist/tex/latex/base/utf8.def) [8] [9]
-Overfull \hbox (3.69774pt too wide) in paragraph at lines 541--547
+(/usr/share/texlive/texmf-dist/tex/latex/base/utf8.def) [8]
+Overfull \hbox (3.69774pt too wide) in paragraph at lines 539--545
 []\T1/ptm/m/n/10 If \T1/pcr/m/n/10 object \T1/ptm/m/n/10 is not a for-mula, it 
 must be a nu-meric vari-able which re-sulted from a pre-vi-ous \T1/pcr/m/n/10 s
 cale_by
-[10] (/usr/share/texlive/texmf-dist/tex/latex/base/utf8.def)
-Overfull \hbox (37.57765pt too wide) in paragraph at lines 660--663
+[9] (/usr/share/texlive/texmf-dist/tex/latex/base/utf8.def) [10]
+Overfull \hbox (37.57765pt too wide) in paragraph at lines 658--661
 []\T1/ptm/m/n/10 If \T1/pcr/m/n/10 return_contr = TRUE \T1/ptm/m/n/10 a scaled 
 or-thog-o-nal poly-no-mial con-trast ma-trix is re-turned. If \T1/pcr/m/n/10 re
 turn_contr
-[11] (/usr/share/texlive/texmf-dist/tex/latex/base/utf8.def)
-Overfull \hbox (18.78088pt too wide) in paragraph at lines 706--706
+(/usr/share/texlive/texmf-dist/tex/latex/base/utf8.def) [11]
+Overfull \hbox (18.78088pt too wide) in paragraph at lines 704--704
  []\T1/pcr/m/n/10 standardize(formula, data, family = gaussian, scale = 1, offs
 et, ...)[] 
-[12] [13]
-Overfull \hbox (24.1297pt too wide) in paragraph at lines 821--827
+[12]
+Overfull \hbox (24.1297pt too wide) in paragraph at lines 819--825
 []\T1/ptm/m/n/10 For scal-ing and con-trasts, see [][]\T1/pcr/m/n/10 scale[][][
 ]\T1/ptm/m/n/10 , [][]\T1/pcr/m/n/10 scale_by[][][]\T1/ptm/m/n/10 , [][]\T1/pcr
 /m/n/10 named_contr_sum[][][]\T1/ptm/m/n/10 , and [][]\T1/pcr/m/n/10 scaled_con
 tr_poly[][][]\T1/ptm/m/n/10 .
 
-Overfull \hbox (31.3804pt too wide) in paragraph at lines 835--835
+Overfull \hbox (31.3804pt too wide) in paragraph at lines 833--833
  []\T1/pcr/m/n/9 dat$z <- rnorm(nrow(dat), rep(rnorm(30), each = 18), rep(runif
 (30), each = 18))[] 
-
-Overfull \hbox (15.18042pt too wide) in paragraph at lines 874--874
+[13]
+Overfull \hbox (15.18042pt too wide) in paragraph at lines 872--872
  []\T1/pcr/m/n/9 # these warnings can be ignored (i.e. the statement still eval
 uates to TRUE)[] 
-[14] (/usr/share/texlive/texmf-dist/tex/latex/base/utf8.def)
-(/usr/share/texlive/texmf-dist/tex/latex/base/utf8.def) [15]
-Overfull \hbox (1.49059pt too wide) in paragraph at lines 961--979
+(/usr/share/texlive/texmf-dist/tex/latex/base/utf8.def)
+(/usr/share/texlive/texmf-dist/tex/latex/base/utf8.def) [14]
+Overfull \hbox (1.49059pt too wide) in paragraph at lines 959--977
 \T1/pcr/m/n/10 mydata$x1Pos_x2Neg <-mydata$x1 > 0 & mydata$x2 < 0\T1/ptm/m/n/10
  , and then use \T1/pcr/m/n/10 x1Pos_x2Neg
+[15]
 No file Rd2.ind.
 [16] (./Rd2.aux)
 
@@ -168,12 +169,12 @@ nts/type1/urw/helvetic/uhvr8a.pfb></usr/share/texlive/texmf-dist/fonts/type1/ur
 w/times/utmb8a.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/times/utmr8a.
 pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/times/utmr8a.pfb></usr/share
 /texlive/texmf-dist/fonts/type1/urw/times/utmri8a.pfb>
-Output written on Rd2.pdf (16 pages, 117123 bytes).
+Output written on Rd2.pdf (16 pages, 117134 bytes).
 Transcript written on Rd2.log.
 This is makeindex, version 2.15 [TeX Live 2017] (kpathsea + Thai support).
 Scanning input file Rd2.idx....done (109 entries accepted, 0 rejected).
-Sorting entries....done (848 comparisons).
-Generating output file Rd2.ind....done (74 lines written, 0 warnings).
+Sorting entries....done (810 comparisons).
+Generating output file Rd2.ind....done (72 lines written, 0 warnings).
 Output written in Rd2.ind.
 Transcript written in Rd2.ilg.
 This is pdfTeX, Version 3.14159265-2.6-1.40.18 (TeX Live 2017/Debian) (preloaded format=pdflatex)
@@ -239,7 +240,7 @@ Writing index file Rd2.idx
 (/usr/share/texlive/texmf-dist/tex/latex/psnfss/t1phv.fd) (./Rd2.toc)
 (/usr/share/texlive/texmf-dist/tex/latex/base/utf8.def) [1{/var/lib/texmf/fonts
 /map/pdftex/updmap/pdftex.map}]
-Overfull \hbox (7.24802pt too wide) in paragraph at lines 70--88
+Overfull \hbox (7.24802pt too wide) in paragraph at lines 68--86
 \T1/ptm/m/n/10 any pre-dic-tor with only two unique val-ues re-gard-less of its
  orig-i-nal class), to [][]\T1/pcr/m/n/10 scaled_contr_poly[][][]
 (/usr/share/texlive/texmf-dist/tex/latex/base/utf8.def) [2]
@@ -247,54 +248,54 @@ Overfull \hbox (7.24802pt too wide) in paragraph at lines 70--88
 (/usr/share/texlive/texmf-dist/tex/latex/base/utf8.def)
 (/usr/share/texlive/texmf-dist/tex/latex/psnfss/ts1pcr.fd) [3]
 (/usr/share/texlive/texmf-dist/tex/latex/base/utf8.def) [4]
-Overfull \hbox (9.78043pt too wide) in paragraph at lines 253--253
+Overfull \hbox (9.78043pt too wide) in paragraph at lines 251--251
  []\T1/pcr/m/n/9 named_contr_sum(f)  # named sum contrasts (NA dropped; levels 
 alphabetized)[] 
 
-Overfull \hbox (9.78043pt too wide) in paragraph at lines 255--255
+Overfull \hbox (9.78043pt too wide) in paragraph at lines 253--253
  []\T1/pcr/m/n/9 named_contr_sum(f, return_contr = FALSE)  # factor with named 
 sum contrasts[] 
 
-Overfull \hbox (20.58041pt too wide) in paragraph at lines 265--265
+Overfull \hbox (20.58041pt too wide) in paragraph at lines 263--263
  []\T1/pcr/m/n/9 named_contr_sum(rep(letters[1:5], 2), return_contr = FALSE)  #
  creates factor[] 
 [5] (/usr/share/texlive/texmf-dist/tex/latex/base/utf8.def) [6]
-Overfull \hbox (63.78036pt too wide) in paragraph at lines 362--362
+Overfull \hbox (63.78036pt too wide) in paragraph at lines 360--360
  []\T1/pcr/m/n/9 preds <- predict(mod, newdata = test.s)  # can ignore warning 
 about dropped contrasts[] 
 (/usr/share/texlive/texmf-dist/tex/latex/base/utf8.def)
 (/usr/share/texlive/texmf-dist/tex/latex/base/utf8.def) [7]
 (/usr/share/texlive/texmf-dist/tex/latex/base/utf8.def) [8] [9]
-Overfull \hbox (3.69774pt too wide) in paragraph at lines 541--547
+Overfull \hbox (3.69774pt too wide) in paragraph at lines 539--545
 []\T1/ptm/m/n/10 If \T1/pcr/m/n/10 object \T1/ptm/m/n/10 is not a for-mula, it 
 must be a nu-meric vari-able which re-sulted from a pre-vi-ous \T1/pcr/m/n/10 s
 cale_by
 [10] (/usr/share/texlive/texmf-dist/tex/latex/base/utf8.def)
-Overfull \hbox (37.57765pt too wide) in paragraph at lines 660--663
+Overfull \hbox (37.57765pt too wide) in paragraph at lines 658--661
 []\T1/ptm/m/n/10 If \T1/pcr/m/n/10 return_contr = TRUE \T1/ptm/m/n/10 a scaled 
 or-thog-o-nal poly-no-mial con-trast ma-trix is re-turned. If \T1/pcr/m/n/10 re
 turn_contr
 [11] (/usr/share/texlive/texmf-dist/tex/latex/base/utf8.def)
-Overfull \hbox (18.78088pt too wide) in paragraph at lines 706--706
+Overfull \hbox (18.78088pt too wide) in paragraph at lines 704--704
  []\T1/pcr/m/n/10 standardize(formula, data, family = gaussian, scale = 1, offs
 et, ...)[] 
 [12] [13]
-Overfull \hbox (24.1297pt too wide) in paragraph at lines 821--827
+Overfull \hbox (24.1297pt too wide) in paragraph at lines 819--825
 []\T1/ptm/m/n/10 For scal-ing and con-trasts, see [][]\T1/pcr/m/n/10 scale[][][
 ]\T1/ptm/m/n/10 , [][]\T1/pcr/m/n/10 scale_by[][][]\T1/ptm/m/n/10 , [][]\T1/pcr
 /m/n/10 named_contr_sum[][][]\T1/ptm/m/n/10 , and [][]\T1/pcr/m/n/10 scaled_con
 tr_poly[][][]\T1/ptm/m/n/10 .
 
-Overfull \hbox (31.3804pt too wide) in paragraph at lines 835--835
+Overfull \hbox (31.3804pt too wide) in paragraph at lines 833--833
  []\T1/pcr/m/n/9 dat$z <- rnorm(nrow(dat), rep(rnorm(30), each = 18), rep(runif
 (30), each = 18))[] 
 
-Overfull \hbox (15.18042pt too wide) in paragraph at lines 874--874
+Overfull \hbox (15.18042pt too wide) in paragraph at lines 872--872
  []\T1/pcr/m/n/9 # these warnings can be ignored (i.e. the statement still eval
 uates to TRUE)[] 
 [14] (/usr/share/texlive/texmf-dist/tex/latex/base/utf8.def)
 (/usr/share/texlive/texmf-dist/tex/latex/base/utf8.def) [15]
-Overfull \hbox (1.49059pt too wide) in paragraph at lines 961--979
+Overfull \hbox (1.49059pt too wide) in paragraph at lines 959--977
 \T1/pcr/m/n/10 mydata$x1Pos_x2Neg <-mydata$x1 > 0 & mydata$x2 < 0\T1/ptm/m/n/10
  , and then use \T1/pcr/m/n/10 x1Pos_x2Neg
 (./Rd2.ind [16] [17]) (./Rd2.aux)
@@ -344,7 +345,7 @@ pe1/urw/helvetic/uhvr8a.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/time
 s/utmb8a.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/times/utmr8a.pfb></
 usr/share/texlive/texmf-dist/fonts/type1/urw/times/utmr8a.pfb></usr/share/texli
 ve/texmf-dist/fonts/type1/urw/times/utmri8a.pfb>
-Output written on Rd2.pdf (17 pages, 129796 bytes).
+Output written on Rd2.pdf (17 pages, 129920 bytes).
 Transcript written on Rd2.log.
 This is makeindex, version 2.15 [TeX Live 2017] (kpathsea + Thai support).
 Scanning input file Rd2.idx....done (109 entries accepted, 0 rejected).
@@ -415,7 +416,7 @@ Writing index file Rd2.idx
 (/usr/share/texlive/texmf-dist/tex/latex/psnfss/t1phv.fd) (./Rd2.toc [1{/var/li
 b/texmf/fonts/map/pdftex/updmap/pdftex.map}])
 (/usr/share/texlive/texmf-dist/tex/latex/base/utf8.def)
-Overfull \hbox (7.24802pt too wide) in paragraph at lines 70--88
+Overfull \hbox (7.24802pt too wide) in paragraph at lines 68--86
 \T1/ptm/m/n/10 any pre-dic-tor with only two unique val-ues re-gard-less of its
  orig-i-nal class), to [][]\T1/pcr/m/n/10 scaled_contr_poly[][][]
 (/usr/share/texlive/texmf-dist/tex/latex/base/utf8.def) [2]
@@ -423,54 +424,54 @@ Overfull \hbox (7.24802pt too wide) in paragraph at lines 70--88
 (/usr/share/texlive/texmf-dist/tex/latex/base/utf8.def)
 (/usr/share/texlive/texmf-dist/tex/latex/psnfss/ts1pcr.fd) [3]
 (/usr/share/texlive/texmf-dist/tex/latex/base/utf8.def) [4]
-Overfull \hbox (9.78043pt too wide) in paragraph at lines 253--253
+Overfull \hbox (9.78043pt too wide) in paragraph at lines 251--251
  []\T1/pcr/m/n/9 named_contr_sum(f)  # named sum contrasts (NA dropped; levels 
 alphabetized)[] 
 
-Overfull \hbox (9.78043pt too wide) in paragraph at lines 255--255
+Overfull \hbox (9.78043pt too wide) in paragraph at lines 253--253
  []\T1/pcr/m/n/9 named_contr_sum(f, return_contr = FALSE)  # factor with named 
 sum contrasts[] 
 
-Overfull \hbox (20.58041pt too wide) in paragraph at lines 265--265
+Overfull \hbox (20.58041pt too wide) in paragraph at lines 263--263
  []\T1/pcr/m/n/9 named_contr_sum(rep(letters[1:5], 2), return_contr = FALSE)  #
  creates factor[] 
 [5] (/usr/share/texlive/texmf-dist/tex/latex/base/utf8.def) [6]
-Overfull \hbox (63.78036pt too wide) in paragraph at lines 362--362
+Overfull \hbox (63.78036pt too wide) in paragraph at lines 360--360
  []\T1/pcr/m/n/9 preds <- predict(mod, newdata = test.s)  # can ignore warning 
 about dropped contrasts[] 
 (/usr/share/texlive/texmf-dist/tex/latex/base/utf8.def)
 (/usr/share/texlive/texmf-dist/tex/latex/base/utf8.def) [7]
 (/usr/share/texlive/texmf-dist/tex/latex/base/utf8.def) [8] [9]
-Overfull \hbox (3.69774pt too wide) in paragraph at lines 541--547
+Overfull \hbox (3.69774pt too wide) in paragraph at lines 539--545
 []\T1/ptm/m/n/10 If \T1/pcr/m/n/10 object \T1/ptm/m/n/10 is not a for-mula, it 
 must be a nu-meric vari-able which re-sulted from a pre-vi-ous \T1/pcr/m/n/10 s
 cale_by
 [10] (/usr/share/texlive/texmf-dist/tex/latex/base/utf8.def)
-Overfull \hbox (37.57765pt too wide) in paragraph at lines 660--663
+Overfull \hbox (37.57765pt too wide) in paragraph at lines 658--661
 []\T1/ptm/m/n/10 If \T1/pcr/m/n/10 return_contr = TRUE \T1/ptm/m/n/10 a scaled 
 or-thog-o-nal poly-no-mial con-trast ma-trix is re-turned. If \T1/pcr/m/n/10 re
 turn_contr
 [11] (/usr/share/texlive/texmf-dist/tex/latex/base/utf8.def)
-Overfull \hbox (18.78088pt too wide) in paragraph at lines 706--706
+Overfull \hbox (18.78088pt too wide) in paragraph at lines 704--704
  []\T1/pcr/m/n/10 standardize(formula, data, family = gaussian, scale = 1, offs
 et, ...)[] 
 [12] [13]
-Overfull \hbox (24.1297pt too wide) in paragraph at lines 821--827
+Overfull \hbox (24.1297pt too wide) in paragraph at lines 819--825
 []\T1/ptm/m/n/10 For scal-ing and con-trasts, see [][]\T1/pcr/m/n/10 scale[][][
 ]\T1/ptm/m/n/10 , [][]\T1/pcr/m/n/10 scale_by[][][]\T1/ptm/m/n/10 , [][]\T1/pcr
 /m/n/10 named_contr_sum[][][]\T1/ptm/m/n/10 , and [][]\T1/pcr/m/n/10 scaled_con
 tr_poly[][][]\T1/ptm/m/n/10 .
 
-Overfull \hbox (31.3804pt too wide) in paragraph at lines 835--835
+Overfull \hbox (31.3804pt too wide) in paragraph at lines 833--833
  []\T1/pcr/m/n/9 dat$z <- rnorm(nrow(dat), rep(rnorm(30), each = 18), rep(runif
 (30), each = 18))[] 
 
-Overfull \hbox (15.18042pt too wide) in paragraph at lines 874--874
+Overfull \hbox (15.18042pt too wide) in paragraph at lines 872--872
  []\T1/pcr/m/n/9 # these warnings can be ignored (i.e. the statement still eval
 uates to TRUE)[] 
 [14] (/usr/share/texlive/texmf-dist/tex/latex/base/utf8.def)
 (/usr/share/texlive/texmf-dist/tex/latex/base/utf8.def) [15]
-Overfull \hbox (1.49059pt too wide) in paragraph at lines 961--979
+Overfull \hbox (1.49059pt too wide) in paragraph at lines 959--977
 \T1/pcr/m/n/10 mydata$x1Pos_x2Neg <-mydata$x1 > 0 & mydata$x2 < 0\T1/ptm/m/n/10
  , and then use \T1/pcr/m/n/10 x1Pos_x2Neg
 (./Rd2.ind [16] [17]) (./Rd2.aux) )
@@ -514,8 +515,8 @@ pe1/urw/helvetic/uhvr8a.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/time
 s/utmb8a.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/times/utmr8a.pfb></
 usr/share/texlive/texmf-dist/fonts/type1/urw/times/utmr8a.pfb></usr/share/texli
 ve/texmf-dist/fonts/type1/urw/times/utmri8a.pfb>
-Output written on Rd2.pdf (17 pages, 130059 bytes).
+Output written on Rd2.pdf (17 pages, 129990 bytes).
 Transcript written on Rd2.log.
 Saving output to ‘standardize-manual.pdf’ ...
 Done
-You may want to clean up by 'rm -Rf /tmp/Rtmp8qN19e/Rd2pdf33af66e20774'
+You may want to clean up by 'rm -Rf /tmp/Rtmpfw4uuW/Rd2pdf35dd42ed7755'

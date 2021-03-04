@@ -16,7 +16,8 @@ Type 'demo()' for some demos, 'help()' for on-line help, or
 Type 'q()' to quit R.
 
 > library(testthat)
-Warning message:
+Error in get(genname, envir = envir) : object 'testthat_print' not found
+In addition: Warning message:
 package 'testthat' was built under R version 3.6.3 
 > library(standardize)
 
@@ -32,4 +33,4 @@ package 'testthat' was built under R version 3.6.3
 > 
 > proc.time()
    user  system elapsed 
-  4.720   1.908   3.822 
+  4.399   1.931   3.633 

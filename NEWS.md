@@ -4,9 +4,9 @@
 
 <hr style="border:2px solid black"> </hr>
 
-### v0.2.2
+### standardize 0.2.2
 
-- The package vignette now uses `emmeans` rather than `lsmeans` since the `lsemans` package is deprecated.
+- The package vignette now uses `emmeans` rather than `lsmeans` since the `lsemans` package is deprecated (#1).
 
 - Added function `standardize.news`.
 
@@ -17,7 +17,7 @@
 
 <hr style="border:1.5px solid grey"> </hr>
 
-### v0.2.1
+### standardize 0.2.1
 
 - Changes to default na.action are now deprecated and ignored with a warning.
 
@@ -26,7 +26,7 @@
 
 <hr style="border:1.5px solid grey"> </hr>
 
-### v0.2.0
+### standardize 0.2.0
 
 - Offsets are now supported.
 
@@ -39,7 +39,7 @@
 
 <hr style="border:1.5px solid grey"> </hr>
 
-### v0.1.1
+### standardize 0.1.1
 
 - Minor documentation and vignette updates.
 
@@ -52,7 +52,7 @@
 
 <hr style="border:1.5px solid grey"> </hr>
 
-### v0.1.0
+### standardize 0.1.0
 
 - Initial release.
 

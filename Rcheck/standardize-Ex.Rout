@@ -898,10 +898,10 @@ summary {
 <p> </p>
 <hr style="border:2px solid black">
 </hr>
-<div id="v0.2.2" class="section level3">
-<h3>v0.2.2</h3>
+<div id="standardize-0.2.2" class="section level3">
+<h3>standardize 0.2.2</h3>
 <ul>
-<li><p>The package vignette now uses <code>emmeans</code> rather than <code>lsmeans</code> since the <code>lsemans</code> package is deprecated.</p></li>
+<li><p>The package vignette now uses <code>emmeans</code> rather than <code>lsmeans</code> since the <code>lsemans</code> package is deprecated (#1).</p></li>
 <li><p>Added function <code>standardize.news</code>.</p></li>
 <li><p>Documentation formatting updates.</p></li>
 </ul>
@@ -909,8 +909,8 @@ summary {
 <hr style="border:1.5px solid grey">
 </hr>
 </div>
-<div id="v0.2.1" class="section level3">
-<h3>v0.2.1</h3>
+<div id="standardize-0.2.1" class="section level3">
+<h3>standardize 0.2.1</h3>
 <ul>
 <li>Changes to default na.action are now deprecated and ignored with a warning.</li>
 </ul>
@@ -918,8 +918,8 @@ summary {
 <hr style="border:1.5px solid grey">
 </hr>
 </div>
-<div id="v0.2.0" class="section level3">
-<h3>v0.2.0</h3>
+<div id="standardize-0.2.0" class="section level3">
+<h3>standardize 0.2.0</h3>
 <ul>
 <li><p>Offsets are now supported.</p></li>
 <li><p>The formula with renamed terms now always has the same structure/ordering as the input.</p></li>
@@ -929,8 +929,8 @@ summary {
 <hr style="border:1.5px solid grey">
 </hr>
 </div>
-<div id="v0.1.1" class="section level3">
-<h3>v0.1.1</h3>
+<div id="standardize-0.1.1" class="section level3">
+<h3>standardize 0.1.1</h3>
 <ul>
 <li><p>Minor documentation and vignette updates.</p></li>
 <li><p>Fixed reverse dependency issue for lme4 1.1-13.</p></li>
@@ -940,8 +940,8 @@ summary {
 <hr style="border:1.5px solid grey">
 </hr>
 </div>
-<div id="v0.1.0" class="section level3">
-<h3>v0.1.0</h3>
+<div id="standardize-0.1.0" class="section level3">
+<h3>standardize 0.1.0</h3>
 <ul>
 <li>Initial release.</li>
 </ul>
@@ -1009,7 +1009,7 @@ $(document).ready(function () {
 > cleanEx()
 > options(digits = 7L)
 > base::cat("Time elapsed: ", proc.time() - base::get("ptime", pos = 'CheckExEnv'),"\n")
-Time elapsed:  1.687 0.103 1.81 0.008 0.011 
+Time elapsed:  1.66 0.083 1.764 0.013 0.009 
 > grDevices::dev.off()
 null device 
           1 

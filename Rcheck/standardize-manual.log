@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.18 (TeX Live 2017/Debian) (preloaded format=pdflatex 2020.6.3)  4 MAR 2021 07:42
+This is pdfTeX, Version 3.14159265-2.6-1.40.18 (TeX Live 2017/Debian) (preloaded format=pdflatex 2020.6.3)  4 MAR 2021 09:20
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -770,17 +770,17 @@ LaTeX Font Info:    Font shape `T1/ptm/bx/n' in size <20.74> not available
  (/usr/share/texlive/texmf-dist/tex/latex/base/utf8.def
 File: utf8.def 2017/01/28 v1.1t UTF-8 support for inputenc
 )
-LaTeX Font Info:    Try loading font information for T1+pcr on input line 29.
+LaTeX Font Info:    Try loading font information for T1+pcr on input line 28.
 (/usr/share/texlive/texmf-dist/tex/latex/psnfss/t1pcr.fd
 File: t1pcr.fd 2001/06/04 font definitions for T1/pcr.
 )
 LaTeX Font Info:    External font `cmex10' loaded for size
-(Font)              <7> on input line 29.
+(Font)              <7> on input line 28.
 LaTeX Font Info:    External font `cmex10' loaded for size
-(Font)              <5> on input line 29.
+(Font)              <5> on input line 28.
 LaTeX Font Info:    Font shape `T1/ptm/bx/n' in size <14.4> not available
-(Font)              Font shape `T1/ptm/b/n' tried instead on input line 39.
-LaTeX Font Info:    Try loading font information for T1+phv on input line 39.
+(Font)              Font shape `T1/ptm/b/n' tried instead on input line 37.
+LaTeX Font Info:    Try loading font information for T1+phv on input line 37.
 
 (/usr/share/texlive/texmf-dist/tex/latex/psnfss/t1phv.fd
 File: t1phv.fd 2001/06/04 scalable font definitions for T1/phv.
@@ -795,7 +795,7 @@ File: t1phv.fd 2001/06/04 scalable font definitions for T1/phv.
 (/usr/share/texlive/texmf-dist/tex/latex/base/utf8.def
 File: utf8.def 2017/01/28 v1.1t UTF-8 support for inputenc
 )
-Overfull \hbox (7.24802pt too wide) in paragraph at lines 70--88
+Overfull \hbox (7.24802pt too wide) in paragraph at lines 68--86
 \T1/ptm/m/n/10 any pre-dic-tor with only two unique val-ues re-gard-less of its
  orig-i-nal class), to [][]\T1/pcr/m/n/10 scaled_contr_poly[][][]
  []
@@ -809,7 +809,7 @@ File: utf8.def 2017/01/28 v1.1t UTF-8 support for inputenc
 (/usr/share/texlive/texmf-dist/tex/latex/base/utf8.def
 File: utf8.def 2017/01/28 v1.1t UTF-8 support for inputenc
 )
-LaTeX Font Info:    Try loading font information for TS1+pcr on input line 162.
+LaTeX Font Info:    Try loading font information for TS1+pcr on input line 160.
 
 
 (/usr/share/texlive/texmf-dist/tex/latex/psnfss/ts1pcr.fd
@@ -818,19 +818,19 @@ File: ts1pcr.fd 2001/06/04 font definitions for TS1/pcr.
 (/usr/share/texlive/texmf-dist/tex/latex/base/utf8.def
 File: utf8.def 2017/01/28 v1.1t UTF-8 support for inputenc
 ) [4]
-Overfull \hbox (9.78043pt too wide) in paragraph at lines 253--253
+Overfull \hbox (9.78043pt too wide) in paragraph at lines 251--251
  []\T1/pcr/m/n/9 named_contr_sum(f)  # named sum contrasts (NA dropped; levels 
 alphabetized)[] 
  []
 
 
-Overfull \hbox (9.78043pt too wide) in paragraph at lines 255--255
+Overfull \hbox (9.78043pt too wide) in paragraph at lines 253--253
  []\T1/pcr/m/n/9 named_contr_sum(f, return_contr = FALSE)  # factor with named 
 sum contrasts[] 
  []
 
 
-Overfull \hbox (20.58041pt too wide) in paragraph at lines 265--265
+Overfull \hbox (20.58041pt too wide) in paragraph at lines 263--263
  []\T1/pcr/m/n/9 named_contr_sum(rep(letters[1:5], 2), return_contr = FALSE)  #
  creates factor[] 
  []
@@ -838,7 +838,7 @@ Overfull \hbox (20.58041pt too wide) in paragraph at lines 265--265
 [5] (/usr/share/texlive/texmf-dist/tex/latex/base/utf8.def
 File: utf8.def 2017/01/28 v1.1t UTF-8 support for inputenc
 ) [6]
-Overfull \hbox (63.78036pt too wide) in paragraph at lines 362--362
+Overfull \hbox (63.78036pt too wide) in paragraph at lines 360--360
  []\T1/pcr/m/n/9 preds <- predict(mod, newdata = test.s)  # can ignore warning 
 about dropped contrasts[] 
  []
@@ -852,7 +852,7 @@ File: utf8.def 2017/01/28 v1.1t UTF-8 support for inputenc
 (/usr/share/texlive/texmf-dist/tex/latex/base/utf8.def
 File: utf8.def 2017/01/28 v1.1t UTF-8 support for inputenc
 ) [8] [9]
-Overfull \hbox (3.69774pt too wide) in paragraph at lines 541--547
+Overfull \hbox (3.69774pt too wide) in paragraph at lines 539--545
 []\T1/ptm/m/n/10 If \T1/pcr/m/n/10 object \T1/ptm/m/n/10 is not a for-mula, it 
 must be a nu-meric vari-able which re-sulted from a pre-vi-ous \T1/pcr/m/n/10 s
 cale_by
@@ -861,7 +861,7 @@ cale_by
 [10] (/usr/share/texlive/texmf-dist/tex/latex/base/utf8.def
 File: utf8.def 2017/01/28 v1.1t UTF-8 support for inputenc
 )
-Overfull \hbox (37.57765pt too wide) in paragraph at lines 660--663
+Overfull \hbox (37.57765pt too wide) in paragraph at lines 658--661
 []\T1/ptm/m/n/10 If \T1/pcr/m/n/10 return_contr = TRUE \T1/ptm/m/n/10 a scaled 
 or-thog-o-nal poly-no-mial con-trast ma-trix is re-turned. If \T1/pcr/m/n/10 re
 turn_contr
@@ -870,13 +870,13 @@ turn_contr
 [11] (/usr/share/texlive/texmf-dist/tex/latex/base/utf8.def
 File: utf8.def 2017/01/28 v1.1t UTF-8 support for inputenc
 )
-Overfull \hbox (18.78088pt too wide) in paragraph at lines 706--706
+Overfull \hbox (18.78088pt too wide) in paragraph at lines 704--704
  []\T1/pcr/m/n/10 standardize(formula, data, family = gaussian, scale = 1, offs
 et, ...)[] 
  []
 
 [12] [13]
-Overfull \hbox (24.1297pt too wide) in paragraph at lines 821--827
+Overfull \hbox (24.1297pt too wide) in paragraph at lines 819--825
 []\T1/ptm/m/n/10 For scal-ing and con-trasts, see [][]\T1/pcr/m/n/10 scale[][][
 ]\T1/ptm/m/n/10 , [][]\T1/pcr/m/n/10 scale_by[][][]\T1/ptm/m/n/10 , [][]\T1/pcr
 /m/n/10 named_contr_sum[][][]\T1/ptm/m/n/10 , and [][]\T1/pcr/m/n/10 scaled_con
@@ -884,13 +884,13 @@ tr_poly[][][]\T1/ptm/m/n/10 .
  []
 
 
-Overfull \hbox (31.3804pt too wide) in paragraph at lines 835--835
+Overfull \hbox (31.3804pt too wide) in paragraph at lines 833--833
  []\T1/pcr/m/n/9 dat$z <- rnorm(nrow(dat), rep(rnorm(30), each = 18), rep(runif
 (30), each = 18))[] 
  []
 
 
-Overfull \hbox (15.18042pt too wide) in paragraph at lines 874--874
+Overfull \hbox (15.18042pt too wide) in paragraph at lines 872--872
  []\T1/pcr/m/n/9 # these warnings can be ignored (i.e. the statement still eval
 uates to TRUE)[] 
  []
@@ -901,7 +901,7 @@ File: utf8.def 2017/01/28 v1.1t UTF-8 support for inputenc
 (/usr/share/texlive/texmf-dist/tex/latex/base/utf8.def
 File: utf8.def 2017/01/28 v1.1t UTF-8 support for inputenc
 ) [15]
-Overfull \hbox (1.49059pt too wide) in paragraph at lines 961--979
+Overfull \hbox (1.49059pt too wide) in paragraph at lines 959--977
 \T1/pcr/m/n/10 mydata$x1Pos_x2Neg <-mydata$x1 > 0 & mydata$x2 < 0\T1/ptm/m/n/10
  , and then use \T1/pcr/m/n/10 x1Pos_x2Neg
  []
@@ -913,15 +913,15 @@ LaTeX Font Info:    Font shape `T1/ptm/bx/n' in size <12> not available
 
 
 ])
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 1025.
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 1025.
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 1023.
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 1023.
  (./Rd2.aux)
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 1025.
-Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 1025.
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 1023.
+Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 1023.
 
 Package rerunfilecheck Info: File `Rd2.out' has not changed.
 (rerunfilecheck)             Checksum: 704444DEE52CD419881C39F141F6079F;914.
-Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 1025.
+Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 1023.
  ) 
 Here is how much of TeX's memory you used:
  6489 strings out of 494923
@@ -971,7 +971,7 @@ pe1/urw/helvetic/uhvr8a.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/time
 s/utmb8a.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/times/utmr8a.pfb></
 usr/share/texlive/texmf-dist/fonts/type1/urw/times/utmr8a.pfb></usr/share/texli
 ve/texmf-dist/fonts/type1/urw/times/utmri8a.pfb>
-Output written on Rd2.pdf (17 pages, 130059 bytes).
+Output written on Rd2.pdf (17 pages, 129990 bytes).
 PDF statistics:
  467 PDF objects out of 1000 (max. 8388607)
  436 compressed objects within 5 object streams
