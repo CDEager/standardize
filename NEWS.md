@@ -19,7 +19,7 @@
 
 ### standardize 0.2.1 (6/12/2017)
 
-- Changes to default na.action are now deprecated and ignored with a warning.
+- Changes to default `na.action` are now deprecated and ignored with a warning.
 
 
 &nbsp;
