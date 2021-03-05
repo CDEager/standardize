@@ -4,7 +4,7 @@
 # standardize 0.2.2
 
 [![Build
-Status](https://travis-ci.org/CDEager/standardize.svg?branch=master)](https://travis-ci.org/CDEager/standardize)
+Status](https://travis-ci.org/CDEager/standardize.svg?branch=develop)](https://travis-ci.org/CDEager/standardize)
 
 ## Installation
 
