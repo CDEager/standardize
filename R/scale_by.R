@@ -32,7 +32,7 @@
 #' with fewer than two are placed on a similar scale (though their standard
 #' deviation is undefined).  Note that the overall standard deviation of the
 #' resulting variable (or standard deviations if \code{x} is a matrix) will not
-#' be exactly \code{1} (but will be close).  The intepretation of the
+#' be exactly \code{1} (but will be close).  The interpretation of the
 #' variable is how far an observation is from its level's average value for
 #' \code{x} in terms of within-level standard deviations.
 #'

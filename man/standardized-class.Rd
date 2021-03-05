@@ -22,7 +22,7 @@ The \code{standardized} list contains the following elements.
     names) which can be used along with the \code{data} element to fit
     regressions.  It has an attribute \code{standardized.scale} which is the
     same as the \code{scale} element of the object (this allows users and
-    package devleopers to write regression-fitting functions which can tell
+    package developers to write regression-fitting functions which can tell
     if the input is from a \code{standardized} object).}
 
   \item{family}{The regression family.}
@@ -43,7 +43,7 @@ The \code{standardized} list contains the following elements.
     and the class of the variable in the standardized data frame.}
 
   \item{contrasts}{A named list of contrasts for all factors included as
-    predictors, or \code{NULL} if no predicors are factors.}
+    predictors, or \code{NULL} if no predictors are factors.}
 
   \item{groups}{A named list of levels for random effects grouping factors,
     or \code{NULL} if there are no random effects.}
@@ -102,7 +102,7 @@ formula, and variable frame along with an explanation of the
 standardization.  The \code{\link{is.standardized}} function returns
 \code{TRUE} if an object is the result of a call to \code{\link{standardize}}
 and \code{FALSE} otherwise.  The \code{\link[=predict.standardized]{predict}}
-method places new data into the same standardied space as the data
+method places new data into the same standardized space as the data
 passed to the original \code{\link{standardize}} call.
 }
 \author{

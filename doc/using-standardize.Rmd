@@ -138,7 +138,7 @@ contrasts(ptk$prevowel) <- named_contr_sum(ptk$prevowel, scale = 0.5)
 contrasts(ptk$prevowel)
 ```
 
-One last note on **named_contr_sum** is that if there are only two levels and they are equal to (ingoring case) "F" and "T", "FALSE" and "TRUE", "N", and "Y", "NO", and "YES", or "0" and "1", then their order is reversed.  This makes it so the positive level gets the dummy coefficient rather than the negative level, yielding a more intuitive interpretation for the resulting coefficients.  For example, if we were interested in differntiating only between high vowels (/i/ and /u/) and non-high vowels (/e/, /o/, and /a/), we could do the following (note also that *return_contr* can be set to FALSE to create a factor with the contrasts, which is useful when the original variable is not a factor):
+One last note on **named_contr_sum** is that if there are only two levels and they are equal to (ignoring case) "F" and "T", "FALSE" and "TRUE", "N", and "Y", "NO", and "YES", or "0" and "1", then their order is reversed.  This makes it so the positive level gets the dummy coefficient rather than the negative level, yielding a more intuitive interpretation for the resulting coefficients.  For example, if we were interested in differentiating only between high vowels (/i/ and /u/) and non-high vowels (/e/, /o/, and /a/), we could do the following (note also that *return_contr* can be set to FALSE to create a factor with the contrasts, which is useful when the original variable is not a factor):
 
 ```{r}
 ptk$prehigh <- ptk$prevowel %in% c("i", "u")
@@ -158,7 +158,7 @@ contrasts(ptk$prehigh)
 
 ### Ordered factors
 
-Ordered factors are variables which take on more than two categorical values, with the categories representing a hierarchy for which we may not expect the trend to be strictly linear.  For example, say we are interested in the effect of preceding vowel height, considering three levels (/a/ = Low, /e o/ = Mid, /i u/ = High). We might hypothesize that the general trend is for relatively higher vowels to have shorter durations than relatively lower vowels, but at the same time not expect that the difference between *Low* and *Mid* is the same as the difference between *Mid* and *High*.  In this case we could create an ordered factor *preheight* with levels *Low < Mid < High*.  In *R*, the default contrasts for ordered factors are orthogonal polynomial contrasts.  That is, if there are *K* factor levels, then the contrast matrix is an orthogonal polynomial of degree *K - 1*, where the first contrast column is the linear component, the second the quadratic, the third the cubic, the fourth the fourth power, etc. until the *K - 1*'th power is reached.  Our hypothesis that the trend is in general negative then would be supported by a negative lienar trend.  This is exemplified in the following code:
+Ordered factors are variables which take on more than two categorical values, with the categories representing a hierarchy for which we may not expect the trend to be strictly linear.  For example, say we are interested in the effect of preceding vowel height, considering three levels (/a/ = Low, /e o/ = Mid, /i u/ = High). We might hypothesize that the general trend is for relatively higher vowels to have shorter durations than relatively lower vowels, but at the same time not expect that the difference between *Low* and *Mid* is the same as the difference between *Mid* and *High*.  In this case we could create an ordered factor *preheight* with levels *Low < Mid < High*.  In *R*, the default contrasts for ordered factors are orthogonal polynomial contrasts.  That is, if there are *K* factor levels, then the contrast matrix is an orthogonal polynomial of degree *K - 1*, where the first contrast column is the linear component, the second the quadratic, the third the cubic, the fourth the fourth power, etc. until the *K - 1*'th power is reached.  Our hypothesis that the trend is in general negative then would be supported by a negative linear trend.  This is exemplified in the following code:
 
 ```{r}
 ptk$preheight <- "Mid"
@@ -200,7 +200,7 @@ sc_0.5_contr3
 apply(sc_0.5_contr3, 2, sd)
 ```
 
-The resulting contrasts are still orthogonal polynomial contrasts; they are simply placed on a uniform scale regardless of the number of factor levels.  This affects the magnitude of the resulting coefficients, but, as with the standardization of unordered factors and continuous varibles discussed above, it does not alter the significance of the variable:
+The resulting contrasts are still orthogonal polynomial contrasts; they are simply placed on a uniform scale regardless of the number of factor levels.  This affects the magnitude of the resulting coefficients, but, as with the standardization of unordered factors and continuous variables discussed above, it does not alter the significance of the variable:
 
 ```{r}
 contrasts(ptk$preheight)
@@ -221,11 +221,11 @@ The **standardize** function implements **scale**, **scale_by**, **named_contr_s
 
 * formula: A regression formula, possibly containing random effects and/or offsets.
 * data: A data.frame containing the variables in the formula.
-* family: A regression family (defaults to guassian)
+* family: A regression family (defaults to gaussian)
 * scale: The desired scale for the predictors (defaults to 1).
 * offset: An optional vector of offsets.
 
-The function first calls **model.frame**.  If **family** is guassian (i.e. a linear model), then the response (i.e. dependent variable) is placed on unit scale (mean 0 and standard deviation 1) regardless of what the **scale** argument to **standardize** is; if the response contains a call to **scale_by**, then it is placed on unit scale within each level of the conditioning factor.  For offsets (again, if **family* is gaussian), the values are divided by the standard deviation of the response variable prior to scaling (within-factor-level if **scale_by** is used on the response).  Then, for all values of **family**, random effects groups (if any) are coerced to unordered factors, and any other predictors which are characters or which contain only two unique non-NA values (regardless of their class) are converted to unordered factors and assigned contrasts with **named_contr_sum**, passing along the **scale** argument.  Ordered factors are assigned contrasts with **scaled_contr_poly**, passing along the **scale** argument.  Continuous predictors which contain a call to **scale_by** are re-calculated passing along the **scale** argument.  Finally, continuous predictors which do not contain a call to **scale_by** are scaled using the **scale** function, ensuring that the resulting variable has standard deviation equal to the **scale** argument to **standardize**.
+The function first calls **model.frame**.  If **family** is gaussian (i.e. a linear model), then the response (i.e. dependent variable) is placed on unit scale (mean 0 and standard deviation 1) regardless of what the **scale** argument to **standardize** is; if the response contains a call to **scale_by**, then it is placed on unit scale within each level of the conditioning factor.  For offsets (again, if **family* is gaussian), the values are divided by the standard deviation of the response variable prior to scaling (within-factor-level if **scale_by** is used on the response).  Then, for all values of **family**, random effects groups (if any) are coerced to unordered factors, and any other predictors which are characters or which contain only two unique non-NA values (regardless of their class) are converted to unordered factors and assigned contrasts with **named_contr_sum**, passing along the **scale** argument.  Ordered factors are assigned contrasts with **scaled_contr_poly**, passing along the **scale** argument.  Continuous predictors which contain a call to **scale_by** are re-calculated passing along the **scale** argument.  Finally, continuous predictors which do not contain a call to **scale_by** are scaled using the **scale** function, ensuring that the resulting variable has standard deviation equal to the **scale** argument to **standardize**.
 
 The column names of the model frame are then renamed so that they are valid variable names, and the formula passed to **standardize** is updated with these variable names.  A list with class **standardized** is then returned with the following elements:
 
@@ -235,7 +235,7 @@ The column names of the model frame are then renamed so that they are valid vari
 * family: The regression family.
 * data: A data frame containing the regression variables in the standardized space (renamed to have valid variable names corresponding to those in the __formula__ element).
 * pred: A list containing unevaluated function calls that allows the predict method to work.
-* offset: If the __offset__ argment to __standardize__ was used, then it is stored in the standardized object's offset element (and will be scaled as described above for linear regression).
+* offset: If the __offset__ argument to __standardize__ was used, then it is stored in the standardized object's offset element (and will be scaled as described above for linear regression).
 * variables: A data frame with the name of the original variable, the corresponding name in the standardized data frame and formula, and the class of the variable in the standardized data frame.
 * contrasts: A named list of contrasts for all factors in the standardized data frame (or NULL if the regression contains no factors).
 * groups: A named list of levels for random effects grouping factors (or NULL if the regression contains no random effects).
