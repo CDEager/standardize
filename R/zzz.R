@@ -3,7 +3,7 @@
 .onAttach <- function(libname, pkgname) {
   packageStartupMessage("\n",
     " *********************************************************** \n",
-    "          Loading standardize package version 0.2.2          \n",
+    "          Loading standardize package version 0.2.2-9999          \n",
     "     Call standardize.news() to see new features/changes     \n",
     " *********************************************************** \n"
   )
