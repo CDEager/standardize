@@ -60,7 +60,7 @@
 #' unit scale.  If \code{scale = 0.5} (for example),
 #' then gaussian responses would still
 #' be placed on unit scale, but unordered factors' named sum contrasts would
-#' take on values {-0.5, 0, 0.5} rather than {-1, 0, 1}, the standard deviation
+#' take on values \{-0.5, 0, 0.5\} rather than \{-1, 0, 1\}, the standard deviation
 #' of each column in the contrast matrices for ordered factors would be
 #' \code{0.5} rather than \code{1}, and the standard deviation of numeric
 #' variables would be \code{0.5} rather than \code{1} (within-factor-level
